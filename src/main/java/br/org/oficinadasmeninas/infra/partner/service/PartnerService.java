@@ -5,7 +5,9 @@ import br.org.oficinadasmeninas.domain.partner.repository.IPartnerRepository;
 import br.org.oficinadasmeninas.domain.partner.service.IPartnerService;
 import br.org.oficinadasmeninas.domain.shared.SearchDTO;
 import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
 
+@Service
 public class PartnerService implements IPartnerService{
     private final IPartnerRepository partnerRepository;
 
