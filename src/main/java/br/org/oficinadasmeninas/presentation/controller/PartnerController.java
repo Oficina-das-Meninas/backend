@@ -1,15 +1,15 @@
 package br.org.oficinadasmeninas.presentation.controller;
 
 import br.org.oficinadasmeninas.domain.partner.Partner;
-import br.org.oficinadasmeninas.domain.shared.SearchDTO;
 import br.org.oficinadasmeninas.infra.partner.service.PartnerService;
-import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import br.org.oficinadasmeninas.presentation.shared.PageDTO;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
+@Validated
 @RestController
 @RequestMapping("/api/partners")
 public class PartnerController {
@@ -20,8 +20,8 @@ public class PartnerController {
     }
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public Page<Partner> findAll(SearchDTO partnerDTO){
-        return partnerService.findAll(partnerDTO);
+    public PageDTO<Partner> findAll(@RequestParam(defaultValue = "0") @PositiveOrZero int page,
+                                    @RequestParam(defaultValue = "10") @Positive @Max(100) int pageSize ){
+        return partnerService.findAll(page, pageSize);
     }
 }

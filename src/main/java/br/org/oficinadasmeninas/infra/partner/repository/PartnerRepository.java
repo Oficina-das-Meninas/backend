@@ -2,12 +2,8 @@ package br.org.oficinadasmeninas.infra.partner.repository;
 
 import br.org.oficinadasmeninas.domain.partner.Partner;
 import br.org.oficinadasmeninas.domain.partner.repository.IPartnerRepository;
-import br.org.oficinadasmeninas.domain.shared.SearchDTO;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
+import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
@@ -23,14 +19,10 @@ public class PartnerRepository implements IPartnerRepository {
     }
 
     @Override
-    public Page<Partner> findAll(SearchDTO partnerDTO) {
-        Pageable pageable = PageRequest.of(
-                Math.max(partnerDTO.getPageOrDefault() - 1, 0),
-                partnerDTO.getPageSizeOrDefault()
-        );
-
+    public PageDTO<Partner> findAll(int page, int pageSize) {
         String rowCountSql = "select count(*) from partners";
-        int total = jdbc.queryForObject(rowCountSql, Integer.class);
+        long total = jdbc.queryForObject(rowCountSql, Integer.class);
+        int totalPages = Math.toIntExact((total / pageSize) + (total % pageSize == 0 ? 0 : 1));
 
         String querySql = """
 	        select id
@@ -44,11 +36,11 @@ public class PartnerRepository implements IPartnerRepository {
         List<Partner> partners = jdbc.query(
                 querySql,
                 this::mapRow,
-                pageable.getPageSize(),
-                pageable.getOffset()
+                pageSize,
+                page
         );
 
-        return new PageImpl<Partner>(partners, pageable, total);
+        return new PageDTO<>(partners, total, totalPages);
     }
 
     private Partner mapRow(ResultSet rs, int rowNum) throws SQLException {
