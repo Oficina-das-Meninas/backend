@@ -1,14 +1,12 @@
-package br.org.oficinadasmeninas.domain.donation;
+package br.org.oficinadasmeninas.domain.donation.dto.checkout;
 
-public enum PaymentMethodEnum {
-    CREDIT_CARD("CREDIT_CARD"),
-    DEBIT_CARD("DEBIT_CARD"),
-    BOLETO("BOLETO"),
-    PIX("PIX");
+public enum CheckoutStatusEnum {
+    ACTIVE("ACTIVE"),
+    EXPIRED("EXPIRED");
 
     private final String name;
 
-    PaymentMethodEnum(String name) {
+    CheckoutStatusEnum(String name) {
         this.name = name;
     }
 

@@ -9,15 +9,17 @@ public class Donation {
     private LocalDateTime donationAt;
     private String idCheckout;
     private PaymentMethodEnum paymentMethod;
+    private UUID userId;
 
     public Donation() {}
 
-    public Donation(UUID id, long value, LocalDateTime donationAt, String idCheckout, PaymentMethodEnum paymentMethod) {
+    public Donation(UUID id, long value, LocalDateTime donationAt, String idCheckout, PaymentMethodEnum paymentMethod, UUID userId) {
         this.id = id;
         this.value = value;
         this.donationAt = donationAt;
         this.idCheckout = idCheckout;
         this.paymentMethod = paymentMethod;
+        this.userId = userId;
     }
 
     public UUID getId() {
@@ -58,5 +60,13 @@ public class Donation {
 
     public void setPaymentMethod(PaymentMethodEnum paymentMethod) {
         this.paymentMethod = paymentMethod;
+    }
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public void setUserId(UUID userId) {
+        this.userId = userId;
     }
 }

@@ -1,7 +1,11 @@
 package br.org.oficinadasmeninas.domain.donation;
 
 public enum PaymentStatusEnum {
-    PAID("PAID"), IN_ANALYSIS("IN_ANALYSIS"), DECLINED("DECLINED"), CANCELED("CANCELED"), WAITING("WAITING");
+    PAID("PAID"),
+    IN_ANALYSIS("IN_ANALYSIS"),
+    DECLINED("DECLINED"),
+    CANCELED("CANCELED"),
+    WAITING("WAITING");
 
     private final String name;
 

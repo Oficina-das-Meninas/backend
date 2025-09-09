@@ -1,8 +1,8 @@
 package br.org.oficinadasmeninas.infra.services;
 
-import br.org.oficinadasmeninas.domain.donation.dto.RequestCheckoutDTO;
-import br.org.oficinadasmeninas.domain.donation.dto.ResponseCreateCheckoutDTO;
-import br.org.oficinadasmeninas.domain.donation.dto.ResponseLinksDTO;
+import br.org.oficinadasmeninas.domain.donation.dto.checkout.RequestCheckoutDTO;
+import br.org.oficinadasmeninas.domain.donation.dto.checkout.ResponseCreateCheckoutDTO;
+import br.org.oficinadasmeninas.domain.donation.dto.checkout.ResponseLinksDTO;
 import br.org.oficinadasmeninas.domain.donation.service.IDonationService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
