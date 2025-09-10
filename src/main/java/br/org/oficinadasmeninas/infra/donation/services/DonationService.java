@@ -1,4 +1,4 @@
-package br.org.oficinadasmeninas.infra.services;
+package br.org.oficinadasmeninas.infra.donation.services;
 
 import br.org.oficinadasmeninas.domain.donation.dto.checkout.RequestCheckoutDTO;
 import br.org.oficinadasmeninas.domain.donation.dto.checkout.ResponseCreateCheckoutDTO;
