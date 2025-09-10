@@ -5,8 +5,8 @@ import java.util.UUID;
 
 public class Document {
     private UUID id;
+    private String title;
     private Date effectiveDate;
     private Category category;
     private String previewLink;
-    private String downloadLink;
 }
