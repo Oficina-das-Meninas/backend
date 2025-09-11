@@ -7,4 +7,5 @@ import java.io.IOException;
 public interface IObjectStorage {
     void upload(MultipartFile file, Boolean isPublic) throws IOException;
     void upload(MultipartFile file, String fileName, Boolean isPublic) throws IOException;
+    String uploadTransparencyFile(MultipartFile file, boolean isImage) throws  IOException;
 }
