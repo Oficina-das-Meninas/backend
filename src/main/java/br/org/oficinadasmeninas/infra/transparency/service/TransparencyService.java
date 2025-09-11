@@ -1,6 +1,7 @@
 package br.org.oficinadasmeninas.infra.transparency.service;
 
 import br.org.oficinadasmeninas.domain.objectStorage.IObjectStorage;
+import br.org.oficinadasmeninas.domain.transparency.dto.CreateCollaboratorDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateDocumentDto;
 import br.org.oficinadasmeninas.domain.transparency.repository.ITransparencyRepository;
 import br.org.oficinadasmeninas.domain.transparency.service.ITransparencyService;
@@ -41,5 +42,34 @@ public class TransparencyService implements ITransparencyService {
         var dto = new CreateDocumentDto(title, category.getId(), effectiveDate, previewLink);
 
         transparencyRepository.insertDocument(dto);
+    }
+
+    @Override
+    public void uploadCollaborator(
+        MultipartFile file,
+        String name,
+        String role,
+        String description,
+        String priority,
+        String categoryId
+    ) throws IOException {
+
+        var category = transparencyRepository
+                .findCategoryById(UUID.fromString(categoryId))
+                .orElseThrow();
+
+        var imageLink = objectStorage.uploadTransparencyFile(file, true);
+
+        Integer priorityInt;
+        try {
+            priorityInt = Integer.parseInt(priority);
+        } catch (NumberFormatException e) {
+            priorityInt = 0;
+        }
+
+        var dto = new CreateCollaboratorDto(imageLink, category.getId(), name, role, description, priorityInt);
+
+        transparencyRepository.insertCollaborator(dto);
+
     }
 }
