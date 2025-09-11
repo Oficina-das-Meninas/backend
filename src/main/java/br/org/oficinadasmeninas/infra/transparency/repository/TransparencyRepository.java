@@ -68,7 +68,7 @@ public class TransparencyRepository implements ITransparencyRepository {
             id,
             category.getName(),
             category.getImage(),
-            category.getPriority()
+            category.getPriority() != null ? category.getPriority() : 0
         );
 
         return category;
@@ -95,7 +95,7 @@ public class TransparencyRepository implements ITransparencyRepository {
         jdbc.update(
             TransparencyQueryBuilder.UPDATE_CATEGORY,
             category.getName(),
-            category.getPriority(),
+            category.getPriority() != null ? category.getPriority() : 0,
             category.getId()
         );
         return category;

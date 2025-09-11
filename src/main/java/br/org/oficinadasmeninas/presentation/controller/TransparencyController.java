@@ -4,6 +4,7 @@ import br.org.oficinadasmeninas.domain.transparency.dto.CreateCategoryDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.ResponseCategoryDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.UpdateCategoryDto;
 import br.org.oficinadasmeninas.domain.transparency.service.ITransparencyService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -68,7 +69,7 @@ public class TransparencyController {
     }
 
     @PostMapping("/categories")
-    public ResponseEntity<ResponseCategoryDto> insertCategory(@RequestBody CreateCategoryDto request) {
+    public ResponseEntity<ResponseCategoryDto> insertCategory(@Valid @RequestBody CreateCategoryDto request) {
         ResponseCategoryDto response = transparencyService.insertCategory(request);
 
         return ResponseEntity.created(ServletUriComponentsBuilder.fromCurrentRequest()
@@ -93,7 +94,7 @@ public class TransparencyController {
     }
 
     @PatchMapping("/categories/{id}")
-    public ResponseEntity<ResponseCategoryDto> updateCategory(@PathVariable UUID id, @RequestBody UpdateCategoryDto request) {
+    public ResponseEntity<ResponseCategoryDto> updateCategory(@PathVariable UUID id, @Valid @RequestBody UpdateCategoryDto request) {
         ResponseCategoryDto dto = transparencyService.updateCategory(id, request);
 
         return ResponseEntity.ok(dto);
