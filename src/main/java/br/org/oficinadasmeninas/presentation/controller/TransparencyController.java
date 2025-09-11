@@ -1,19 +1,18 @@
 package br.org.oficinadasmeninas.presentation.controller;
 
 import br.org.oficinadasmeninas.domain.transparency.service.ITransparencyService;
+import br.org.oficinadasmeninas.infra.transparency.exception.CollaboratorNotFoundException;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.UUID;
 
 @Validated
 @RestController
@@ -54,5 +53,19 @@ public class TransparencyController {
         transparencyService.uploadCollaborator(image, name, role, description, priority, categoryId);
 
         return ResponseEntity.ok("Colaborador enviado com sucesso!");
+    }
+
+    @DeleteMapping("/collaborators/{collaboratorId}")
+    public ResponseEntity<String> uploadCollaborator(
+            @PathVariable("collaboratorId") @NotBlank String collaboratorId
+    ) throws IOException {
+
+        try{
+            transparencyService.deleteCollaborator(UUID.fromString(collaboratorId));
+        }catch (CollaboratorNotFoundException c){
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok("Colaborador deletado com sucesso!");
     }
 }

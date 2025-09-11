@@ -21,4 +21,21 @@ public class TransparencyQueryBuilder {
         FROM categories
         WHERE id = ?
     """;
+
+    public static final String DELETE_COLLABORATOR = """
+        DELETE FROM collaborators
+        WHERE id = ?;
+    """;
+
+    public static final String GET_COLLABORATOR_BY_ID = """
+             SELECT id, 
+                    preview_image_url, 
+                    category_id, 
+                    name, 
+                    role, 
+                    description, 
+                    priority 
+             FROM collaborators 
+             WHERE id = ?
+            """;
 }

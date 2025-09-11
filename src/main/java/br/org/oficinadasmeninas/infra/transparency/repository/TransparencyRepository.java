@@ -1,6 +1,7 @@
 package br.org.oficinadasmeninas.infra.transparency.repository;
 
 import br.org.oficinadasmeninas.domain.transparency.Category;
+import br.org.oficinadasmeninas.domain.transparency.Collaborator;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateCollaboratorDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateDocumentDto;
 import br.org.oficinadasmeninas.domain.transparency.repository.ITransparencyRepository;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -67,6 +69,22 @@ public class TransparencyRepository implements ITransparencyRepository {
         }
     }
 
+    @Override
+    public void deleteCollaborator(UUID id) {
+        jdbc.update(TransparencyQueryBuilder.DELETE_COLLABORATOR, id);
+    }
+
+    @Override
+    public Optional<Collaborator> findCollaboratorById(UUID id) {
+        try {
+            var collaborator = jdbc.queryForObject(TransparencyQueryBuilder.GET_COLLABORATOR_BY_ID, this::mapRowCollaborator, id);
+            return Optional.ofNullable(collaborator);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+
     private Category mapRowCategory(ResultSet rs, int rowNum) throws SQLException {
         Category category = new Category();
         category.setId(rs.getObject("id", UUID.class));
@@ -74,5 +92,23 @@ public class TransparencyRepository implements ITransparencyRepository {
         category.setImage(rs.getBoolean("is_image"));
         category.setPriority(rs.getInt("priority"));
         return category;
+    }
+
+    private Collaborator mapRowCollaborator(ResultSet rs, int rowNum) throws SQLException {
+        Collaborator collaborator = new Collaborator();
+        collaborator.setId(rs.getObject("id", UUID.class));
+        collaborator.setImage(rs.getString("preview_image_url"));
+        collaborator.setName(rs.getString("name"));
+        collaborator.setRole(rs.getString("role"));
+        collaborator.setDescription(rs.getString("description"));
+        collaborator.setPriority(rs.getInt("priority"));
+
+        UUID categoryId = rs.getObject("category_id", UUID.class);
+
+        Category category = findCategoryById(categoryId)
+                .orElse(null);
+        collaborator.setCategory(category);
+
+        return collaborator;
     }
 }
