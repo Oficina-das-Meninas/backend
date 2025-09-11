@@ -38,4 +38,19 @@ public class TransparencyQueryBuilder {
              FROM collaborators 
              WHERE id = ?
             """;
+
+    public static final String DELETE_DOCUMENT = """
+        DELETE FROM documents
+        WHERE id = ?;
+    """;
+
+    public static final String GET_DOCUMENT_BY_ID = """
+             SELECT id, 
+                    title, 
+                    effective_date, 
+                    category_id, 
+                    preview_link 
+             FROM documents 
+             WHERE id = ?
+        """;
 }

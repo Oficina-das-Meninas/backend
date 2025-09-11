@@ -1,11 +1,13 @@
 package br.org.oficinadasmeninas.infra.transparency.service;
 
 import br.org.oficinadasmeninas.domain.objectStorage.IObjectStorage;
+import br.org.oficinadasmeninas.domain.transparency.Document;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateCollaboratorDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateDocumentDto;
 import br.org.oficinadasmeninas.domain.transparency.repository.ITransparencyRepository;
 import br.org.oficinadasmeninas.domain.transparency.service.ITransparencyService;
 import br.org.oficinadasmeninas.infra.transparency.exception.CollaboratorNotFoundException;
+import br.org.oficinadasmeninas.infra.transparency.exception.DocumentNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -82,5 +84,15 @@ public class TransparencyService implements ITransparencyService {
 
         transparencyRepository.deleteCollaborator(collaborator.getId());
         objectStorage.deleteTransparencyFile(collaborator.getImage());
+    }
+
+    @Override
+    public void deleteDocument(UUID id) throws IOException {
+        var document = transparencyRepository
+                .findDocumentById(id)
+                .orElseThrow(() -> new DocumentNotFoundException(id));
+
+        transparencyRepository.deleteDocument(document.getId());
+        objectStorage.deleteTransparencyFile(document.getPreviewLink());
     }
 }

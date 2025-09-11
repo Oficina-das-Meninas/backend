@@ -2,6 +2,7 @@ package br.org.oficinadasmeninas.infra.transparency.repository;
 
 import br.org.oficinadasmeninas.domain.transparency.Category;
 import br.org.oficinadasmeninas.domain.transparency.Collaborator;
+import br.org.oficinadasmeninas.domain.transparency.Document;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateCollaboratorDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateDocumentDto;
 import br.org.oficinadasmeninas.domain.transparency.repository.ITransparencyRepository;
@@ -75,10 +76,26 @@ public class TransparencyRepository implements ITransparencyRepository {
     }
 
     @Override
+    public void deleteDocument(UUID id) {
+        jdbc.update(TransparencyQueryBuilder.DELETE_DOCUMENT, id);
+    }
+
+
+    @Override
     public Optional<Collaborator> findCollaboratorById(UUID id) {
         try {
             var collaborator = jdbc.queryForObject(TransparencyQueryBuilder.GET_COLLABORATOR_BY_ID, this::mapRowCollaborator, id);
             return Optional.ofNullable(collaborator);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<Document> findDocumentById(UUID id) {
+        try {
+            var document = jdbc.queryForObject(TransparencyQueryBuilder.GET_DOCUMENT_BY_ID, this::mapRowDocument, id);
+            return Optional.ofNullable(document);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
@@ -110,5 +127,20 @@ public class TransparencyRepository implements ITransparencyRepository {
         collaborator.setCategory(category);
 
         return collaborator;
+    }
+
+    private Document mapRowDocument(ResultSet rs, int rowNum) throws SQLException {
+        Document document = new Document();
+        document.setId(rs.getObject("id", UUID.class));
+        document.setTitle(rs.getString("title"));
+        document.setEffectiveDate(rs.getDate("effective_date"));
+        document.setPreviewLink(rs.getString("preview_link"));
+
+        UUID categoryId = rs.getObject("category_id", UUID.class);
+        Category category = findCategoryById(categoryId)
+                .orElse(null);
+        document.setCategory(category);
+
+        return document;
     }
 }
