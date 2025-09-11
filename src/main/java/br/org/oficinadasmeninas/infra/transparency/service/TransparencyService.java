@@ -2,6 +2,7 @@ package br.org.oficinadasmeninas.infra.transparency.service;
 
 import br.org.oficinadasmeninas.domain.objectStorage.IObjectStorage;
 import br.org.oficinadasmeninas.domain.transparency.Category;
+import br.org.oficinadasmeninas.domain.transparency.dto.CreateCollaboratorDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateDocumentDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateCategoryDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.ResponseCategoryDto;
@@ -29,6 +30,54 @@ public class TransparencyService implements ITransparencyService {
     public TransparencyService(IObjectStorage objectStorage, ITransparencyRepository transparencyRepository) {
         this.objectStorage = objectStorage;
         this.transparencyRepository = transparencyRepository;
+    }
+
+    @Override
+    public void uploadDocument(
+        MultipartFile file,
+        String title,
+        Date effectiveDate,
+        String categoryId
+    ) throws IOException {
+
+        var category = transparencyRepository
+                .findCategoryById(UUID.fromString(categoryId))
+                .orElseThrow();
+
+        var previewLink = objectStorage.uploadTransparencyFile(file, false);
+
+        var dto = new CreateDocumentDto(title, category.getId(), effectiveDate, previewLink);
+
+        transparencyRepository.insertDocument(dto);
+    }
+
+    @Override
+    public void uploadCollaborator(
+        MultipartFile file,
+        String name,
+        String role,
+        String description,
+        String priority,
+        String categoryId
+    ) throws IOException {
+
+        var category = transparencyRepository
+                .findCategoryById(UUID.fromString(categoryId))
+                .orElseThrow();
+
+        var imageLink = objectStorage.uploadTransparencyFile(file, true);
+
+        Integer priorityInt;
+        try {
+            priorityInt = Integer.parseInt(priority);
+        } catch (NumberFormatException e) {
+            priorityInt = 0;
+        }
+
+        var dto = new CreateCollaboratorDto(imageLink, category.getId(), name, role, description, priorityInt);
+
+        transparencyRepository.insertCollaborator(dto);
+
     }
 
     @Override
@@ -79,25 +128,6 @@ public class TransparencyService implements ITransparencyService {
             .toList();
     }
 
-    @Override
-    public void uploadDocument(
-        MultipartFile file,
-        String title,
-        Date effectiveDate,
-        String categoryId
-    ) throws IOException {
-
-        var category = transparencyRepository
-                .findCategoryById(UUID.fromString(categoryId))
-                .orElseThrow();
-
-        var previewLink = objectStorage.uploadTransparencyFile(file, false);
-
-        var dto = new CreateDocumentDto(title, category.getId(), effectiveDate, previewLink);
-
-        transparencyRepository.insertDocument(dto);
-    }
-
     private void checkCategoryExists(UUID id) {
     if (!transparencyRepository.existsCategoryById(id)) {
         throw new EntityNotFoundException("Categoria não encontrada: " + id);
@@ -119,4 +149,5 @@ public class TransparencyService implements ITransparencyService {
         if (collabs > 0) msg.append(docs > 0 ? " e " : " ").append(collabs).append(" colaborador(es)");
         return msg.toString();
     }
+
 }

@@ -13,6 +13,12 @@ public class TransparencyQueryBuilder {
         ) VALUES (?, ?, ?, ?)
     """;
 
+    public static final String INSERT_COLLABORATOR = """
+        INSERT INTO collaborators 
+            (id, preview_image_url, category_id, name, role, description, priority)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        """;
+
     public static final String GET_CATEGORY_BY_ID = """
         SELECT id,
                name,

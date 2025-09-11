@@ -55,14 +55,14 @@ public class MinIoImplementation implements IObjectStorage {
 
     @Override
     public String uploadTransparencyFile(MultipartFile file, boolean isImage) throws IOException {
-        var originalName = file.getOriginalFilename();
+        var title = file.getOriginalFilename();
 
-        if (originalName != null) {
-            originalName = sanitizeFileName(originalName);
+        if (title != null) {
+            title = generateTitle(sanitizeFileName(title));
         }
 
         try {
-            var objectKey = (isImage ? IMAGE_PATH : DOCUMENT_PATH ) + originalName;
+            var objectKey = (isImage ? IMAGE_PATH : DOCUMENT_PATH ) + title;
 
             if (isSmallFile(file)) {
                 simpleUpload(file, objectKey, true);
@@ -136,5 +136,18 @@ public class MinIoImplementation implements IObjectStorage {
                         .multipartUpload(multipartUpload)
                         .build()
         );
+    }
+
+    public static String generateTitle(String filename) {
+
+        int dotIndex = filename.lastIndexOf(".");
+        if (dotIndex == -1) {
+            return filename + "_" + System.currentTimeMillis();
+        }
+
+        String name = filename.substring(0, dotIndex);
+        String extension = filename.substring(dotIndex);
+
+        return name + "_" + System.currentTimeMillis() + extension;
     }
 }

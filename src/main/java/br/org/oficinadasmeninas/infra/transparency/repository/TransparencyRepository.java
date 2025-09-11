@@ -1,6 +1,7 @@
 package br.org.oficinadasmeninas.infra.transparency.repository;
 
 import br.org.oficinadasmeninas.domain.transparency.Category;
+import br.org.oficinadasmeninas.domain.transparency.dto.CreateCollaboratorDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateDocumentDto;
 import br.org.oficinadasmeninas.domain.transparency.repository.ITransparencyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,23 @@ public class TransparencyRepository implements ITransparencyRepository {
                 request.categoryId(),
                 new java.sql.Date(request.effectiveDate().getTime()),
                 request.previewLink()
+        );
+
+        return id;
+    }
+
+    @Override
+    public UUID insertCollaborator(CreateCollaboratorDto request) {
+        var id = UUID.randomUUID();
+
+        jdbc.update(TransparencyQueryBuilder.INSERT_COLLABORATOR,
+                id,
+                request.image(),
+                request.categoryId(),
+                request.name(),
+                request.role(),
+                request.description(),
+                request.priority() != null ? request.priority() : 0
         );
 
         return id;
