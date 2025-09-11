@@ -39,6 +39,21 @@ public class TransparencyController {
         return ResponseEntity.ok("Arquivo enviado com sucesso!");
     }
 
+    @PostMapping("/collaborators")
+    public ResponseEntity<String> uploadCollaborator(
+            @RequestParam("image") MultipartFile image,
+            @RequestParam("name") @NotBlank String name,
+            @RequestParam("role") String role,
+            @RequestParam("description") String description,
+            @RequestParam("priority") @NotBlank String priority,
+            @RequestParam("categoryId") @NotBlank String categoryId
+    ) throws IOException {
+
+        transparencyService.uploadCollaborator(image, name, role, description, priority, categoryId);
+
+        return ResponseEntity.ok("Colaborador enviado com sucesso!");
+    }
+
     @GetMapping
     public ResponseEntity<GetCategoriesResponseDto> getAll() {
         var response = transparencyService
