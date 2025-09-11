@@ -1,15 +1,13 @@
 package br.org.oficinadasmeninas.presentation.controller;
 
+import br.org.oficinadasmeninas.domain.transparency.dto.getCategories.GetCategoriesResponseDto;
 import br.org.oficinadasmeninas.domain.transparency.service.ITransparencyService;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -39,5 +37,13 @@ public class TransparencyController {
         transparencyService.uploadDocument(file, title, effectiveDate, categoryId);
 
         return ResponseEntity.ok("Arquivo enviado com sucesso!");
+    }
+
+    @GetMapping
+    public ResponseEntity<GetCategoriesResponseDto> getAll() {
+        var response = transparencyService
+                .getAllCategoriesWithDocuments();
+
+        return ResponseEntity.ok(response);
     }
 }
