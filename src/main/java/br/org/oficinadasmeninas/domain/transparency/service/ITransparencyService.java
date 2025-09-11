@@ -14,8 +14,8 @@ public interface ITransparencyService {
 
     void uploadDocument(MultipartFile file, String title, Date effectiveDate, String categoryId) throws IOException;
     ResponseCategoryDto insertCategory(CreateCategoryDto request);
+    ResponseCategoryDto findCategoryById(UUID id);
+    List<ResponseCategoryDto> findAllCategories();
     ResponseCategoryDto updateCategory(UUID id, UpdateCategoryDto request);
     void deleteCategory(UUID id);
-    ResponseCategoryDto findCategoryById(UUID id);
-    List<ResponseCategoryDto> findCategoryAll();
 }

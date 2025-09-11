@@ -13,10 +13,11 @@ public interface ITransparencyRepository {
 
     Category insertCategory(Category category);
     Optional<Category> findCategoryById(UUID id);
-    List<Category> findCategoryAll();
+    List<Category> findAllCategories();
     Category updateCategory(Category category);
     void deleteCategory(UUID id);
-    boolean existsById(UUID id);
+
+    boolean existsCategoryById(UUID id);
     int countDocumentsByCategoryId(UUID id);
     int countCollaboratorsByCategoryId(UUID id);
 }
