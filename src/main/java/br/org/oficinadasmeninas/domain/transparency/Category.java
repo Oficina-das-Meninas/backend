@@ -8,8 +8,10 @@ public class Category {
     private Boolean isImage;
     private Integer priority;
 
-    public Category(UUID id, String name, Boolean isImage, Integer priority) {
-        this.id = id;
+    public Category() {
+    }
+
+    public Category(String name, Boolean isImage, Integer priority) {
         this.name = name;
         this.isImage = isImage;
         this.priority = priority;
@@ -19,15 +21,31 @@ public class Category {
         return id;
     }
 
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
     }
 
-    public Boolean getIsImage() {
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Boolean getImage() {
         return isImage;
+    }
+
+    public void setImage(Boolean image) {
+        isImage = image;
     }
 
     public Integer getPriority() {
         return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
     }
 }
