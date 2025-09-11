@@ -9,10 +9,13 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.IOException;
-import java.util.UUID;
 
 @Service
 public class MinIoImplementation implements IObjectStorage {
+
+    private static final String DOCUMENT_PATH = "transparency/documents/";
+    private static final String IMAGE_PATH = "transparency/images/";
+
     private final S3Client s3Client;
     private final String bucketName;
 
@@ -45,6 +48,30 @@ public class MinIoImplementation implements IObjectStorage {
             } else {
                 multipartUpload(file, fileName, isPublic);
             }
+        } catch (IOException e) {
+            throw new RuntimeException("NAO FOI POSSIVEL ARMAZENAR ARQUIVO", e);
+        }
+    }
+
+    @Override
+    public String uploadTransparencyFile(MultipartFile file, boolean isImage) throws IOException {
+        var originalName = file.getOriginalFilename();
+
+        if (originalName != null) {
+            originalName = sanitizeFileName(originalName);
+        }
+
+        try {
+            var objectKey = (isImage ? IMAGE_PATH : DOCUMENT_PATH ) + originalName;
+
+            if (isSmallFile(file)) {
+                simpleUpload(file, objectKey, true);
+            } else {
+                multipartUpload(file, objectKey, true);
+            }
+
+            return String.format("http://%s/%s", bucketName, objectKey);
+
         } catch (IOException e) {
             throw new RuntimeException("NAO FOI POSSIVEL ARMAZENAR ARQUIVO", e);
         }
