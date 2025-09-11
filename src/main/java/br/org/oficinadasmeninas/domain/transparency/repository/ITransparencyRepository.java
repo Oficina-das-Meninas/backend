@@ -1,6 +1,8 @@
 package br.org.oficinadasmeninas.domain.transparency.repository;
 
 import br.org.oficinadasmeninas.domain.transparency.Category;
+import br.org.oficinadasmeninas.domain.transparency.Collaborator;
+import br.org.oficinadasmeninas.domain.transparency.Document;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateCollaboratorDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateDocumentDto;
 
@@ -15,11 +17,15 @@ public interface ITransparencyRepository {
     Category insertCategory(Category category);
 
     Optional<Category> findCategoryById(UUID id);
-    List<Category> findAllCategories();
+
     Category updateCategory(Category category);
     void deleteCategory(UUID id);
 
     boolean existsCategoryById(UUID id);
     int countDocumentsByCategoryId(UUID id);
     int countCollaboratorsByCategoryId(UUID id);
+
+    List<Category> findAllCategories();
+    List<Document> findAllDocuments();
+    List<Collaborator> findAllCollaborators();
 }

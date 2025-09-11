@@ -3,6 +3,7 @@ package br.org.oficinadasmeninas.domain.transparency.service;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateCategoryDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.ResponseCategoryDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.UpdateCategoryDto;
+import br.org.oficinadasmeninas.domain.transparency.dto.getCategories.GetCategoriesResponseDto;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -14,9 +15,13 @@ public interface ITransparencyService {
 
     void uploadDocument(MultipartFile file, String title, Date effectiveDate, String categoryId) throws IOException;
     void uploadCollaborator(MultipartFile file, String name, String role, String description, String priority, String categoryId) throws IOException;
+
     ResponseCategoryDto insertCategory(CreateCategoryDto request);
-    ResponseCategoryDto findCategoryById(UUID id);
-    List<ResponseCategoryDto> findAllCategories();
+
+    ResponseCategoryDto getCategoryById(UUID id);
+    List<ResponseCategoryDto> getAllCategories();
+    GetCategoriesResponseDto getAllCategoriesWithDocuments();
+
     ResponseCategoryDto updateCategory(UUID id, UpdateCategoryDto request);
     void deleteCategory(UUID id);
 }

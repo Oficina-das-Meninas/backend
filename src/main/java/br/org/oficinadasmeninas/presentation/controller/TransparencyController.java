@@ -3,6 +3,7 @@ package br.org.oficinadasmeninas.presentation.controller;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateCategoryDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.ResponseCategoryDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.UpdateCategoryDto;
+import br.org.oficinadasmeninas.domain.transparency.dto.getCategories.GetCategoriesResponseDto;
 import br.org.oficinadasmeninas.domain.transparency.service.ITransparencyService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -81,16 +83,24 @@ public class TransparencyController {
 
     @GetMapping("/categories/{id}")
     public ResponseEntity<ResponseCategoryDto> getCategoryById(@PathVariable UUID id) {
-        ResponseCategoryDto dto = transparencyService.findCategoryById(id);
+        ResponseCategoryDto dto = transparencyService.getCategoryById(id);
 
         return ResponseEntity.ok(dto);
     }
 
     @GetMapping("/categories")
     public ResponseEntity<List<ResponseCategoryDto>> getAllCategories() {
-        List<ResponseCategoryDto> dtos = transparencyService.findAllCategories();
+        List<ResponseCategoryDto> dtos = transparencyService.getAllCategories();
 
         return ResponseEntity.ok(dtos);
+    }
+
+    @GetMapping
+    public ResponseEntity<GetCategoriesResponseDto> getAll() {
+        var response = transparencyService
+                .getAllCategoriesWithDocuments();
+
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/categories/{id}")
@@ -106,5 +116,4 @@ public class TransparencyController {
 
         return ResponseEntity.noContent().build();
     }
-
 }
