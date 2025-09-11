@@ -1,10 +1,9 @@
 package br.org.oficinadasmeninas.domain.transparency.mapper;
 
 import br.org.oficinadasmeninas.domain.transparency.Category;
-import br.org.oficinadasmeninas.domain.transparency.dto.RequestCategoryDto;
+import br.org.oficinadasmeninas.domain.transparency.dto.CreateCategoryDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.ResponseCategoryDto;
-
-import java.util.UUID;
+import br.org.oficinadasmeninas.domain.transparency.dto.UpdateCategoryDto;
 
 public class CategoryMapper {
 
@@ -12,17 +11,17 @@ public class CategoryMapper {
         return new ResponseCategoryDto(
             category.getId(),
             category.getName(),
-            category.getIsImage(),
+            category.getImage(),
             category.getPriority()
         );
     }
 
-    public static Category toEntity(RequestCategoryDto dto) {
+    public static Category toEntity(CreateCategoryDto dto) {
         return new Category(
-            UUID.randomUUID(),
             dto.name(),
             dto.isImage(),
             dto.priority()
         );
     }
+
 }
