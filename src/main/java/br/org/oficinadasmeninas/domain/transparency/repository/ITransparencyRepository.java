@@ -17,6 +17,11 @@ public interface ITransparencyRepository {
     Category insertCategory(Category category);
 
     Optional<Category> findCategoryById(UUID id);
+    Optional<Collaborator> findCollaboratorById(UUID id);
+    Optional<Document> findDocumentById(UUID id);
+
+    void deleteCollaborator(UUID id);
+    void deleteDocument(UUID id);
 
     Category updateCategory(Category category);
     void deleteCategory(UUID id);
@@ -28,4 +33,5 @@ public interface ITransparencyRepository {
     List<Category> findAllCategories();
     List<Document> findAllDocuments();
     List<Collaborator> findAllCollaborators();
+
 }

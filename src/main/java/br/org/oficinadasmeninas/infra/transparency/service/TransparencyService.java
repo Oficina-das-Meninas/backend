@@ -1,6 +1,7 @@
 package br.org.oficinadasmeninas.infra.transparency.service;
 
 import br.org.oficinadasmeninas.domain.objectStorage.IObjectStorage;
+import br.org.oficinadasmeninas.domain.transparency.Document;
 import br.org.oficinadasmeninas.domain.transparency.Category;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateCollaboratorDto;
 import br.org.oficinadasmeninas.domain.transparency.Collaborator;
@@ -17,6 +18,8 @@ import br.org.oficinadasmeninas.domain.transparency.dto.getCategories.DocumentRe
 import br.org.oficinadasmeninas.domain.transparency.dto.getCategories.GetCategoriesResponseDto;
 import br.org.oficinadasmeninas.domain.transparency.repository.ITransparencyRepository;
 import br.org.oficinadasmeninas.domain.transparency.service.ITransparencyService;
+import br.org.oficinadasmeninas.infra.transparency.exception.CollaboratorNotFoundException;
+import br.org.oficinadasmeninas.infra.transparency.exception.DocumentNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -100,6 +103,26 @@ public class TransparencyService implements ITransparencyService {
 
     }
 
+    @Override
+    public void deleteCollaborator(UUID id) throws IOException {
+        var collaborator = transparencyRepository
+                .findCollaboratorById(id)
+                .orElseThrow(() -> new CollaboratorNotFoundException(id));
+
+        transparencyRepository.deleteCollaborator(collaborator.getId());
+        objectStorage.deleteTransparencyFile(collaborator.getImage());
+    }
+
+    @Override
+    public void deleteDocument(UUID id) throws IOException {
+        var document = transparencyRepository
+                .findDocumentById(id)
+                .orElseThrow(() -> new DocumentNotFoundException(id));
+
+        transparencyRepository.deleteDocument(document.getId());
+        objectStorage.deleteTransparencyFile(document.getPreviewLink());
+    }
+  
     private List<CollaboratorResponseDto> MapCollaboratorsToDto(List<Collaborator> collaborators) {
         return collaborators.stream()
                 .map(c -> new CollaboratorResponseDto(
@@ -212,5 +235,4 @@ public class TransparencyService implements ITransparencyService {
         if (collabs > 0) msg.append(docs > 0 ? " e " : " ").append(collabs).append(" colaborador(es)");
         return msg.toString();
     }
-
 }

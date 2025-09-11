@@ -98,6 +98,36 @@ public class TransparencyRepository implements ITransparencyRepository {
     }
 
     @Override
+    public void deleteCollaborator(UUID id) {
+        jdbc.update(TransparencyQueryBuilder.DELETE_COLLABORATOR, id);
+    }
+
+    @Override
+    public void deleteDocument(UUID id) {
+        jdbc.update(TransparencyQueryBuilder.DELETE_DOCUMENT, id);
+    }
+
+
+    @Override
+    public Optional<Collaborator> findCollaboratorById(UUID id) {
+        try {
+            var collaborator = jdbc.queryForObject(TransparencyQueryBuilder.GET_COLLABORATOR_BY_ID, this::mapRowCollaborator, id);
+            return Optional.ofNullable(collaborator);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<Document> findDocumentById(UUID id) {
+        try {
+            var document = jdbc.queryForObject(TransparencyQueryBuilder.GET_DOCUMENT_BY_ID, this::mapRowDocument, id);
+            return Optional.ofNullable(document);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
     public List<Category> findAllCategories() {
         return jdbc.query(TransparencyQueryBuilder.GET_CATEGORIES_ALL, this::mapRowCategory);
     }
@@ -146,22 +176,8 @@ public class TransparencyRepository implements ITransparencyRepository {
         return category;
     }
 
-    private Document mapRowDocument(ResultSet rs, int rowNum) throws SQLException {
-        var document = new Document();
-        document.setId(rs.getObject("id", UUID.class));
-        document.setTitle(rs.getString("title"));
-        document.setEffectiveDate(rs.getDate("effective_date"));
-        document.setPreviewLink(rs.getString("preview_link"));
-
-        var category = new Category();
-        category.setId(rs.getObject("category_id", UUID.class));
-        document.setCategory(category);
-
-        return document;
-    }
-
     private Collaborator mapRowCollaborator(ResultSet rs, int rowNum) throws SQLException {
-        var collaborator = new Collaborator();
+        Collaborator collaborator = new Collaborator();
         collaborator.setId(rs.getObject("id", UUID.class));
         collaborator.setImage(rs.getString("preview_image_url"));
         collaborator.setName(rs.getString("name"));
@@ -169,10 +185,27 @@ public class TransparencyRepository implements ITransparencyRepository {
         collaborator.setDescription(rs.getString("description"));
         collaborator.setPriority(rs.getInt("priority"));
 
-        var category = new Category();
-        category.setId(rs.getObject("category_id", UUID.class));
+        UUID categoryId = rs.getObject("category_id", UUID.class);
+
+        Category category = findCategoryById(categoryId)
+                .orElse(null);
         collaborator.setCategory(category);
 
         return collaborator;
+    }
+
+    private Document mapRowDocument(ResultSet rs, int rowNum) throws SQLException {
+        Document document = new Document();
+        document.setId(rs.getObject("id", UUID.class));
+        document.setTitle(rs.getString("title"));
+        document.setEffectiveDate(rs.getDate("effective_date"));
+        document.setPreviewLink(rs.getString("preview_link"));
+
+        UUID categoryId = rs.getObject("category_id", UUID.class);
+        Category category = findCategoryById(categoryId)
+                .orElse(null);
+        document.setCategory(category);
+
+        return document;
     }
 }

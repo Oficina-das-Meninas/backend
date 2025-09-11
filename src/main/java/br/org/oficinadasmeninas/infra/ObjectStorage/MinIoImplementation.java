@@ -70,10 +70,23 @@ public class MinIoImplementation implements IObjectStorage {
                 multipartUpload(file, objectKey, true);
             }
 
-            return String.format("http://%s/%s", bucketName, objectKey);
+            return "/pub/" + objectKey;
 
         } catch (IOException e) {
             throw new RuntimeException("NAO FOI POSSIVEL ARMAZENAR ARQUIVO", e);
+        }
+    }
+
+    @Override
+    public void deleteTransparencyFile(String fileUrl) {
+        try {
+            s3Client.deleteObject(DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(fileUrl)
+                    .build());
+
+        } catch (S3Exception e) {
+            throw new RuntimeException("NÃO FOI POSSÍVEL REMOVER ARQUIVO: " + fileUrl, e);
         }
     }
 

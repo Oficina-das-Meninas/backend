@@ -1,5 +1,8 @@
 package br.org.oficinadasmeninas.presentation.controller;
 
+import br.org.oficinadasmeninas.domain.transparency.Document;
+import br.org.oficinadasmeninas.infra.transparency.exception.CollaboratorNotFoundException;
+import br.org.oficinadasmeninas.infra.transparency.exception.DocumentNotFoundException;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateCategoryDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.ResponseCategoryDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.UpdateCategoryDto;
@@ -67,6 +70,34 @@ public class TransparencyController {
         transparencyService.uploadCollaborator(image, name, role, description, priority, categoryId);
 
         return ResponseEntity.ok("Colaborador enviado com sucesso!");
+    }
+
+    @DeleteMapping("/documents/{documentId}")
+    public ResponseEntity<String> deleteDocument(
+            @PathVariable("documentId") @NotBlank String documentId
+    ) throws IOException {
+
+        try{
+            transparencyService.deleteDocument(UUID.fromString(documentId));
+        }catch (DocumentNotFoundException d){
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok("Documento deletado com sucesso!");
+    }
+
+    @DeleteMapping("/collaborators/{collaboratorId}")
+    public ResponseEntity<String> deleteCollaborator(
+            @PathVariable("collaboratorId") @NotBlank String collaboratorId
+    ) throws IOException {
+
+        try {
+            transparencyService.deleteCollaborator(UUID.fromString(collaboratorId));
+        } catch (CollaboratorNotFoundException c) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok("Colaborador deletado com sucesso!");
     }
 
     @PostMapping("/categories")
