@@ -91,13 +91,14 @@ public class TransparencyController {
             @PathVariable("collaboratorId") @NotBlank String collaboratorId
     ) throws IOException {
 
-        try{
+        try {
             transparencyService.deleteCollaborator(UUID.fromString(collaboratorId));
-        }catch (CollaboratorNotFoundException c){
+        } catch (CollaboratorNotFoundException c) {
             return ResponseEntity.notFound().build();
         }
 
         return ResponseEntity.ok("Colaborador deletado com sucesso!");
+    }
 
     @PostMapping("/categories")
     public ResponseEntity<ResponseCategoryDto> insertCategory(@Valid @RequestBody CreateCategoryDto request) {
