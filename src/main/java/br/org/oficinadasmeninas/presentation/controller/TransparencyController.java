@@ -1,17 +1,32 @@
 package br.org.oficinadasmeninas.presentation.controller;
 
+import br.org.oficinadasmeninas.domain.transparency.dto.CreateCategoryDto;
+import br.org.oficinadasmeninas.domain.transparency.dto.ResponseCategoryDto;
+import br.org.oficinadasmeninas.domain.transparency.dto.UpdateCategoryDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.getCategories.GetCategoriesResponseDto;
 import br.org.oficinadasmeninas.domain.transparency.service.ITransparencyService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 @Validated
 @RestController
@@ -54,11 +69,50 @@ public class TransparencyController {
         return ResponseEntity.ok("Colaborador enviado com sucesso!");
     }
 
+    @PostMapping("/categories")
+    public ResponseEntity<ResponseCategoryDto> insertCategory(@Valid @RequestBody CreateCategoryDto request) {
+        ResponseCategoryDto response = transparencyService.insertCategory(request);
+
+        return ResponseEntity.created(ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(response.id())
+                .toUri())
+                .body(response);
+    }
+
+    @GetMapping("/categories/{id}")
+    public ResponseEntity<ResponseCategoryDto> getCategoryById(@PathVariable UUID id) {
+        ResponseCategoryDto dto = transparencyService.getCategoryById(id);
+
+        return ResponseEntity.ok(dto);
+    }
+
+    @GetMapping("/categories")
+    public ResponseEntity<List<ResponseCategoryDto>> getAllCategories() {
+        List<ResponseCategoryDto> dtos = transparencyService.getAllCategories();
+
+        return ResponseEntity.ok(dtos);
+    }
+
     @GetMapping
     public ResponseEntity<GetCategoriesResponseDto> getAll() {
         var response = transparencyService
                 .getAllCategoriesWithDocuments();
 
         return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/categories/{id}")
+    public ResponseEntity<ResponseCategoryDto> updateCategory(@PathVariable UUID id, @Valid @RequestBody UpdateCategoryDto request) {
+        ResponseCategoryDto dto = transparencyService.updateCategory(id, request);
+
+        return ResponseEntity.ok(dto);
+    }
+
+    @DeleteMapping("/categories/{id}")
+    public ResponseEntity<Void> deleteCategory(@PathVariable UUID id) {
+        transparencyService.deleteCategory(id);
+
+        return ResponseEntity.noContent().build();
     }
 }

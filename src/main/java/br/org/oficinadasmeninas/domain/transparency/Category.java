@@ -8,6 +8,15 @@ public class Category {
     private Boolean isImage;
     private Integer priority;
 
+    public Category() {
+    }
+
+    public Category(String name, Boolean isImage, Integer priority) {
+        this.name = name;
+        this.isImage = isImage;
+        this.priority = priority;
+    }
+
     public UUID getId() {
         return id;
     }

@@ -1,10 +1,16 @@
 package br.org.oficinadasmeninas.infra.transparency.service;
 
 import br.org.oficinadasmeninas.domain.objectStorage.IObjectStorage;
+import br.org.oficinadasmeninas.domain.transparency.Category;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateCollaboratorDto;
 import br.org.oficinadasmeninas.domain.transparency.Collaborator;
 import br.org.oficinadasmeninas.domain.transparency.Document;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateDocumentDto;
+import br.org.oficinadasmeninas.domain.transparency.dto.CreateCategoryDto;
+import br.org.oficinadasmeninas.domain.transparency.dto.ResponseCategoryDto;
+import br.org.oficinadasmeninas.domain.transparency.dto.UpdateCategoryDto;
+import br.org.oficinadasmeninas.domain.transparency.exception.EntityNotFoundException;
+import br.org.oficinadasmeninas.domain.transparency.mapper.CategoryMapper;
 import br.org.oficinadasmeninas.domain.transparency.dto.getCategories.CategoryResponseDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.getCategories.CollaboratorResponseDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.getCategories.DocumentResponseDto;
@@ -16,6 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,6 +59,18 @@ public class TransparencyService implements ITransparencyService {
         transparencyRepository.insertDocument(dto);
     }
 
+    private List<DocumentResponseDto> MapDocumentsToDto(List<Document> documents) {
+        return documents.stream()
+                .map(doc -> new DocumentResponseDto(
+                        doc.getId(),
+                        doc.getTitle(),
+                        doc.getEffectiveDate(),
+                        doc.getPreviewLink()
+                ))
+                .sorted(Comparator.comparing(DocumentResponseDto::effectiveDate).reversed())
+                .toList();
+    }
+
     @Override
     public void uploadCollaborator(
         MultipartFile file,
@@ -77,6 +98,45 @@ public class TransparencyService implements ITransparencyService {
 
         transparencyRepository.insertCollaborator(dto);
 
+    }
+
+    private List<CollaboratorResponseDto> MapCollaboratorsToDto(List<Collaborator> collaborators) {
+        return collaborators.stream()
+                .map(c -> new CollaboratorResponseDto(
+                        c.getId(),
+                        c.getName(),
+                        c.getRole(),
+                        c.getDescription(),
+                        c.getPriority(),
+                        c.getImage()
+                ))
+                .sorted(Comparator.comparing(CollaboratorResponseDto::priority))
+                .toList();
+    }
+
+    @Override
+    public ResponseCategoryDto insertCategory(CreateCategoryDto request) {
+
+        Category entity = transparencyRepository.insertCategory(CategoryMapper.toEntity(request));
+
+        return CategoryMapper.toDto(entity);
+    }
+
+    @Override
+    public ResponseCategoryDto getCategoryById(UUID id) {
+
+        var category = transparencyRepository.findCategoryById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada: " + id));
+
+        return CategoryMapper.toDto(category);
+    }
+
+    @Override
+    public List<ResponseCategoryDto> getAllCategories() {
+
+        return transparencyRepository.findAllCategories().stream()
+            .map(CategoryMapper::toDto)
+            .toList();
     }
 
     @Override
@@ -109,29 +169,48 @@ public class TransparencyService implements ITransparencyService {
         return new GetCategoriesResponseDto(categoryDtos);
     }
 
-    private List<DocumentResponseDto> MapDocumentsToDto(List<Document> documents) {
-        return documents.stream()
-                .map(doc -> new DocumentResponseDto(
-                        doc.getId(),
-                        doc.getTitle(),
-                        doc.getEffectiveDate(),
-                        doc.getPreviewLink()
-                ))
-                .sorted(Comparator.comparing(DocumentResponseDto::effectiveDate).reversed())
-                .toList();
+    @Override
+    public ResponseCategoryDto updateCategory(UUID id, UpdateCategoryDto request) {
+
+        Category existing = transparencyRepository.findCategoryById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada: " + id));
+
+        existing.setName(request.name());
+        existing.setPriority(request.priority());
+
+        Category updated = transparencyRepository.updateCategory(existing);
+
+        return CategoryMapper.toDto(updated);
     }
 
-    private List<CollaboratorResponseDto> MapCollaboratorsToDto(List<Collaborator> collaborators) {
-        return collaborators.stream()
-                .map(c -> new CollaboratorResponseDto(
-                        c.getId(),
-                        c.getName(),
-                        c.getRole(),
-                        c.getDescription(),
-                        c.getPriority(),
-                        c.getImage()
-                ))
-                .sorted(Comparator.comparing(CollaboratorResponseDto::priority))
-                .toList();
+    @Override
+    public void deleteCategory(UUID id) {
+        checkCategoryExists(id);
+        checkCategoryLinks(id);
+
+        transparencyRepository.deleteCategory(id);
     }
+
+    private void checkCategoryExists(UUID id) {
+    if (!transparencyRepository.existsCategoryById(id)) {
+        throw new EntityNotFoundException("Categoria não encontrada: " + id);
+    }
+}
+
+    private void checkCategoryLinks(UUID id) {
+        int docs = transparencyRepository.countDocumentsByCategoryId(id);
+        int collabs = transparencyRepository.countCollaboratorsByCategoryId(id);
+
+        if (docs > 0 || collabs > 0) {
+            throw new IllegalStateException(buildLinkMessage(docs, collabs));
+        }
+    }
+
+    private String buildLinkMessage(int docs, int collabs) {
+        StringBuilder msg = new StringBuilder("Não é possível excluir a categoria porque existem vínculos:");
+        if (docs > 0) msg.append(" ").append(docs).append(" documento(s)");
+        if (collabs > 0) msg.append(docs > 0 ? " e " : " ").append(collabs).append(" colaborador(es)");
+        return msg.toString();
+    }
+
 }
