@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 @Service
 public class MinIoImplementation implements IObjectStorage {
@@ -22,6 +23,21 @@ public class MinIoImplementation implements IObjectStorage {
     public MinIoImplementation(S3Client s3Client, @Value("${storage.s3.bucket}") String bucketName) {
         this.s3Client = s3Client;
         this.bucketName = bucketName;
+    }
+
+    @Override
+    public void upload(String key, InputStream data, String contentType) throws IOException {
+
+        String fullKey = "public/" + key;
+
+        s3Client.putObject(
+                PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(fullKey)
+                        .contentType(contentType)
+                        .build(),
+                RequestBody.fromInputStream(data, data.available())
+        );
     }
 
     @Override

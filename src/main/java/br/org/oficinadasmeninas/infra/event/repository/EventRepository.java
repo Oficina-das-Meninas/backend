@@ -2,6 +2,7 @@ package br.org.oficinadasmeninas.infra.event.repository;
 
 import br.org.oficinadasmeninas.domain.event.Event;
 import br.org.oficinadasmeninas.domain.event.dto.CreateEventDto;
+import br.org.oficinadasmeninas.domain.event.dto.UpdateEventDto;
 import br.org.oficinadasmeninas.domain.event.repository.IEventRepository;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -24,7 +25,8 @@ public class EventRepository implements IEventRepository {
 
     @Override
     public PageDTO<Event> findAll(int page, int pageSize) {
-        String rowCountSql = "select count(*) from events";
+        String rowCountSql = EventQueryBuilder.SELECT_COUNT;
+
         int total = jdbc.queryForObject(rowCountSql, Integer.class);
         int totalPages = Math.toIntExact((total / pageSize) + (total % pageSize == 0 ? 0 : 1));
 
@@ -51,6 +53,19 @@ public class EventRepository implements IEventRepository {
             createEventDto.getUrlToPlatform());
 
         return id;
+    }
+
+    @Override
+    public void updateEvent(UpdateEventDto updateEventDto) {
+        jdbc.update(EventQueryBuilder.UPDATE_EVENT,
+                updateEventDto.getTitle(),
+                updateEventDto.getPreviewImageUrl(),
+                updateEventDto.getDescription(),
+                updateEventDto.getAmount(),
+                Timestamp.valueOf(updateEventDto.getEventDate()),
+                updateEventDto.getLocation(),
+                updateEventDto.getUrlToPlatform(),
+                updateEventDto.getId());
     }
 
     private Event mapRow(ResultSet rs, int rowNum) throws SQLException {

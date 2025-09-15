@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class CreateEventDto {
+public class UpdateEventDto {
 
     @NotNull(message = "O arquivo da imagem é obrigatório.")
     private MultipartFile eventImage;
@@ -39,7 +39,7 @@ public class CreateEventDto {
     @NotBlank(message = "A url para a plataforma do evento é obrigatória")
     private String urlToPlatform;
 
-    public CreateEventDto() { }
+    public UpdateEventDto() { }
 
     public MultipartFile getEventImage() {
         return eventImage;

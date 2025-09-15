@@ -42,6 +42,19 @@ public record EventDto(
         );
     }
 
+    public static EventDto fromUpdateEventDto(UpdateEventDto updateEventDto) {
+        return new EventDto(
+                updateEventDto.getId(),
+                updateEventDto.getTitle(),
+                updateEventDto.getPreviewImageUrl(),
+                updateEventDto.getDescription(),
+                updateEventDto.getAmount(),
+                updateEventDto.getEventDate(),
+                updateEventDto.getLocation(),
+                updateEventDto.getUrlToPlatform()
+        );
+    }
+
     public Event toEvent() {
         return new Event(
                 this.id,
