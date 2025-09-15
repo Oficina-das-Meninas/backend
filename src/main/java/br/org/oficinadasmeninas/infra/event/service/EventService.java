@@ -1,6 +1,8 @@
 package br.org.oficinadasmeninas.infra.event.service;
 
 import br.org.oficinadasmeninas.domain.event.Event;
+import br.org.oficinadasmeninas.domain.event.dto.CreateEventDto;
+import br.org.oficinadasmeninas.domain.event.dto.EventDto;
 import br.org.oficinadasmeninas.domain.event.repository.IEventRepository;
 import br.org.oficinadasmeninas.domain.event.service.IEventService;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
@@ -21,5 +23,13 @@ public class EventService implements IEventService {
     public PageDTO<Event> findAll(@RequestParam @PositiveOrZero int page,
                                   @RequestParam @Positive @Max(100) int pageSize){
         return eventRepository.findAll(page, pageSize);
+    }
+
+    public EventDto createEvent(CreateEventDto createEventDto) {
+        var createdEventId = eventRepository.createEvent(createEventDto);
+
+        createEventDto.setId(createdEventId);
+
+        return EventDto.fromCreateEventDto(createEventDto);
     }
 }

@@ -28,4 +28,30 @@ public record EventDto(
                 event.getUrlToPlatform()
         );
     }
+
+    public static EventDto fromCreateEventDto(CreateEventDto createEventDto) {
+        return new EventDto(
+                createEventDto.getId(),
+                createEventDto.getTitle(),
+                createEventDto.getPreviewImageUrl(),
+                createEventDto.getDescription(),
+                createEventDto.getAmount(),
+                createEventDto.getEventDate(),
+                createEventDto.getLocation(),
+                createEventDto.getUrlToPlatform()
+        );
+    }
+
+    public Event toEvent() {
+        return new Event(
+                this.id,
+                this.title,
+                this.previewImageUrl,
+                this.description,
+                this.amount,
+                this.eventDate,
+                this.location,
+                this.urlToPlatform
+        );
+    }
 }
