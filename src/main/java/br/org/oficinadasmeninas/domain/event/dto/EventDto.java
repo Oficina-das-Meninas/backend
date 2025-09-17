@@ -10,6 +10,7 @@ public record EventDto(
         UUID id,
         String title,
         String previewImageUrl,
+        String partnersImageUrl,
         String description,
         BigDecimal amount,
         LocalDateTime eventDate,
@@ -21,6 +22,7 @@ public record EventDto(
                 event.getId(),
                 event.getTitle(),
                 event.getPreviewImageUrl(),
+                event.getPartnersImageUrl(),
                 event.getDescription(),
                 event.getAmount(),
                 event.getEventDate(),
@@ -29,29 +31,17 @@ public record EventDto(
         );
     }
 
-    public static EventDto fromCreateEventDto(CreateEventDto createEventDto) {
-        return new EventDto(
-                createEventDto.getId(),
-                createEventDto.getTitle(),
-                createEventDto.getPreviewImageUrl(),
-                createEventDto.getDescription(),
-                createEventDto.getAmount(),
-                createEventDto.getEventDate(),
-                createEventDto.getLocation(),
-                createEventDto.getUrlToPlatform()
-        );
-    }
-
     public static EventDto fromUpdateEventDto(UpdateEventDto updateEventDto) {
         return new EventDto(
-                updateEventDto.getId(),
-                updateEventDto.getTitle(),
-                updateEventDto.getPreviewImageUrl(),
-                updateEventDto.getDescription(),
-                updateEventDto.getAmount(),
-                updateEventDto.getEventDate(),
-                updateEventDto.getLocation(),
-                updateEventDto.getUrlToPlatform()
+                updateEventDto.id(),
+                updateEventDto.title(),
+                updateEventDto.previewImageUrl(),
+                updateEventDto.partnersImageUrl(),
+                updateEventDto.description(),
+                updateEventDto.amount(),
+                updateEventDto.eventDate(),
+                updateEventDto.location(),
+                updateEventDto.urlToPlatform()
         );
     }
 
@@ -60,6 +50,7 @@ public record EventDto(
                 this.id,
                 this.title,
                 this.previewImageUrl,
+                this.partnersImageUrl,
                 this.description,
                 this.amount,
                 this.eventDate,

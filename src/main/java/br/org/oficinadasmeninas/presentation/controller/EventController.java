@@ -34,17 +34,16 @@ public class EventController {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public EventDto addEvent(@ModelAttribute CreateEventDto createEventDto) throws IOException {
+    public Event addEvent(@ModelAttribute CreateEventDto createEventDto) throws IOException {
         return eventService.createEvent(createEventDto);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public EventDto updateEvent(
+    public Event updateEvent(
             @PathVariable UUID id,
-            @ModelAttribute @Valid UpdateEventDto updateEventDto) throws IOException {
+            @ModelAttribute @Valid UpdateEventDto updateEventDto) throws Exception {
 
-        updateEventDto.setId(id);
-        return eventService.updateEvent(updateEventDto);
+        return eventService.updateEvent(id, updateEventDto);
     }
 }

@@ -50,7 +50,7 @@ public class MinIoImplementation implements IObjectStorage {
         upload(file, originalName, isPublic);
     }
 
-    private String sanitizeFileName(String fileName) {
+    public String sanitizeFileName(String fileName) {
         String normalized = java.text.Normalizer.normalize(fileName, java.text.Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "");
         return normalized.replaceAll("[^a-zA-Z0-9\\.\\-_]", "_");

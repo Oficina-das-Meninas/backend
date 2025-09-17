@@ -2,12 +2,10 @@ package br.org.oficinadasmeninas.infra.event.service;
 
 import br.org.oficinadasmeninas.domain.event.Event;
 import br.org.oficinadasmeninas.domain.event.dto.CreateEventDto;
-import br.org.oficinadasmeninas.domain.event.dto.EventDto;
 import br.org.oficinadasmeninas.domain.event.dto.UpdateEventDto;
 import br.org.oficinadasmeninas.domain.event.repository.IEventRepository;
 import br.org.oficinadasmeninas.domain.event.service.IEventService;
 import br.org.oficinadasmeninas.domain.objectStorage.IObjectStorage;
-import br.org.oficinadasmeninas.infra.ObjectStorage.MinIoImplementation;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Positive;
@@ -17,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Service
 public class EventService implements IEventService {
@@ -33,34 +32,57 @@ public class EventService implements IEventService {
         return eventRepository.findAll(page, pageSize);
     }
 
-    public EventDto createEvent(CreateEventDto createEventDto) throws IOException {
-        var createdEventId = eventRepository.createEvent(createEventDto);
-        var fileName = saveOrUploadMultipartFile(createEventDto.getEventImage());
+    public Event createEvent(CreateEventDto createEventDto) throws IOException {
+        var previewFileName = uploadMultipartFile(createEventDto.previewImage());
+        var partnersFileName = uploadMultipartFile(createEventDto.partnersImage());
 
-        createEventDto.setId(createdEventId);
-        createEventDto.setPreviewImageUrl(fileName);
+        var createdEventId = eventRepository.createEvent(createEventDto, previewFileName, partnersFileName);
 
-        return EventDto.fromCreateEventDto(createEventDto);
+        return new Event(
+                createdEventId,
+                createEventDto.title(),
+                previewFileName,
+                partnersFileName,
+                createEventDto.description(),
+                createEventDto.amount(),
+                createEventDto.eventDate(),
+                createEventDto.location(),
+                createEventDto.urlToPlatform()
+        );
     }
 
-    public EventDto updateEvent(UpdateEventDto updateEventDto) throws IOException {
-        eventRepository.updateEvent(updateEventDto);
+    public Event updateEvent(UUID id, UpdateEventDto updateEventDto) throws Exception {
+        var optionalEvent = eventRepository.getEventById(id);
 
-        var fileName = saveOrUploadMultipartFile(updateEventDto.getEventImage());
+        if (optionalEvent.isEmpty())
+            throw new Exception();
 
-        updateEventDto.setPreviewImageUrl(fileName);
+        var previewFileName = uploadMultipartFile(updateEventDto.previewImage());
+        var partnersFileName = uploadMultipartFile(updateEventDto.partnersImage());
 
-        return EventDto.fromUpdateEventDto(updateEventDto);
+        eventRepository.updateEvent(updateEventDto, previewFileName, partnersFileName);
+
+        return new Event(
+                id,
+                updateEventDto.title(),
+                previewFileName,
+                partnersFileName,
+                updateEventDto.description(),
+                updateEventDto.amount(),
+                updateEventDto.eventDate(),
+                updateEventDto.location(),
+                updateEventDto.urlToPlatform()
+        );
     }
 
-    private String saveOrUploadMultipartFile(MultipartFile file) throws IOException {
+    private String uploadMultipartFile(MultipartFile file) throws IOException {
         if (file == null || file.isEmpty())
             return null;
 
-        String fileName = file.getOriginalFilename();
-        String newFileName = MinIoImplementation.generateTitle(fileName);
-        storageService.upload(newFileName, file.getInputStream(), file.getContentType());
+        var fileName = storageService.sanitizeFileName(file.getOriginalFilename());
 
-        return newFileName;
+        storageService.upload(file, fileName, true);
+
+        return fileName;
     }
 }

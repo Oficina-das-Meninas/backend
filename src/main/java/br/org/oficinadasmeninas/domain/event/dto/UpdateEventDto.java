@@ -1,6 +1,5 @@
 package br.org.oficinadasmeninas.domain.event.dto;
 
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -10,106 +9,34 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class UpdateEventDto {
+public record UpdateEventDto(
 
-    @NotNull(message = "O arquivo da imagem é obrigatório.")
-    private MultipartFile eventImage;
+        @NotNull(message = "O arquivo da imagem de pré visualização é obrigatório.")
+        MultipartFile previewImage,
 
-    private UUID id;
+        MultipartFile partnersImage,
 
-    @NotBlank(message = "O titulo do evento é obrigatório")
-    @Size(max = 255, message = "O título do evento deve ter no máximo 255 caracteres.")
-    private String title;
+        UUID id,
 
-    @NotBlank(message = "A URL de pré-visualização de imagem do evento é obrigatória")
-    private String previewImageUrl;
+        @NotBlank(message = "O titulo do evento é obrigatório")
+        @Size(max = 255, message = "O título do evento deve ter no máximo 255 caracteres.")
+        String title,
 
-    @NotBlank(message = "A descrição do evento é obrigatória")
-    private String description;
+        String previewImageUrl,
 
-    private BigDecimal amount;
+        String partnersImageUrl,
 
-    @NotNull(message = "A data do evento é obrigatória.")
-    @Future(message = "A data do evento deve ser futura.")
-    private LocalDateTime eventDate;
+        @NotBlank(message = "A descrição do evento é obrigatória")
+        String description,
 
-    @NotBlank(message = "A localização do evento é obrigatória")
-    private String location;
+        BigDecimal amount,
 
-    @NotBlank(message = "A url para a plataforma do evento é obrigatória")
-    private String urlToPlatform;
+        @NotNull(message = "A data do evento é obrigatória.")
+        LocalDateTime eventDate,
 
-    public UpdateEventDto() { }
+        @NotBlank(message = "A localização do evento é obrigatória")
+        String location,
 
-    public MultipartFile getEventImage() {
-        return eventImage;
-    }
-
-    public void setEventImage(MultipartFile eventImage) {
-        this.eventImage = eventImage;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getPreviewImageUrl() {
-        return previewImageUrl;
-    }
-
-    public void setPreviewImageUrl(String previewImageUrl) {
-        this.previewImageUrl = previewImageUrl;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
-
-    public LocalDateTime getEventDate() {
-        return eventDate;
-    }
-
-    public void setEventDate(LocalDateTime eventDate) {
-        this.eventDate = eventDate;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public String getUrlToPlatform() {
-        return urlToPlatform;
-    }
-
-    public void setUrlToPlatform(String urlToPlatform) {
-        this.urlToPlatform = urlToPlatform;
-    }
-}
+        @NotBlank(message = "A url para a plataforma do evento é obrigatória")
+        String urlToPlatform
+) {}
