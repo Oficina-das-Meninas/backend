@@ -39,11 +39,12 @@ jobs:
         uses: google-github-actions/get-secretmanager-secrets@v1
         with:
           secrets: |
-            APP_CONFIG:projects/${{ vars.GCP_PROJECT_ID }}/secrets/application-${{ github.event.inputs.ENVIRONMENT }}-properties
+            APP_CONFIG:projects/${{ secrets.GCP_PROJECT_ID }}/secrets/application-${{ github.event.inputs.ENVIRONMENT }}-properties/versions/latest
+        # export_env: true  # opcional, se quiser usar como variável de ambiente
 
       - name: Salvar application.properties
         run: |
-          echo "${{ steps.secrets.outputs.APP_CONFIG }}" > application.properties
+          printf "%s\n" "${{ steps.secrets.outputs.APP_CONFIG }}" > application.properties
 
       - name: Build Spring Boot
         run: mvn clean package
@@ -55,7 +56,6 @@ jobs:
           path: |
             target/*.jar
             application.properties
-
 
   deploy:
     runs-on: ubuntu-latest
@@ -93,5 +93,6 @@ jobs:
           rsync -avz --delete build/application.properties $VM_USER@$VM_HOST:$DEST_DIR/
 
           echo "🔄 Reiniciando serviço $SERVICE_NAME ..."
-          ssh $VM_USER@$VM_HOST "systemctl --user restart $SERVICE_NAME"
-          echo "✅ Implantação concluída com sucesso!"  
+          # Use sudo se o serviço for system-wide
+          ssh $VM_USER@$VM_HOST "sudo systemctl restart $SERVICE_NAME"
+          echo "✅ Implantação concluída com sucesso!"
