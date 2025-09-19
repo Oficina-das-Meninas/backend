@@ -39,7 +39,7 @@ jobs:
         uses: google-github-actions/get-secretmanager-secrets@v1
         with:
           secrets: |
-            APP_CONFIG:projects/${{ secrets.GCP_PROJECT_ID }}/secrets/application-${{ github.event.inputs.ENVIRONMENT }}-properties
+            APP_CONFIG:projects/${{ vars.GCP_PROJECT_ID }}/secrets/application-${{ github.event.inputs.ENVIRONMENT }}-properties
 
       - name: Salvar application.properties
         run: |
