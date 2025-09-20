@@ -1,0 +1,79 @@
+package br.org.oficinadasmeninas.infra.admin.repository;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+import br.org.oficinadasmeninas.domain.admin.Admin;
+import br.org.oficinadasmeninas.domain.admin.repository.IAdminRepository;
+
+@Repository
+public class AdminRepository implements IAdminRepository {
+
+	private final JdbcTemplate jdbc;
+
+	public AdminRepository(JdbcTemplate jdbc) {
+		this.jdbc = jdbc;
+	}
+
+	@Override
+	public List<Admin> findAllAdmins() {
+		String sql = "SELECT id, name, email, password FROM admin";
+
+		return jdbc.query(sql, this::mapRowAdmin);
+	}
+
+	@Override
+	public Optional<Admin> findAdminById(UUID id) {
+		String sql = "SELECT id, name, email, password FROM admin WHERE id = ?";
+
+		try {
+            var admin = jdbc.queryForObject(sql, this::mapRowAdmin, id);
+            return Optional.ofNullable(admin);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+	}
+
+	@Override
+	public Optional<Admin> findAdminByEmail(String email) {
+		String sql = "SELECT id, name, email, password FROM admin WHERE email = ?";
+		
+        try {
+            var admin = jdbc.queryForObject(sql, this::mapRowAdmin, email);
+            return Optional.ofNullable(admin);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+	}
+
+	@Override
+	public UUID createAdmin(Admin admin) {
+		UUID id = UUID.randomUUID();
+		String sql = "INSERT INTO admin (id, name, email, password) VALUES (?, ?, ?, ?)";
+		jdbc.update(sql, id, admin.getName(), admin.getEmail(), admin.getPassword());
+		return id;
+	}
+
+	@Override
+	public void updateAdmin(Admin admin) {
+		String sql = "UPDATE admin SET name = ?, email = ?, password = ? WHERE id = ?";
+		jdbc.update(sql, admin.getName(), admin.getEmail(), admin.getPassword(), admin.getId());
+	}
+	
+	private Admin mapRowAdmin(ResultSet rs, int rowNum) throws SQLException {
+        var admin = new Admin();
+        admin.setId(UUID.fromString(rs.getString("id")));
+		admin.setName(rs.getString("name"));
+		admin.setEmail(rs.getString("email"));
+		admin.setPassword(rs.getString("password"));
+        return admin;
+    }
+
+}
