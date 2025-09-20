@@ -31,7 +31,7 @@ public class AdminController {
 	}
 
 	@PostMapping
-	public ResponseEntity<AdminDto> insertCategory(@Valid @RequestBody CreateAdminDto request) {
+	public ResponseEntity<AdminDto> createAdmin(@Valid @RequestBody CreateAdminDto request) {
 		UUID id = adminService.createAdmin(request);
 
 		AdminDto adminDto = new AdminDto();

@@ -1,9 +1,12 @@
 package br.org.oficinadasmeninas.infra.admin.repository;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -20,53 +23,34 @@ public class AdminRepository implements IAdminRepository {
 	}
 
 	@Override
-	public List<Admin> findAll() {
+	public List<Admin> findAllAdmins() {
 		String sql = "SELECT id, name, email, password FROM admin";
 
-		return jdbc.query(sql, (rs, rowNum) -> {
-			Admin admin = new Admin();
-			admin.setId(UUID.fromString(rs.getString("id")));
-			admin.setName(rs.getString("name"));
-			admin.setEmail(rs.getString("email"));
-			admin.setPassword(rs.getString("password"));
-			return admin;
-		});
+		return jdbc.query(sql, this::mapRowAdmin);
 	}
 
 	@Override
 	public Optional<Admin> findAdminById(UUID id) {
 		String sql = "SELECT id, name, email, password FROM admin WHERE id = ?";
 
-		return jdbc.query(sql, rs -> {
-			if (rs.next()) {
-				Admin admin = new Admin();
-				admin.setId(UUID.fromString(rs.getString("id")));
-				admin.setName(rs.getString("name"));
-				admin.setEmail(rs.getString("email"));
-				admin.setPassword(rs.getString("password"));
-				return Optional.of(admin);
-			} else {
-				return Optional.empty();
-			}
-		}, id);
+		try {
+            var admin = jdbc.queryForObject(sql, this::mapRowAdmin, id);
+            return Optional.ofNullable(admin);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
 	}
 
 	@Override
 	public Optional<Admin> findAdminByEmail(String email) {
 		String sql = "SELECT id, name, email, password FROM admin WHERE email = ?";
-
-		return jdbc.query(sql, rs -> {
-			if (rs.next()) {
-				Admin admin = new Admin();
-				admin.setId(UUID.fromString(rs.getString("id")));
-				admin.setName(rs.getString("name"));
-				admin.setEmail(rs.getString("email"));
-				admin.setPassword(rs.getString("password"));
-				return Optional.of(admin);
-			} else {
-				return Optional.empty();
-			}
-		}, email);
+		
+        try {
+            var admin = jdbc.queryForObject(sql, this::mapRowAdmin, email);
+            return Optional.ofNullable(admin);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
 	}
 
 	@Override
@@ -82,5 +66,14 @@ public class AdminRepository implements IAdminRepository {
 		String sql = "UPDATE admin SET name = ?, email = ?, password = ? WHERE id = ?";
 		jdbc.update(sql, admin.getName(), admin.getEmail(), admin.getPassword(), admin.getId());
 	}
+	
+	private Admin mapRowAdmin(ResultSet rs, int rowNum) throws SQLException {
+        var admin = new Admin();
+        admin.setId(UUID.fromString(rs.getString("id")));
+		admin.setName(rs.getString("name"));
+		admin.setEmail(rs.getString("email"));
+		admin.setPassword(rs.getString("password"));
+        return admin;
+    }
 
 }

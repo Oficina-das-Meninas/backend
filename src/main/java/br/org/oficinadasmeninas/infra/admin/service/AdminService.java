@@ -30,7 +30,7 @@ public class AdminService implements IAdminService {
 
 	@Override
 	public List<AdminDto> getAllAdmin() {
-		return adminRepository.findAll().stream()
+		return adminRepository.findAllAdmins().stream()
 				.map(admin -> new AdminDto(admin.getId(), admin.getName(), admin.getEmail())).toList();
 	}
 
@@ -53,7 +53,6 @@ public class AdminService implements IAdminService {
 		Admin newAdmin = new Admin();
 		newAdmin.setName(admin.getName());
 		newAdmin.setEmail(admin.getEmail());
-
 		newAdmin.setPassword(passwordEncoder.encode(admin.getPassword()));
 
 		try {

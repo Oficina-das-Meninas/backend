@@ -8,7 +8,7 @@ import br.org.oficinadasmeninas.domain.admin.Admin;
 
 public interface IAdminRepository {
 	
-	List<Admin> findAll();
+	List<Admin> findAllAdmins();
 
 	Optional<Admin> findAdminById(UUID id);
 
