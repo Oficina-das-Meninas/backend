@@ -1,11 +1,14 @@
 package br.org.oficinadasmeninas.domain.admin.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import br.org.oficinadasmeninas.domain.admin.Admin;
 
 public interface IAdminRepository {
+	
+	List<Admin> findAll();
 
 	Optional<Admin> findAdminById(UUID id);
 
@@ -13,6 +16,6 @@ public interface IAdminRepository {
 
 	UUID createAdmin(Admin admin);
 
-	void updateAdmin(UUID adminId, Admin admin);
+	void updateAdmin(Admin admin);
 
 }

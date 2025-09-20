@@ -8,6 +8,16 @@ public class AdminDto {
 	private String name;
 	private String email;
 
+	public AdminDto() {
+	}
+
+	public AdminDto(UUID id, String name, String email) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.email = email;
+	}
+
 	public UUID getId() {
 		return id;
 	}
