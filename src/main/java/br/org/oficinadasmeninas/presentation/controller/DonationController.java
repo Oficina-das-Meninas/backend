@@ -1,4 +1,4 @@
-package br.org.oficinadasmeninas.presentation;
+package br.org.oficinadasmeninas.presentation.controller;
 
 
 import br.org.oficinadasmeninas.domain.donation.dto.checkout.RequestCheckoutDTO;
