@@ -57,42 +57,50 @@ jobs:
             target/*.jar
             application.properties
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
+deploy:
+  runs-on: ubuntu-latest
+  needs: build
 
-    steps:
-      - name: Download artefatos
-        uses: actions/download-artifact@v4
-        with:
-          name: springboot-build
-          path: build/
+  steps:
+    - name: Download artefatos
+      uses: actions/download-artifact@v4
+      with:
+        name: springboot-build
+        path: build/
 
-      - name: Configurar SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.VM_SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ vars.VM_HOST }} >> ~/.ssh/known_hosts
+    - name: Preparar artefatos
+      run: |
+        mkdir -p build/final
+        # Move JAR para um diretório fixo
+        mv build/target/*.jar build/final/
+        # Copia application.properties para o mesmo diretório
+        cp build/application.properties build/final/
 
-      - name: Enviar artefatos para VM
-        run: |
-          VM_USER="${{ vars.VM_USER }}"
-          VM_HOST="${{ vars.VM_HOST }}"
+    - name: Configurar SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.VM_SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ vars.VM_HOST }} >> ~/.ssh/known_hosts
 
-          if [[ "${{ github.event.inputs.ENVIRONMENT }}" == "development" ]]; then
-            DEST_DIR="${{ vars.VM_DIR_DEV }}"
-            SERVICE_NAME="${{ vars.SERVICE_DEV }}"
-          else
-            DEST_DIR="${{ vars.VM_DIR_PRD }}"
-            SERVICE_NAME="${{ vars.SERVICE_PRD }}"
-          fi
+    - name: Enviar artefatos para VM
+      run: |
+        VM_USER="${{ vars.VM_USER }}"
+        VM_HOST="${{ vars.VM_HOST }}"
+        if [[ "${{ github.event.inputs.ENVIRONMENT }}" == "development" ]]; then
+          DEST_DIR="${{ vars.VM_DIR_DEV }}"
+          SERVICE_NAME="${{ vars.SERVICE_DEV }}"
+        else
+          DEST_DIR="${{ vars.VM_DIR_PRD }}"
+          SERVICE_NAME="${{ vars.SERVICE_PRD }}"
+        fi
 
-          echo "📤 Enviando arquivos para $VM_USER@$VM_HOST:$DEST_DIR ..."
-          rsync -avz --delete build/*.jar $VM_USER@$VM_HOST:$DEST_DIR/
-          rsync -avz --delete build/application.properties $VM_USER@$VM_HOST:$DEST_DIR/
+        echo "📤 Enviando arquivos para $VM_USER@$VM_HOST:$DEST_DIR ..."
+        rsync -avz --delete build/final/*.jar $VM_USER@$VM_HOST:$DEST_DIR/
+        rsync -avz --delete build/final/application.properties $VM_USER@$VM_HOST:$DEST_DIR/
 
-          echo "🔄 Reiniciando serviço $SERVICE_NAME ..."
-          # Use sudo se o serviço for system-wide
-          ssh $VM_USER@$VM_HOST "sudo systemctl restart $SERVICE_NAME"
-          echo "✅ Implantação concluída com sucesso!"
+        echo "🔄 Reiniciando serviço $SERVICE_NAME ..."
+        # Use sudo se o serviço for system-wide
+        ssh $VM_USER@$VM_HOST "sudo systemctl restart $SERVICE_NAME"
+
+        echo "✅ Implantação concluída com sucesso!"
