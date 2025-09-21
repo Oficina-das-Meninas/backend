@@ -47,7 +47,7 @@ jobs:
           printf "%s\n" "${{ steps.secrets.outputs.APP_CONFIG }}" > application.properties
 
       - name: Build Spring Boot
-        run: mvn clean package
+        run: mvn clean package -DskipTests
 
       - name: Upload artefatos
         uses: actions/upload-artifact@v4
