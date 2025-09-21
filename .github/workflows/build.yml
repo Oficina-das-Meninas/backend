@@ -100,6 +100,5 @@ jobs:
           rsync -avz --delete build/final/application.properties $VM_USER@$VM_HOST:$DEST_DIR/
 
           echo "🔄 Reiniciando serviço $SERVICE_NAME ..."
-          ssh $VM_USER@$VM_HOST "sudo systemctl restart $SERVICE_NAME"
-
+          ssh -i ~/.ssh/id_rsa $VM_USER@$VM_HOST "sudo systemctl restart $SERVICE_NAME"
           echo "✅ Implantação concluída com sucesso!"
