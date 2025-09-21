@@ -40,7 +40,6 @@ jobs:
         with:
           secrets: |
             APP_CONFIG:projects/${{ secrets.GCP_PROJECT_ID }}/secrets/application-${{ github.event.inputs.ENVIRONMENT }}-properties/versions/latest
-        # export_env: true  # opcional, se quiser usar como variável de ambiente
 
       - name: Salvar application.properties
         run: |
@@ -71,9 +70,7 @@ jobs:
       - name: Preparar artefatos
         run: |
           mkdir -p build/final
-          # Move JAR para um diretório fixo
           mv build/target/*.jar build/final/
-          # Copia application.properties para o mesmo diretório
           cp build/application.properties build/final/
 
       - name: Configurar SSH
@@ -83,16 +80,17 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ vars.VM_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Enviar artefatos para VM
+      - name: Enviar artefatos e reiniciar serviço
         run: |
           VM_USER="${{ vars.VM_USER }}"
           VM_HOST="${{ vars.VM_HOST }}"
-          if [[ "${{ github.event.inputs.ENVIRONMENT }}" == "development" ]]; then
+
+          if [ "${{ github.event.inputs.ENVIRONMENT }}" = "development" ]; then
             DEST_DIR="${{ vars.VM_DIR_DEV }}"
-            SERVICE_NAME="${{ vars.SERVICE_DEV_NAME }}"
+            SERVICE_NAME="oficinadasmeninas-dev"
           else
             DEST_DIR="${{ vars.VM_DIR_PRD }}"
-            SERVICE_NAME="${{ vars.SERVICE_PRD_NAME }}"
+            SERVICE_NAME="oficinadasmeninas-prd"
           fi
 
           echo "📤 Enviando arquivos para $VM_USER@$VM_HOST:$DEST_DIR ..."
