@@ -2,7 +2,6 @@ package br.org.oficinadasmeninas.presentation.controller;
 
 import br.org.oficinadasmeninas.domain.event.Event;
 import br.org.oficinadasmeninas.domain.event.dto.CreateEventDto;
-import br.org.oficinadasmeninas.domain.event.dto.EventDto;
 import br.org.oficinadasmeninas.domain.event.dto.UpdateEventDto;
 import br.org.oficinadasmeninas.domain.event.service.IEventService;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
@@ -11,6 +10,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -18,6 +18,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/events")
+@Validated
 public class EventController {
     private final IEventService eventService;
 
@@ -34,7 +35,7 @@ public class EventController {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public Event addEvent(@ModelAttribute CreateEventDto createEventDto) throws IOException {
+    public Event addEvent(@ModelAttribute @Valid CreateEventDto createEventDto) throws IOException {
         return eventService.createEvent(createEventDto);
     }
 

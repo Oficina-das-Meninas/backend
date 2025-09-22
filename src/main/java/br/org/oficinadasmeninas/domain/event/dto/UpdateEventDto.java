@@ -2,6 +2,7 @@ package br.org.oficinadasmeninas.domain.event.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,19 +17,17 @@ public record UpdateEventDto(
 
         MultipartFile partnersImage,
 
+        @NotNull(message = "O id do evento é obrigatório.")
         UUID id,
 
         @NotBlank(message = "O titulo do evento é obrigatório")
         @Size(max = 255, message = "O título do evento deve ter no máximo 255 caracteres.")
         String title,
 
-        String previewImageUrl,
-
-        String partnersImageUrl,
-
         @NotBlank(message = "A descrição do evento é obrigatória")
         String description,
 
+        @PositiveOrZero(message = "O valor arrecadado do evento deve ser zero ou positivo.")
         BigDecimal amount,
 
         @NotNull(message = "A data do evento é obrigatória.")
@@ -39,4 +38,4 @@ public record UpdateEventDto(
 
         @NotBlank(message = "A url para a plataforma do evento é obrigatória")
         String urlToPlatform
-) {}
+) { }

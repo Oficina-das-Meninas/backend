@@ -76,8 +76,8 @@ public class EventRepository implements IEventRepository {
     public void updateEvent(UpdateEventDto updateEventDto, String previewFileName, String partnersFileName) {
         jdbc.update(EventQueryBuilder.UPDATE_EVENT,
                 updateEventDto.title(),
-                updateEventDto.previewImageUrl(),
-                updateEventDto.partnersImageUrl(),
+                previewFileName,
+                partnersFileName,
                 updateEventDto.description(),
                 updateEventDto.amount(),
                 Timestamp.valueOf(updateEventDto.eventDate()),

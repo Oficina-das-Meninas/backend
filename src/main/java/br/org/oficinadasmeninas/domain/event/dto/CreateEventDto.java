@@ -2,6 +2,7 @@ package br.org.oficinadasmeninas.domain.event.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,6 +23,7 @@ public record CreateEventDto(
         @NotBlank(message = "A descrição do evento é obrigatória")
         String description,
 
+        @PositiveOrZero(message = "O valor arrecadado do evento deve ser zero ou positivo.")
         BigDecimal amount,
 
         @NotNull(message = "A data do evento é obrigatória.")
@@ -32,4 +34,4 @@ public record CreateEventDto(
 
         @NotBlank(message = "A url para a plataforma do evento é obrigatória")
         String urlToPlatform
-) {}
+) { }

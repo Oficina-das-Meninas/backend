@@ -37,15 +37,15 @@ public class Event {
 
     public UUID getId() { return id; }
 
-    public void SetId(UUID id) { this.id = id; }
+    public void setId(UUID id) { this.id = id; }
 
     public String getTitle() { return title; }
 
-    public void SetTitle(String title) { this.title = title; }
+    public void setTitle(String title) { this.title = title; }
 
     public String getPreviewImageUrl() { return previewImageUrl; }
 
-    public void SetPreviewImageUrl(String previewImageUrl) { this.previewImageUrl = previewImageUrl; }
+    public void setPreviewImageUrl(String previewImageUrl) { this.previewImageUrl = previewImageUrl; }
 
     public String getPartnersImageUrl() { return partnersImageUrl; }
 
@@ -53,25 +53,21 @@ public class Event {
 
     public String getDescription() { return description; }
 
-    public void SetDescription(String description) { this.description = description; }
+    public void setDescription(String description) { this.description = description; }
 
     public BigDecimal getAmount() { return amount; }
 
-    public void SetAmount(BigDecimal amount) { this.amount = amount; }
+    public void setAmount(BigDecimal amount) { this.amount = amount; }
 
     public LocalDateTime getEventDate() { return eventDate; }
 
-    public void SetEventDate(LocalDateTime eventDate) { this.eventDate = eventDate; }
+    public void setEventDate(LocalDateTime eventDate) { this.eventDate = eventDate; }
 
     public String getLocation() { return location; }
 
-    public void SetLocation(String location) { this.location = location; }
+    public void setLocation(String location) { this.location = location; }
 
     public String getUrlToPlatform() { return urlToPlatform; }
 
-    public void SetUrlToPlatform(String urlToPlatform) { this.urlToPlatform = urlToPlatform; }
-
-    public void setPreviewImageUrl(String previewFileName) {
-        previewImageUrl = previewFileName;
-    }
+    public void setUrlToPlatform(String urlToPlatform) { this.urlToPlatform = urlToPlatform; }
 }
