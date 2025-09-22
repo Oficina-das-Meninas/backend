@@ -13,6 +13,8 @@ public interface IAdminService {
 	
 	public AdminDto getAdminById(UUID id);
 	
+	public AdminDto getAdminByEmail(String email); 
+	
 	public UUID createAdmin(CreateAdminDto admin);
 	
 	public void updateAdmin(UUID id, UpdateAdminDto admin);

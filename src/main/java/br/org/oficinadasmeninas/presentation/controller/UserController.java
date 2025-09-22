@@ -32,17 +32,10 @@ public class UserController {
 
 	@PostMapping
 	public ResponseEntity<UserDto> createUser(@Valid @RequestBody CreateUserDto request) {
-		UUID id = userService.createUser(request);
-
-		UserDto userDto = new UserDto();
-		userDto.setId(id);
-		userDto.setEmail(request.getEmail());
-		userDto.setName(request.getName());
-		userDto.setDocument(request.getDocument());
-		userDto.setPhone(request.getPhone());
+		UserDto userDto = userService.createUser(request);
 
 		return ResponseEntity
-				.created(ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(id).toUri())
+				.created(ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(userDto.getId()).toUri())
 				.body(userDto);
 	}
 	
