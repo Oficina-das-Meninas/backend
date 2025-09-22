@@ -7,13 +7,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import br.org.oficinadasmeninas.application.AuthApplication;
 import br.org.oficinadasmeninas.domain.user.dto.CreateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
 import br.org.oficinadasmeninas.infra.auth.UserDetailsCustom;
 import br.org.oficinadasmeninas.infra.auth.dto.LoginResponseDto;
 import br.org.oficinadasmeninas.infra.auth.dto.LoginUserDto;
 import br.org.oficinadasmeninas.infra.auth.dto.UserResponseDto;
+import br.org.oficinadasmeninas.infra.auth.service.AuthService;
 import br.org.oficinadasmeninas.infra.auth.service.JwtService;
 import jakarta.validation.Valid;
 
@@ -21,18 +21,18 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-	private final AuthApplication authApplication;
+	private final AuthService authService;
 	private final JwtService jwtService;
 
-	public AuthController(AuthApplication authApplication, JwtService jwtService) {
+	public AuthController(AuthService authService, JwtService jwtService) {
 		super();
-		this.authApplication = authApplication;
+		this.authService = authService;
 		this.jwtService = jwtService;
 	}
 
 	@PostMapping("/signup")
 	public ResponseEntity<UserDto> createUserAccount(@Valid @RequestBody CreateUserDto request) {
-		UserDto userDto = authApplication.createUserAccount(request);
+		UserDto userDto = authService.createUserAccount(request);
 
 		return ResponseEntity.created(
 				ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(userDto.getId()).toUri())
@@ -41,7 +41,7 @@ public class AuthController {
 
 	@PostMapping("/login")
 	public ResponseEntity<LoginResponseDto> authenticate(@RequestBody LoginUserDto loginUserDto) {
-		UserDetailsCustom authenticatedUser = authApplication.authenticate(loginUserDto);
+		UserDetailsCustom authenticatedUser = authService.authenticate(loginUserDto);
 
 		String jwtToken = jwtService.generateToken(authenticatedUser);
 

@@ -1,4 +1,4 @@
-package br.org.oficinadasmeninas.application;
+package br.org.oficinadasmeninas.infra.auth.service;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,7 +14,7 @@ import br.org.oficinadasmeninas.infra.auth.UserDetailsCustom;
 import br.org.oficinadasmeninas.infra.auth.dto.LoginUserDto;
 
 @Service
-public class AuthApplication {
+public class AuthService {
 
 	private final IAdminService adminService;
 	private final IUserService userService;
@@ -22,7 +22,7 @@ public class AuthApplication {
 
 	private final boolean IS_ADMIN = true;
 
-	public AuthApplication(IAdminService adminService, IUserService userService,
+	public AuthService(IAdminService adminService, IUserService userService,
 			AuthenticationManager authenticationManager) {
 		super();
 		this.adminService = adminService;
@@ -61,5 +61,5 @@ public class AuthApplication {
 	private UserDetailsCustom createUserDetailsCustom(AdminDto admin, String password) {
 		return new UserDetailsCustom(admin.getId(), admin.getEmail(), password, admin.getName(), IS_ADMIN);
 	}
-
+	
 }
