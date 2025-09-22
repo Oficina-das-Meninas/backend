@@ -13,7 +13,9 @@ public interface IUserService {
 	
 	public UserDto getUserById(UUID id);
 	
-	public UUID createUser(CreateUserDto user);
+	public UserDto getUserByEmail(String email);
+	
+	public UserDto createUser(CreateUserDto user);
 	
 	public void updateUser(UUID id, UpdateUserDto user);
 	

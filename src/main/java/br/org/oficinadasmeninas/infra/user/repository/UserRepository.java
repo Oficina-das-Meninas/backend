@@ -21,7 +21,7 @@ public class UserRepository implements IUserRepository {
 	public UserRepository(JdbcTemplate jdbc) {
 		this.jdbc = jdbc;
 	}
-	
+
 	@Override
 	public List<User> findAllUsers() {
 		String sql = "SELECT id, name, email, password, phone, document FROM users";
@@ -34,11 +34,11 @@ public class UserRepository implements IUserRepository {
 		String sql = "SELECT id, name, email, password, phone, document FROM users WHERE id = ?";
 
 		try {
-            var user = jdbc.queryForObject(sql, this::mapRowUser, id);
-            return Optional.ofNullable(user);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+			var user = jdbc.queryForObject(sql, this::mapRowUser, id);
+			return Optional.ofNullable(user);
+		} catch (EmptyResultDataAccessException e) {
+			return Optional.empty();
+		}
 	}
 
 	@Override
@@ -46,11 +46,11 @@ public class UserRepository implements IUserRepository {
 		String sql = "SELECT id, name, email, password, phone, document FROM users WHERE email = ?";
 
 		try {
-            var user = jdbc.queryForObject(sql, this::mapRowUser, email);
-            return Optional.ofNullable(user);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+			var user = jdbc.queryForObject(sql, this::mapRowUser, email);
+			return Optional.ofNullable(user);
+		} catch (EmptyResultDataAccessException e) {
+			return Optional.empty();
+		}
 	}
 
 	@Override
@@ -64,18 +64,33 @@ public class UserRepository implements IUserRepository {
 	@Override
 	public void updateUser(User user) {
 		String sql = "UPDATE users SET name = ?, email = ?, password = ?, phone = ?, document = ? WHERE id = ?";
-		jdbc.update(sql, user.getName(), user.getEmail(), user.getPassword(), user.getPhone(), user.getDocument(), user.getId());
+		jdbc.update(sql, user.getName(), user.getEmail(), user.getPassword(), user.getPhone(), user.getDocument(),
+				user.getId());
+	}
+
+	@Override
+	public boolean existsByEmail(String email) {
+		String sql = "SELECT COUNT(*) FROM users WHERE email = ?";
+        Integer count = jdbc.queryForObject(sql, Integer.class, email);
+        return count != null && count > 0;
+	}
+
+	@Override
+	public boolean existsByDocument(String document) {
+		String sql = "SELECT COUNT(*) FROM users WHERE document = ?";
+        Integer count = jdbc.queryForObject(sql, Integer.class, document);
+        return count != null && count > 0;
 	}
 
 	private User mapRowUser(ResultSet rs, int rowNum) throws SQLException {
-        var user = new User();
-        user.setId(UUID.fromString(rs.getString("id")));
-        user.setName(rs.getString("name"));
-        user.setEmail(rs.getString("email"));
-        user.setDocument(rs.getString("document"));
-        user.setPassword(rs.getString("password"));
-        user.setPhone(rs.getString("phone"));
-        return user;
-    }
+		var user = new User();
+		user.setId(UUID.fromString(rs.getString("id")));
+		user.setName(rs.getString("name"));
+		user.setEmail(rs.getString("email"));
+		user.setDocument(rs.getString("document"));
+		user.setPassword(rs.getString("password"));
+		user.setPhone(rs.getString("phone"));
+		return user;
+	}
 
 }

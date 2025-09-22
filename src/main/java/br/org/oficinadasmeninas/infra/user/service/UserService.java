@@ -14,6 +14,7 @@ import br.org.oficinadasmeninas.domain.user.dto.UpdateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
 import br.org.oficinadasmeninas.domain.user.repository.IUserRepository;
 import br.org.oficinadasmeninas.domain.user.service.IUserService;
+import br.org.oficinadasmeninas.infra.shared.exception.DocumentAlreadyExistsException;
 import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsException;
 
 @Service
@@ -49,20 +50,45 @@ public class UserService implements IUserService {
 
 		return userDto;
 	}
+	
+	@Override
+	public UserDto getUserByEmail(String email) {
+		UserDto userDto = new UserDto();
+
+		User user = userRepository.findUserByEmail(email)
+				.orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com o email: " + email));
+
+		userDto.setId(user.getId());
+		userDto.setEmail(user.getEmail());
+		userDto.setName(user.getName());
+		userDto.setPhone(user.getPhone());
+		userDto.setDocument(user.getDocument());
+
+		return userDto;
+	}
 
 	@Override
-	public UUID createUser(CreateUserDto user) {
-		User newUser = new User();
-		newUser.setName(user.getName());
-		newUser.setEmail(user.getEmail());
-		newUser.setDocument(user.getDocument());
-		newUser.setPhone(user.getPhone());
-		newUser.setPassword(passwordEncoder.encode(user.getPassword()));
-
+	public UserDto createUser(CreateUserDto user) {
 		try {
-			return userRepository.createUser(newUser);
+			User newUser = new User();
+			newUser.setName(user.getName());
+			newUser.setEmail(user.getEmail());
+			newUser.setDocument(user.getDocument());
+			newUser.setPhone(user.getPhone());
+			newUser.setPassword(passwordEncoder.encode(user.getPassword()));
+			
+			UUID userId = userRepository.createUser(newUser);
+			newUser.setId(userId);
+			
+			return new UserDto(newUser);
 		} catch (DataIntegrityViolationException e) {
-			throw new EmailAlreadyExistsException();
+			if (userRepository.existsByEmail(user.getEmail())) {
+		        throw new EmailAlreadyExistsException();
+		    }
+		    if (userRepository.existsByDocument(user.getDocument())) {
+		        throw new DocumentAlreadyExistsException();
+		    }
+		    throw e;
 		}
 	}
 

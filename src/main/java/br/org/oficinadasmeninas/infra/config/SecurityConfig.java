@@ -1,36 +1,79 @@
 package br.org.oficinadasmeninas.infra.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-	@Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(AbstractHttpConfigurer::disable)
-            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll()
-            )
-            .httpBasic(Customizer.withDefaults())
-            .formLogin(AbstractHttpConfigurer::disable);
+	private final AuthenticationProvider authenticationProvider;
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-        return http.build();
-    }
+	public SecurityConfig(AuthenticationProvider authenticationProvider,
+			JwtAuthenticationFilter jwtAuthenticationFilter) {
+		super();
+		this.authenticationProvider = authenticationProvider;
+		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+	}
 	
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+//	@Bean
+//	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//	    http
+//	        .csrf(csrf -> csrf.disable())
+//	        .authorizeHttpRequests(auth -> auth
+//	            .requestMatchers(HttpMethod.POST,"/api/auth/**").permitAll()
+//				.requestMatchers(HttpMethod.POST, "/api/notification/**").permitAll()
+//				.requestMatchers(HttpMethod.GET, "/api/events").permitAll()
+//				.requestMatchers(HttpMethod.GET, "/api/transparencies").permitAll()
+//				.anyRequest().authenticated()
+//	        )
+//	        .sessionManagement(session -> session
+//	            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//	        )
+//	        .authenticationProvider(authenticationProvider)
+//	        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+//	        .cors(Customizer.withDefaults());
+//	        
+//
+//	    return http.build();
+//	}
+	
+	@Bean
+	CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+
+		configuration.setAllowedOrigins(List.of("http://localhost:4200", "https://apollomusic.com.br", "https://dev.apollomusic.com.br"));
+		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+		configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+		configuration.setAllowCredentials(true);
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+		source.registerCorsConfiguration("/**", configuration);
+
+		return source;
+	}
+
+	@Bean
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http.csrf(AbstractHttpConfigurer::disable)
+				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.authorizeHttpRequests(auth -> auth.anyRequest().permitAll()).httpBasic(Customizer.withDefaults())
+				.formLogin(AbstractHttpConfigurer::disable);
+
+		return http.build();
+	}
 }
