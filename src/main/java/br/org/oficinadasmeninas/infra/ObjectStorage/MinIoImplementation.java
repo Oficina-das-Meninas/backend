@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 @Service
 public class MinIoImplementation implements IObjectStorage {
@@ -25,6 +26,21 @@ public class MinIoImplementation implements IObjectStorage {
     }
 
     @Override
+    public void upload(String key, InputStream data, String contentType) throws IOException {
+
+        String fullKey = "public/" + key;
+
+        s3Client.putObject(
+                PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(fullKey)
+                        .contentType(contentType)
+                        .build(),
+                RequestBody.fromInputStream(data, data.available())
+        );
+    }
+
+    @Override
     public void upload(MultipartFile file, Boolean isPublic) throws IOException {
         String originalName = file.getOriginalFilename();
         if (originalName != null) {
@@ -34,7 +50,7 @@ public class MinIoImplementation implements IObjectStorage {
         upload(file, originalName, isPublic);
     }
 
-    private String sanitizeFileName(String fileName) {
+    public String sanitizeFileName(String fileName) {
         String normalized = java.text.Normalizer.normalize(fileName, java.text.Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "");
         return normalized.replaceAll("[^a-zA-Z0-9\\.\\-_]", "_");
