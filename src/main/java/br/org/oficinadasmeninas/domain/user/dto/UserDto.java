@@ -2,6 +2,8 @@ package br.org.oficinadasmeninas.domain.user.dto;
 
 import java.util.UUID;
 
+import br.org.oficinadasmeninas.domain.user.User;
+
 public class UserDto {
 
 	private UUID id;
@@ -13,6 +15,18 @@ public class UserDto {
 	public UserDto() {
 		super();
 	}
+	
+	
+
+	public UserDto(User user) {
+		super();
+		this.id = user.getId();
+		this.name = user.getName();
+		this.email = user.getEmail();
+		this.document = user.getDocument();
+		this.phone = user.getPhone();
+	}
+
 
 	public UserDto(UUID id, String name, String email, String document, String phone) {
 		super();

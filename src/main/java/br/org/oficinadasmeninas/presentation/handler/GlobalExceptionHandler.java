@@ -1,6 +1,9 @@
 package br.org.oficinadasmeninas.presentation.handler;
 
-import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -8,9 +11,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import br.org.oficinadasmeninas.domain.transparency.exception.EntityNotFoundException;
+import br.org.oficinadasmeninas.infra.shared.exception.DocumentAlreadyExistsException;
+import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -41,5 +44,15 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.badRequest().body(errors);
+    }
+    
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<String> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
+    	return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+    
+    @ExceptionHandler(DocumentAlreadyExistsException.class)
+    public ResponseEntity<String> handleDocumentAlreadyExists(DocumentAlreadyExistsException ex) {
+    	return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 }

@@ -47,6 +47,20 @@ public class AdminService implements IAdminService {
 
 		return adminDto;
 	}
+	
+	@Override
+	public AdminDto getAdminByEmail(String email) {
+		AdminDto adminDto = new AdminDto();
+
+		Admin admin = adminRepository.findAdminByEmail(email)
+				.orElseThrow(() -> new EntityNotFoundException("Admin não encontrado com o email: " + email));
+
+		adminDto.setId(admin.getId());
+		adminDto.setEmail(admin.getEmail());
+		adminDto.setName(admin.getName());
+
+		return adminDto;
+	}
 
 	@Override
 	public UUID createAdmin(CreateAdminDto admin) {
