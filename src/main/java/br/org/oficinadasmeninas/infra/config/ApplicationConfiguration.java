@@ -1,5 +1,6 @@
 package br.org.oficinadasmeninas.infra.config;
 
+import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,7 +12,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import br.org.oficinadasmeninas.domain.admin.Admin;
 import br.org.oficinadasmeninas.domain.admin.repository.IAdminRepository;
-import br.org.oficinadasmeninas.domain.transparency.exception.EntityNotFoundException;
 import br.org.oficinadasmeninas.domain.user.User;
 import br.org.oficinadasmeninas.domain.user.repository.IUserRepository;
 import br.org.oficinadasmeninas.infra.auth.UserDetailsCustom;
