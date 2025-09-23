@@ -9,8 +9,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface IEventRepository {
-    Optional<Event> getEventById(UUID id);
     PageDTO<Event> findAll(int page, int pageSize);
+    Optional<Event> getEventById(UUID id);
     UUID createEvent(CreateEventDto createEventDto, String previewFileName, String partnerFileName);
     void updateEvent(UpdateEventDto eventDto, String previewFileName, String partnersFileName);
 }

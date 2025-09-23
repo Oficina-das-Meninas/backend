@@ -13,7 +13,7 @@ import br.org.oficinadasmeninas.domain.admin.dto.CreateAdminDto;
 import br.org.oficinadasmeninas.domain.admin.dto.UpdateAdminDto;
 import br.org.oficinadasmeninas.domain.admin.repository.IAdminRepository;
 import br.org.oficinadasmeninas.domain.admin.service.IAdminService;
-import br.org.oficinadasmeninas.domain.transparency.exception.EntityNotFoundException;
+import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
 import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsException;
 
 @Service

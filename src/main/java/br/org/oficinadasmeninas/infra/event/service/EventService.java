@@ -6,6 +6,7 @@ import br.org.oficinadasmeninas.domain.event.dto.UpdateEventDto;
 import br.org.oficinadasmeninas.domain.event.repository.IEventRepository;
 import br.org.oficinadasmeninas.domain.event.service.IEventService;
 import br.org.oficinadasmeninas.domain.objectStorage.IObjectStorage;
+import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Positive;
@@ -32,6 +33,12 @@ public class EventService implements IEventService {
         return eventRepository.findAll(page, pageSize);
     }
 
+    public Event findById(UUID id) {
+
+        return eventRepository.getEventById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Evento não encontrado: " + id));
+    }
+
     public Event createEvent(CreateEventDto createEventDto) throws IOException {
         var previewFileName = uploadMultipartFile(createEventDto.previewImage());
         var partnersFileName = uploadMultipartFile(createEventDto.partnersImage());
@@ -52,10 +59,8 @@ public class EventService implements IEventService {
     }
 
     public Event updateEvent(UUID id, UpdateEventDto updateEventDto) throws Exception {
-        var optionalEvent = eventRepository.getEventById(id);
-
-        if (optionalEvent.isEmpty())
-            throw new Exception();
+        eventRepository.getEventById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Evento não encontrado: " + id));
 
         var previewFileName = uploadMultipartFile(updateEventDto.previewImage());
         var partnersFileName = uploadMultipartFile(updateEventDto.partnersImage());

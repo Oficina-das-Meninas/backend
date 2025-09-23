@@ -7,7 +7,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import br.org.oficinadasmeninas.domain.transparency.exception.EntityNotFoundException;
+import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
 import br.org.oficinadasmeninas.domain.user.User;
 import br.org.oficinadasmeninas.domain.user.dto.CreateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UpdateUserDto;

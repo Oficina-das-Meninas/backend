@@ -33,6 +33,11 @@ public class EventController {
         return eventService.findAll(page, pageSize);
     }
 
+    @GetMapping("/{id}")
+    public Event findEventById(@PathVariable UUID id) throws Exception {
+        return eventService.findById(id);
+    }
+
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public Event addEvent(@ModelAttribute @Valid CreateEventDto createEventDto) throws IOException {
