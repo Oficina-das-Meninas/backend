@@ -10,6 +10,7 @@ import java.util.UUID;
 
 public interface IEventService {
     PageDTO<Event> findAll(int page, int pageSize);
+    Event findById(UUID id) throws Exception;
     Event createEvent(CreateEventDto eventDto) throws IOException;
     Event updateEvent(UUID id, UpdateEventDto updateEventDto) throws Exception;
 }

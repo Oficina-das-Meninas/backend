@@ -1,12 +1,12 @@
 package br.org.oficinadasmeninas.infra.auth.service;
 
+import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import br.org.oficinadasmeninas.domain.admin.dto.AdminDto;
 import br.org.oficinadasmeninas.domain.admin.service.IAdminService;
-import br.org.oficinadasmeninas.domain.transparency.exception.EntityNotFoundException;
 import br.org.oficinadasmeninas.domain.user.dto.CreateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
 import br.org.oficinadasmeninas.domain.user.service.IUserService;
@@ -51,7 +51,7 @@ public class AuthService {
 			return createUserDetailsCustom(admin, loginUserDTO.getPassword());
 		}
 
-		throw new EntityNotFoundException("Usuário não encontrato");
+		throw new EntityNotFoundException("Usuário não encontrado");
 	}
 
 	private UserDetailsCustom createUserDetailsCustom(UserDto user, String password) {

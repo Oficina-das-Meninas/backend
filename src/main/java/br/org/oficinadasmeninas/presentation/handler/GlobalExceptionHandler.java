@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import br.org.oficinadasmeninas.domain.transparency.exception.EntityNotFoundException;
+import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
 import br.org.oficinadasmeninas.infra.shared.exception.DocumentAlreadyExistsException;
 import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsException;
 
