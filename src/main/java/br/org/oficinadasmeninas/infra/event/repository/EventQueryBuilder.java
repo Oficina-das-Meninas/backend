@@ -5,6 +5,7 @@ public class EventQueryBuilder {
         SELECT id, title, preview_image_url, partners_image_url, description, event_date, location, url_to_platform
         FROM EVENTS
         WHERE id = ?
+          AND isActive
     """;
 
     public static final String SELECT_COUNT = """
@@ -20,6 +21,7 @@ public class EventQueryBuilder {
               AND (location ILIKE COALESCE('%' || ? || '%', location))
               AND event_date BETWEEN COALESCE(?, event_date)
                              AND COALESCE(?, event_date)
+              AND isActive
             ORDER BY event_date DESC
             LIMIT ? OFFSET ?;
     """;
@@ -37,7 +39,8 @@ public class EventQueryBuilder {
             description = ?,
             event_date = ?,
             location = ?,
-            url_to_platform = ?
+            url_to_platform = ?,
+            isActive = ?
         WHERE id = ?
     """;
 }

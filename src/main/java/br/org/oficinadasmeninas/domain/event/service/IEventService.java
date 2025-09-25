@@ -14,4 +14,5 @@ public interface IEventService {
     Event findById(UUID id) throws Exception;
     Event createEvent(CreateEventDto eventDto) throws IOException;
     Event updateEvent(UUID id, UpdateEventDto updateEventDto) throws Exception;
+    void deleteEvent(UUID id) throws Exception;
 }

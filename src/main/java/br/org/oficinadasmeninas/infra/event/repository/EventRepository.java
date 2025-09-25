@@ -87,6 +87,7 @@ public class EventRepository implements IEventRepository {
                 Timestamp.valueOf(updateEventDto.eventDate()),
                 updateEventDto.location(),
                 updateEventDto.urlToPlatform(),
+                updateEventDto.isActive() == null || updateEventDto.isActive(),
                 updateEventDto.id());
     }
 

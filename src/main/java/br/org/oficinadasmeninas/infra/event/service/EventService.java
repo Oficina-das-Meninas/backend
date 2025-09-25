@@ -74,6 +74,15 @@ public class EventService implements IEventService {
         );
     }
 
+    public void deleteEvent(UUID id) {
+        var event = eventRepository.getEventById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Evento não encontrado: " + id));
+
+        event.setIsActive(false);
+
+        eventRepository.updateEvent(UpdateEventDto.fromEvent(event), event.getPreviewImageUrl(), event.getPartnersImageUrl());
+    }
+
     private String uploadMultipartFile(MultipartFile file) throws IOException {
         if (file == null || file.isEmpty())
             return null;
