@@ -14,7 +14,7 @@ public record CreateEventDto(
         MultipartFile partnersImage,
 
         @NotBlank(message = "O titulo do evento é obrigatório")
-        @Size(max = 4096, message = "O título do evento deve ter no máximo 255 caracteres.")
+        @Size(max = 4096, message = "O título do evento deve ter no máximo 4096 caracteres.")
         String title,
 
         @NotBlank(message = "A descrição do evento é obrigatória")
