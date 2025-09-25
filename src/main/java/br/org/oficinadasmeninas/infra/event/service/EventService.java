@@ -2,17 +2,14 @@ package br.org.oficinadasmeninas.infra.event.service;
 
 import br.org.oficinadasmeninas.domain.event.Event;
 import br.org.oficinadasmeninas.domain.event.dto.CreateEventDto;
+import br.org.oficinadasmeninas.domain.event.dto.GetEventDto;
 import br.org.oficinadasmeninas.domain.event.dto.UpdateEventDto;
 import br.org.oficinadasmeninas.domain.event.repository.IEventRepository;
 import br.org.oficinadasmeninas.domain.event.service.IEventService;
 import br.org.oficinadasmeninas.domain.objectStorage.IObjectStorage;
 import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -28,9 +25,8 @@ public class EventService implements IEventService {
         this.storageService = storageService;
     }
 
-    public PageDTO<Event> findAll(@RequestParam @PositiveOrZero int page,
-                                  @RequestParam @Positive @Max(100) int pageSize){
-        return eventRepository.findAll(page, pageSize);
+    public PageDTO<Event> getFilteredEvents(GetEventDto getEventDto){
+        return eventRepository.getFilteredEvents(getEventDto);
     }
 
     public Event findById(UUID id) {
@@ -51,7 +47,6 @@ public class EventService implements IEventService {
                 previewFileName,
                 partnersFileName,
                 createEventDto.description(),
-                createEventDto.amount(),
                 createEventDto.eventDate(),
                 createEventDto.location(),
                 createEventDto.urlToPlatform()
@@ -73,7 +68,6 @@ public class EventService implements IEventService {
                 previewFileName,
                 partnersFileName,
                 updateEventDto.description(),
-                updateEventDto.amount(),
                 updateEventDto.eventDate(),
                 updateEventDto.location(),
                 updateEventDto.urlToPlatform()

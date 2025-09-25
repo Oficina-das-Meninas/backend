@@ -1,5 +1,5 @@
 package br.org.oficinadasmeninas.domain.event;
-import java.math.BigDecimal;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -9,7 +9,6 @@ public class Event {
     private String previewImageUrl;
     private String partnersImageUrl;
     private String description;
-    private BigDecimal amount;
     private LocalDateTime eventDate;
     private String location;
     private String urlToPlatform;
@@ -19,7 +18,6 @@ public class Event {
                  String previewImageUrl,
                  String partnersImageUrl,
                  String description,
-                 BigDecimal amount,
                  LocalDateTime eventDate,
                  String location,
                  String urlToPlatform
@@ -29,7 +27,6 @@ public class Event {
         this.previewImageUrl = previewImageUrl;
         this.partnersImageUrl = partnersImageUrl;
         this.description = description;
-        this.amount = amount;
         this.eventDate = eventDate;
         this.location = location;
         this.urlToPlatform = urlToPlatform;
@@ -54,10 +51,6 @@ public class Event {
     public String getDescription() { return description; }
 
     public void setDescription(String description) { this.description = description; }
-
-    public BigDecimal getAmount() { return amount; }
-
-    public void setAmount(BigDecimal amount) { this.amount = amount; }
 
     public LocalDateTime getEventDate() { return eventDate; }
 
