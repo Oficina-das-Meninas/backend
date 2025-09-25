@@ -2,6 +2,7 @@ package br.org.oficinadasmeninas.infra.event.repository;
 
 import br.org.oficinadasmeninas.domain.event.Event;
 import br.org.oficinadasmeninas.domain.event.dto.CreateEventDto;
+import br.org.oficinadasmeninas.domain.event.dto.GetEventDto;
 import br.org.oficinadasmeninas.domain.event.dto.UpdateEventDto;
 import br.org.oficinadasmeninas.domain.event.repository.IEventRepository;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
@@ -26,6 +27,28 @@ public class EventRepository implements IEventRepository {
     }
 
     @Override
+    public PageDTO<Event> getFilteredEvents(GetEventDto getEventDto) {
+        String rowCountSql = EventQueryBuilder.SELECT_COUNT;
+
+        int total = jdbc.queryForObject(rowCountSql, Integer.class);
+        int totalPages = Math.toIntExact((total / getEventDto.pageSize()) + (total % getEventDto.pageSize() == 0 ? 0 : 1));
+
+        List<Event> events = jdbc.query(
+                EventQueryBuilder.GET_FILTERED_EVENTS,
+                this::mapRow,
+                getEventDto.title(),
+                getEventDto.description(),
+                getEventDto.location(),
+                getEventDto.startDate(),
+                getEventDto.endDate(),
+                getEventDto.pageSize(),
+                getEventDto.page()
+        );
+
+        return new PageDTO<>(events, total, totalPages);
+    }
+
+    @Override
     public Optional<Event> getEventById(UUID id) {
         try
         {
@@ -38,23 +61,6 @@ public class EventRepository implements IEventRepository {
         }
     }
 
-    @Override
-    public PageDTO<Event> findAll(int page, int pageSize) {
-        String rowCountSql = EventQueryBuilder.SELECT_COUNT;
-
-        int total = jdbc.queryForObject(rowCountSql, Integer.class);
-        int totalPages = Math.toIntExact((total / pageSize) + (total % pageSize == 0 ? 0 : 1));
-
-        List<Event> events = jdbc.query(
-                EventQueryBuilder.GET_ALL_EVENTS,
-                this::mapRow,
-                pageSize,
-                page
-        );
-
-        return new PageDTO<>(events, total, totalPages);
-    }
-
     public UUID createEvent(CreateEventDto createEventDto, String previewFileName, String partnersFileName) {
         var id = UUID.randomUUID();
 
@@ -64,7 +70,6 @@ public class EventRepository implements IEventRepository {
             previewFileName,
             partnersFileName,
             createEventDto.description(),
-            createEventDto.amount(),
             Timestamp.valueOf(createEventDto.eventDate()),
             createEventDto.location(),
             createEventDto.urlToPlatform());
@@ -79,7 +84,6 @@ public class EventRepository implements IEventRepository {
                 previewFileName,
                 partnersFileName,
                 updateEventDto.description(),
-                updateEventDto.amount(),
                 Timestamp.valueOf(updateEventDto.eventDate()),
                 updateEventDto.location(),
                 updateEventDto.urlToPlatform(),
@@ -93,7 +97,6 @@ public class EventRepository implements IEventRepository {
                 rs.getString("preview_image_url"),
                 rs.getString("partners_image_url"),
                 rs.getString("description"),
-                rs.getBigDecimal("amount"),
                 rs.getObject("event_date", LocalDateTime.class),
                 rs.getString("location"),
                 rs.getString("url_to_platform")

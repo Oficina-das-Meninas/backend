@@ -2,7 +2,7 @@ package br.org.oficinadasmeninas.infra.event.repository;
 
 public class EventQueryBuilder {
     public static final String GET_EVENT_BY_ID = """
-        SELECT id, title, preview_image_url, partners_image_url, description, amount, event_date, location, url_to_platform
+        SELECT id, title, preview_image_url, partners_image_url, description, event_date, location, url_to_platform
         FROM EVENTS
         WHERE id = ?
     """;
@@ -12,16 +12,21 @@ public class EventQueryBuilder {
         FROM events
     """;
 
-    public static final String GET_ALL_EVENTS = """
-        SELECT id, title, preview_image_url, partners_image_url, description, amount, event_date, location, url_to_platform
-        FROM EVENTS
-        ORDER BY event_date DESC
-        LIMIT ? OFFSET ?
+    public static final String GET_FILTERED_EVENTS = """
+            SELECT id, title, preview_image_url, partners_image_url, description, event_date, location,  url_to_platform
+            FROM EVENTS
+            WHERE (title ILIKE COALESCE('%' || ? || '%', title))
+              AND (description ILIKE COALESCE('%' || ? || '%', description))
+              AND (location ILIKE COALESCE('%' || ? || '%', location))
+              AND event_date BETWEEN COALESCE(?, event_date)
+                             AND COALESCE(?, event_date)
+            ORDER BY event_date DESC
+            LIMIT ? OFFSET ?;
     """;
 
     public static final String CREATE_EVENT = """
-        INSERT INTO events (id, title, preview_image_url, partners_image_url, description, amount, event_date, location, url_to_platform)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO events (id, title, preview_image_url, partners_image_url, description, event_date, location, url_to_platform)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """;
 
     public static final String UPDATE_EVENT = """
@@ -30,7 +35,6 @@ public class EventQueryBuilder {
             preview_image_url = ?,
             partners_image_url = ?,
             description = ?,
-            amount = ?,
             event_date = ?,
             location = ?,
             url_to_platform = ?
