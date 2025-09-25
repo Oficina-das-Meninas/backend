@@ -64,4 +64,10 @@ public class EventController {
 
         return eventService.updateEvent(id, updateEventDto);
     }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteEvent(@PathVariable UUID id) throws Exception {
+        eventService.deleteEvent(id);
+    }
 }

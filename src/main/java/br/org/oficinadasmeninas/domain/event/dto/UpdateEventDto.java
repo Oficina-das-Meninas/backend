@@ -1,5 +1,6 @@
 package br.org.oficinadasmeninas.domain.event.dto;
 
+import br.org.oficinadasmeninas.domain.event.Event;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -13,6 +14,8 @@ public record UpdateEventDto(
         MultipartFile previewImage,
 
         MultipartFile partnersImage,
+
+        Boolean isActive,
 
         @NotNull(message = "O id do evento é obrigatório.")
         UUID id,
@@ -32,4 +35,18 @@ public record UpdateEventDto(
 
         @NotBlank(message = "A url para a plataforma do evento é obrigatória")
         String urlToPlatform
-) { }
+) {
+        public static UpdateEventDto fromEvent(Event event) {
+                return new UpdateEventDto(
+                        null,
+                        null,
+                        event.isActive(),
+                        event.getId(),
+                        event.getTitle(),
+                        event.getDescription(),
+                        event.getEventDate(),
+                        event.getLocation(),
+                        event.getUrlToPlatform()
+                );
+        }
+}
