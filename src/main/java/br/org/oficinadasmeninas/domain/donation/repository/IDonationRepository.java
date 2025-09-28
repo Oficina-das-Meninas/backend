@@ -1,13 +1,20 @@
 package br.org.oficinadasmeninas.domain.donation.repository;
 
-import br.org.oficinadasmeninas.domain.donation.Donation;
-
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
+import br.org.oficinadasmeninas.domain.donation.Donation;
+import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
+
 public interface IDonationRepository {
-    Donation findById(UUID id);
-    Donation save(Donation donation);
-    List<Donation> findAll();
-    List<Donation> findByUserId(UUID userId);
+
+	List<Donation> findAllDonations();
+
+	Optional<Donation> findDonationById(UUID id);
+	
+	UUID createDonation(Donation donation);
+	
+	void updateDonationStatus(UUID id, DonationStatusEnum status);
+	
 }
