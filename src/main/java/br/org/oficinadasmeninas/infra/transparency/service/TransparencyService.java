@@ -1,14 +1,11 @@
 package br.org.oficinadasmeninas.infra.transparency.service;
 
+import br.org.oficinadasmeninas.domain.Response;
 import br.org.oficinadasmeninas.domain.objectStorage.IObjectStorage;
 import br.org.oficinadasmeninas.domain.transparency.Document;
 import br.org.oficinadasmeninas.domain.transparency.Category;
-import br.org.oficinadasmeninas.domain.transparency.dto.CreateCollaboratorDto;
+import br.org.oficinadasmeninas.domain.transparency.dto.*;
 import br.org.oficinadasmeninas.domain.transparency.Collaborator;
-import br.org.oficinadasmeninas.domain.transparency.dto.CreateDocumentDto;
-import br.org.oficinadasmeninas.domain.transparency.dto.CreateCategoryDto;
-import br.org.oficinadasmeninas.domain.transparency.dto.ResponseCategoryDto;
-import br.org.oficinadasmeninas.domain.transparency.dto.UpdateCategoryDto;
 import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
 import br.org.oficinadasmeninas.domain.transparency.mapper.CategoryMapper;
 import br.org.oficinadasmeninas.domain.transparency.dto.getCategories.CategoryResponseDto;
@@ -43,83 +40,61 @@ public class TransparencyService implements ITransparencyService {
     }
 
     @Override
-    public void uploadDocument(
-        MultipartFile file,
-        String title,
-        Date effectiveDate,
-        String categoryId
-    ) throws IOException {
+    public Response<UUID> uploadDocument(CreateDocumentRequestDto request) throws IOException {
 
         var category = transparencyRepository
-                .findCategoryById(UUID.fromString(categoryId))
-                .orElseThrow();
+                .findCategoryById(UUID.fromString(request.categoryId()))
+                .orElseThrow(/*TODO: Exception NOT FOUND*/);
 
-        var previewLink = objectStorage.uploadTransparencyFile(file, false);
+        var previewLink = objectStorage.uploadTransparencyFile(request.file(), false);
 
-        var dto = new CreateDocumentDto(title, category.getId(), effectiveDate, previewLink);
+        var dto = new CreateDocumentDto(request.title(), category.getId(), request.effectiveDate(), previewLink);
 
-        transparencyRepository.insertDocument(dto);
-    }
+        var id = transparencyRepository.insertDocument(dto);
 
-    private List<DocumentResponseDto> MapDocumentsToDto(List<Document> documents) {
-        return documents.stream()
-                .map(doc -> new DocumentResponseDto(
-                        doc.getId(),
-                        doc.getTitle(),
-                        doc.getEffectiveDate(),
-                        doc.getPreviewLink()
-                ))
-                .sorted(Comparator.comparing(DocumentResponseDto::effectiveDate).reversed())
-                .toList();
+        return new Response<>("Documento criado com sucesso.", id);
     }
 
     @Override
-    public void uploadCollaborator(
-        MultipartFile file,
-        String name,
-        String role,
-        String description,
-        String priority,
-        String categoryId
-    ) throws IOException {
+    public Response<UUID> uploadCollaborator(CreateCollaboratorRequestDto request) throws IOException {
 
         var category = transparencyRepository
-                .findCategoryById(UUID.fromString(categoryId))
-                .orElseThrow();
+                .findCategoryById(UUID.fromString(request.categoryId()))
+                .orElseThrow(/*TODO: Exception NOT FOUND*/);
 
-        var imageLink = objectStorage.uploadTransparencyFile(file, true);
+        var imageLink = objectStorage.uploadTransparencyFile(request.file(), true);
 
-        Integer priorityInt;
-        try {
-            priorityInt = Integer.parseInt(priority);
-        } catch (NumberFormatException e) {
-            priorityInt = 0;
-        }
+        /*TODO: USAR MAPPER*/
+        var dto = new CreateCollaboratorDto(imageLink, category.getId(), request.name(), request.role(), request.description(), 0);
 
-        var dto = new CreateCollaboratorDto(imageLink, category.getId(), name, role, description, priorityInt);
+        var id = transparencyRepository.insertCollaborator(dto);
 
-        transparencyRepository.insertCollaborator(dto);
-
+        return new Response<>("Documento atualizado com sucesso.", id);
     }
 
     @Override
-    public void deleteCollaborator(UUID id) throws IOException {
+    public Response<Void> deleteCollaborator(UUID id) throws IOException {
+
         var collaborator = transparencyRepository
                 .findCollaboratorById(id)
-                .orElseThrow(() -> new CollaboratorNotFoundException(id));
+                .orElseThrow(() -> new CollaboratorNotFoundException(id));/*TODO: Exception NOT FOUND*/
 
         transparencyRepository.deleteCollaborator(collaborator.getId());
         objectStorage.deleteTransparencyFile(collaborator.getImage());
+
+        return new Response<>("Colaborador deletado com sucesso.", null);
     }
 
     @Override
-    public void deleteDocument(UUID id) throws IOException {
+    public Response<Void> deleteDocument(UUID id) throws IOException {
         var document = transparencyRepository
                 .findDocumentById(id)
                 .orElseThrow(() -> new DocumentNotFoundException(id));
 
         transparencyRepository.deleteDocument(document.getId());
         objectStorage.deleteTransparencyFile(document.getPreviewLink());
+
+        return new Response<>("Documento deletado com sucesso.", null);
     }
   
     private List<CollaboratorResponseDto> MapCollaboratorsToDto(List<Collaborator> collaborators) {
@@ -137,32 +112,34 @@ public class TransparencyService implements ITransparencyService {
     }
 
     @Override
-    public ResponseCategoryDto insertCategory(CreateCategoryDto request) {
+    public Response<UUID> insertCategory(CreateCategoryRequestDto request) {
 
-        Category entity = transparencyRepository.insertCategory(CategoryMapper.toEntity(request));
+        var entity = transparencyRepository.insertCategory(CategoryMapper.toEntity(request));
 
-        return CategoryMapper.toDto(entity);
+        return new Response<>("Categoria criada com sucesso.", entity.getId());
     }
 
     @Override
-    public ResponseCategoryDto getCategoryById(UUID id) {
+    public Response<ResponseCategoryDto> getCategoryById(UUID id) {
 
         var category = transparencyRepository.findCategoryById(id)
             .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada: " + id));
 
-        return CategoryMapper.toDto(category);
+        return new Response<>(null, CategoryMapper.toDto(category));
     }
 
     @Override
-    public List<ResponseCategoryDto> getAllCategories() {
+    public Response<List<ResponseCategoryDto>> getAllCategories() {
 
-        return transparencyRepository.findAllCategories().stream()
+        var list = transparencyRepository.findAllCategories().stream()
             .map(CategoryMapper::toDto)
             .toList();
+
+        return new Response<>(null, list);
     }
 
     @Override
-    public GetCategoriesResponseDto getAllCategoriesWithDocuments() {
+    public Response<GetCategoriesResponseDto> getAllCategoriesWithDocuments() {
 
         var categories = transparencyRepository.findAllCategories();
         var documents = transparencyRepository.findAllDocuments();
@@ -188,29 +165,33 @@ public class TransparencyService implements ITransparencyService {
                 .sorted(Comparator.comparing(CategoryResponseDto::priority))
                 .toList();
 
-        return new GetCategoriesResponseDto(categoryDtos);
+        var data = new GetCategoriesResponseDto(categoryDtos);
+
+        return new Response<>(null, data);
     }
 
     @Override
-    public ResponseCategoryDto updateCategory(UUID id, UpdateCategoryDto request) {
+    public Response<Void> updateCategory(UUID id, UpdateCategoryDto request) {
 
-        Category existing = transparencyRepository.findCategoryById(id)
+        var existing = transparencyRepository.findCategoryById(id)
             .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada: " + id));
 
         existing.setName(request.name());
         existing.setPriority(request.priority());
 
-        Category updated = transparencyRepository.updateCategory(existing);
+        var updated = transparencyRepository.updateCategory(existing);
 
-        return CategoryMapper.toDto(updated);
+        return new Response<>("Categoria atualizada com sucesso.", null);
     }
 
     @Override
-    public void deleteCategory(UUID id) {
+    public Response<Void> deleteCategory(UUID id) {
         checkCategoryExists(id);
         checkCategoryLinks(id);
 
         transparencyRepository.deleteCategory(id);
+
+        return new Response<>("Categoria excluida com sucesso", null);
     }
 
     private void checkCategoryExists(UUID id) {
@@ -233,5 +214,17 @@ public class TransparencyService implements ITransparencyService {
         if (docs > 0) msg.append(" ").append(docs).append(" documento(s)");
         if (collabs > 0) msg.append(docs > 0 ? " e " : " ").append(collabs).append(" colaborador(es)");
         return msg.toString();
+    }
+
+    private List<DocumentResponseDto> MapDocumentsToDto(List<Document> documents) {
+        return documents.stream()
+                .map(doc -> new DocumentResponseDto(
+                        doc.getId(),
+                        doc.getTitle(),
+                        doc.getEffectiveDate(),
+                        doc.getPreviewLink()
+                ))
+                .sorted(Comparator.comparing(DocumentResponseDto::effectiveDate).reversed())
+                .toList();
     }
 }
