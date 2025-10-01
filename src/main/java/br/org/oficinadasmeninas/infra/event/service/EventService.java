@@ -78,9 +78,11 @@ public class EventService implements IEventService {
         var event = eventRepository.getEventById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Evento não encontrado: " + id));
 
-        event.setIsActive(false);
-
-        eventRepository.updateEvent(UpdateEventDto.fromEvent(event), event.getPreviewImageUrl(), event.getPartnersImageUrl());
+        eventRepository.updateEvent(
+            UpdateEventDto.forDeletion(event.getId()),
+            event.getPreviewImageUrl(),
+            event.getPartnersImageUrl()
+        );
     }
 
     private String uploadMultipartFile(MultipartFile file) throws IOException {
