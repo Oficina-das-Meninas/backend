@@ -82,53 +82,6 @@ oficinadasmeninas/
 
 ## Autores
 
-<div style="display: flex; flex-wrap: wrap; gap: 32px; justify-content: center;">
-  <div style="text-align: center; width: 120px;">
-    <img src="https://avatars.githubusercontent.com/u/64173743?v=4" width="120" height="120" style="border-radius: 50%"><br>
-    <a href="https://github.com/gutsserrano"><b>Augusto</b></a>
-  </div>
-  <div style="text-align: center; width: 120px;">
-    <img src="https://avatars.githubusercontent.com/u/99999453?v=4" width="120" height="120" style="border-radius: 50%"><br>
-    <a href="https://github.com/caioslopes"><b>Caio</b></a>
-  </div>
-  <div style="text-align: center; width: 120px;">
-    <img src="https://avatars.githubusercontent.com/u/127906505?v=4" width="120" height="120" style="border-radius: 50%"><br>
-    <a href="https://github.com/CauaDeSa"><b>Cauã</b></a>
-  </div>
-  <div style="text-align: center; width: 120px;">
-    <img src="https://avatars.githubusercontent.com/u/110670578?v=4" width="120" height="120" style="border-radius: 50%"><br>
-    <a href="https://github.com/edenilsonjunior"><b>Edenilson</b></a>
-  </div>
-  <div style="text-align: center; width: 120px;">
-    <img src="https://avatars.githubusercontent.com/u/94545632?v=4" width="120" height="120" style="border-radius: 50%"><br>
-    <a href="https://github.com/DuhCarvalho05"><b>Eduardo</b></a>
-  </div>
-  <div style="text-align: center; width: 120px;">
-    <img src="https://avatars.githubusercontent.com/u/106879291?v=4" width="120" height="120" style="border-radius: 50%"><br>
-    <a href="https://github.com/roberttiss"><b>Gabriel</b></a>
-  </div>
-  <div style="text-align: center; width: 120px;">
-    <img src="https://avatars.githubusercontent.com/u/64981353?v=4" width="120" height="120" style="border-radius: 50%"><br>
-    <a href="https://github.com/giovanatrevizanbarbosa"><b>Giovana</b></a>
-  </div>
-  <div style="text-align: center; width: 120px;">
-    <img src="https://avatars.githubusercontent.com/u/85528622?v=4" width="120" height="120" style="border-radius: 50%"><br>
-    <a href="https://github.com/RICKBISPO"><b>Henrique</b></a>
-  </div>
-  <div style="text-align: center; width: 120px;">
-    <img src="https://avatars.githubusercontent.com/u/66184416?v=4" width="120" height="120" style="border-radius: 50%"><br>
-    <a href="https://github.com/igorcardosoy"><b>Igor</b></a>
-  </div>
-  <div style="text-align: center; width: 120px;">
-    <img src="https://avatars.githubusercontent.com/u/56651735?v=4" width="120" height="120" style="border-radius: 50%"><br>
-    <a href="https://github.com/LucasAlt40"><b>Lucas</b></a>
-  </div>
-  <div style="text-align: center; width: 120px;">
-    <img src="https://avatars.githubusercontent.com/u/141193412?v=4" width="120" height="120" style="border-radius: 50%"><br>
-    <a href="https://github.com/LizzBricce"><b>Maria</b></a>
-  </div>
-  <div style="text-align: center; width: 120px;">
-    <img src="https://avatars.githubusercontent.com/u/121053250?v=4" width="120" height="120" style="border-radius: 50%"><br>
-    <a href="https://github.com/natansalvadorligabo"><b>Natan</b></a>
-  </div>
-</div>
+| [<img src="https://avatars.githubusercontent.com/u/64173743?v=4" width="120" height="120" style="border-radius: 50%"><br>**Augusto**](https://github.com/gutsserrano) | [<img src="https://avatars.githubusercontent.com/u/99999453?v=4" width="120" height="120" style="border-radius: 50%"><br>**Caio**](https://github.com/caioslopes) | [<img src="https://avatars.githubusercontent.com/u/127906505?v=4" width="120" height="120" style="border-radius: 50%"><br>**Cauã**](https://github.com/CauaDeSa) | [<img src="https://avatars.githubusercontent.com/u/110670578?v=4" width="120" height="120" style="border-radius: 50%"><br>**Edenilson**](https://github.com/edenilsonjunior) | [<img src="https://avatars.githubusercontent.com/u/94545632?v=4" width="120" height="120" style="border-radius: 50%"><br>**Eduardo**](https://github.com/DuhCarvalho05) | [<img src="https://avatars.githubusercontent.com/u/106879291?v=4" width="120" height="120" style="border-radius: 50%"><br>**Gabriel**](https://github.com/roberttiss) |
+|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| [<img src="https://avatars.githubusercontent.com/u/64981353?v=4" width="120" height="120" style="border-radius: 50%"><br>**Giovana**](https://github.com/giovanatrevizanbarbosa) | [<img src="https://avatars.githubusercontent.com/u/85528622?v=4" width="120" height="120" style="border-radius: 50%"><br>**Henrique**](https://github.com/RICKBISPO) | [<img src="https://avatars.githubusercontent.com/u/66184416?v=4" width="120" height="120" style="border-radius: 50%"><br>**Igor**](https://github.com/igorcardosoy) | [<img src="https://avatars.githubusercontent.com/u/56651735?v=4" width="120" height="120" style="border-radius: 50%"><br>**Lucas**](https://github.com/LucasAlt40) | [<img src="https://avatars.githubusercontent.com/u/141193412?v=4" width="120" height="120" style="border-radius: 50%"><br>**Maria**](https://github.com/LizzBricce) | [<img src="https://avatars.githubusercontent.com/u/121053250?v=4" width="120" height="120" style="border-radius: 50%"><br>**Natan**](https://github.com/natansalvadorligabo) |
