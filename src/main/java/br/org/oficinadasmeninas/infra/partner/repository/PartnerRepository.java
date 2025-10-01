@@ -15,9 +15,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static br.org.oficinadasmeninas.infra.partner.repository.PartnerQueryBuilder.GET_PARTNERS;
-import static br.org.oficinadasmeninas.infra.partner.repository.PartnerQueryBuilder.SELECT_COUNT;
-
 @Repository
 public class PartnerRepository implements IPartnerRepository {
     private final JdbcTemplate jdbc;
@@ -28,11 +25,11 @@ public class PartnerRepository implements IPartnerRepository {
 
     @Override
     public PageDTO<Partner> findAll(int page, int pageSize) {
-        long total = jdbc.queryForObject(SELECT_COUNT, Integer.class);
+        long total = jdbc.queryForObject(PartnerQueryBuilder.SELECT_COUNT, Integer.class);
         int totalPages = Math.toIntExact((total / pageSize) + (total % pageSize == 0 ? 0 : 1));
 
         List<Partner> partners = jdbc.query(
-                GET_PARTNERS,
+                PartnerQueryBuilder.GET_PARTNERS,
                 this::mapRow,
                 pageSize,
                 page
