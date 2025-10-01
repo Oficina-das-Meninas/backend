@@ -6,14 +6,14 @@ import java.util.UUID;
 
 public record PartnerDto (
         UUID id,
-        String previewUrl,
+        String previewImageUrl,
         String name
 ) {
 
     public static PartnerDto fromPartner(Partner partner) {
         return new PartnerDto(
                 partner.getId(),
-                partner.getPreviewUrl(),
+                partner.getPreviewImageUrl(),
                 partner.getName()
         );
     }
