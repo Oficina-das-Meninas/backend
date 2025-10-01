@@ -14,12 +14,19 @@ Fundada em 2002 por **Adélia Bellodi Privato**, a Oficina das Meninas acolhe e 
 
 - 20+ anos de atuação transformando vidas
 
+
+---
+
 ## Índice
+
 1. [Visão Geral](#visão-geral)  
 2. [Tecnologias Utilizadas](#tecnologias-utilizadas)  
 3. [Estrutura do Projeto](#estrutura-do-projeto)  
 4. [Licença](#licença)  
-5. [Autores](#autores)  
+5. [Autores](#autores)
+
+
+---
 
 ## Visão Geral
 
