@@ -7,7 +7,7 @@ public record RequestCreateCheckoutDto(String reference_id,
         CustomerDto  customer,
         List<ItemDto> items,
         List<PaymentMethodDto> payment_methods,
-        String redirect_uri,
+        String redirect_url,
         List<String> notification_urls,
         List<String> payment_notification_urls) {
 
