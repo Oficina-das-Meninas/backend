@@ -1,25 +1,27 @@
 package br.org.oficinadasmeninas.presentation.controller;
 
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import br.org.oficinadasmeninas.domain.donation.dto.checkout.RequestCheckoutDTO;
-import br.org.oficinadasmeninas.domain.donation.dto.checkout.ResponseCreateCheckoutDTO;
-import br.org.oficinadasmeninas.domain.donation.service.IDonationService;
-import org.springframework.web.bind.annotation.*;
+import br.org.oficinadasmeninas.application.DonationApplication;
+import br.org.oficinadasmeninas.domain.donation.dto.CreateDonationCheckoutDto;
+import br.org.oficinadasmeninas.domain.donation.dto.DonationCheckoutDto;
 
-@RestController()
-@RequestMapping("/donation")
-@CrossOrigin(origins = "*")
+@RestController
+@RequestMapping("/api/donation")
 public class DonationController {
 
-    private IDonationService donationService;
+	private final DonationApplication donationApplication;
 
-    public DonationController(IDonationService donationService) {
-        this.donationService = donationService;
-    }
+	public DonationController(DonationApplication donationApplication) {
+		this.donationApplication = donationApplication;
+	}
 
-    @PostMapping("/criar")
-    public ResponseCreateCheckoutDTO criarDonation(@RequestBody RequestCheckoutDTO request) {
-        return donationService.createCheckout(request);
-    }
-
+	@PostMapping("/create")
+	public DonationCheckoutDto createDonationCheckout(@RequestBody CreateDonationCheckoutDto donationCheckout) {
+		return donationApplication.createDonationCheckout(donationCheckout);
+	}
+	
 }
