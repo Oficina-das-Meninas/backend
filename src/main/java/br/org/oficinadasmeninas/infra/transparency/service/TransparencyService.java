@@ -1,6 +1,6 @@
 package br.org.oficinadasmeninas.infra.transparency.service;
 
-import br.org.oficinadasmeninas.domain.objectStorage.IObjectStorage;
+import br.org.oficinadasmeninas.domain.objectstorage.IObjectStorage;
 import br.org.oficinadasmeninas.domain.transparency.Document;
 import br.org.oficinadasmeninas.domain.transparency.Category;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateCollaboratorDto;

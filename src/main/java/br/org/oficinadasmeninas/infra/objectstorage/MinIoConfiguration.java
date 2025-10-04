@@ -1,4 +1,4 @@
-package br.org.oficinadasmeninas.infra.ObjectStorage;
+package br.org.oficinadasmeninas.infra.objectstorage;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
