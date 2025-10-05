@@ -1,9 +1,7 @@
 package br.org.oficinadasmeninas.presentation.controller;
 
+import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.transparency.dto.*;
-import br.org.oficinadasmeninas.infra.transparency.exception.CollaboratorNotFoundException;
-import br.org.oficinadasmeninas.infra.transparency.exception.DocumentNotFoundException;
-import br.org.oficinadasmeninas.domain.transparency.dto.getCategories.GetCategoriesResponseDto;
 import br.org.oficinadasmeninas.domain.transparency.service.ITransparencyService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -48,7 +46,11 @@ public class TransparencyController extends BaseController {
     ) {
         var request = new CreateDocumentRequestDto(file, title, effectiveDate, categoryId);
 
-        return handle(() -> transparencyService.uploadDocument(request), HttpStatus.CREATED);
+        return handle(
+            () -> transparencyService.uploadDocument(request),
+            Messages.DOCUMENT_CREATED_SUCCESSFULLY,
+            HttpStatus.CREATED
+        );
     }
 
     @PostMapping("/collaborators")
@@ -62,46 +64,62 @@ public class TransparencyController extends BaseController {
     ) {
         var request = new CreateCollaboratorRequestDto(image, name, role, description, categoryId);
 
-        return handle(() -> transparencyService.uploadCollaborator(request), HttpStatus.CREATED);
+        return handle(
+            () -> transparencyService.uploadCollaborator(request),
+            Messages.COLLABORATOR_CREATED_SUCCESSFULLY,
+            HttpStatus.CREATED
+        );
     }
 
     @DeleteMapping("/documents/{documentId}")
     public ResponseEntity<?> deleteDocument(
             @PathVariable("documentId") @NotBlank String documentId
     ) {
-        return handle(() -> transparencyService.deleteDocument(UUID.fromString(documentId)), HttpStatus.OK);
+        return handle(
+            () -> transparencyService.deleteDocument(UUID.fromString(documentId)),
+            Messages.DOCUMENT_DELETED_SUCCESSFULLY
+        );
     }
 
     @DeleteMapping("/collaborators/{collaboratorId}")
     public ResponseEntity<?> deleteCollaborator(
             @PathVariable("collaboratorId") @NotBlank String collaboratorId
     ) {
-        return handle(() -> transparencyService.deleteCollaborator(UUID.fromString(collaboratorId)), HttpStatus.OK);
+        var id = UUID.fromString(collaboratorId);
+
+        return handle(
+            () -> transparencyService.deleteCollaborator(id),
+            Messages.COLLABORATOR_DELETED_SUCCESSFULLY
+        );
     }
 
     @PostMapping("/categories")
     public ResponseEntity<?> insertCategory(
             @Valid @RequestBody CreateCategoryRequestDto request
     ) {
-        return handle(() -> transparencyService.insertCategory(request), HttpStatus.CREATED);
+        return handle(
+            () -> transparencyService.insertCategory(request),
+            Messages.CATEGORY_CREATED_SUCCESSFULLY,
+            HttpStatus.CREATED
+        );
     }
 
     @GetMapping("/categories/{id}")
     public ResponseEntity<?> getCategoryById(
             @PathVariable UUID id
     ) {
-        return handle(() -> transparencyService.getCategoryById(id), HttpStatus.OK);
+        return handle(() -> transparencyService.getCategoryById(id));
     }
 
     @GetMapping("/categories")
     public ResponseEntity<?> getAllCategories() {
-        return handle(() -> transparencyService.getAllCategories(), HttpStatus.OK);
+        return handle(transparencyService::getAllCategories);
     }
 
     @GetMapping
     public ResponseEntity<?> getAll() {
 
-        return handle(() -> transparencyService.getAllCategoriesWithDocuments(), HttpStatus.OK);
+        return handle(transparencyService::getAllCategoriesWithDocuments);
     }
 
     @PatchMapping("/categories/{id}")
@@ -109,13 +127,19 @@ public class TransparencyController extends BaseController {
             @PathVariable UUID id,
             @Valid @RequestBody UpdateCategoryDto request
     ) {
-        return handle(() -> transparencyService.updateCategory(id, request), HttpStatus.OK);
+        return handle(
+            () -> transparencyService.updateCategory(id, request),
+            Messages.CATEGORY_UPDATED_SUCCESSFULLY
+        );
     }
 
     @DeleteMapping("/categories/{id}")
     public ResponseEntity<?> deleteCategory(
             @PathVariable UUID id
     ) {
-        return handle(() -> transparencyService.deleteCategory(id), HttpStatus.OK);
+        return handle(
+            () -> transparencyService.deleteCategory(id),
+            Messages.CATEGORY_DELETED_SUCCESSFULLY
+        );
     }
 }

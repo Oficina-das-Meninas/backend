@@ -8,22 +8,19 @@ import java.util.function.Supplier;
 
 public abstract class BaseController {
 
-    protected <T> ResponseEntity<?> handle(Supplier<Response<T>> action, HttpStatus successStatus){
+    protected <T> ResponseEntity<?> handle(Supplier<T> action, String successMessage, HttpStatus successStatus) {
+        var actionResponse = action.get();
 
-        try{
-            var body = action.get();
+        var body = new Response<>(successMessage, actionResponse);
 
-            return ResponseEntity
-                    .status(successStatus)
-                    .body(body);
-
-        }catch (Exception e){
-
-            return mapException(e);
-        }
+        return ResponseEntity.status(successStatus).body(body);
     }
 
-    private ResponseEntity<?> mapException(Exception e) {
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    protected <T> ResponseEntity<?> handle(Supplier<T> action, String successMessage) {
+        return handle(action, successMessage, HttpStatus.OK);
+    }
+
+    protected <T> ResponseEntity<?> handle(Supplier<T> action) {
+        return handle(action, null, HttpStatus.OK);
     }
 }
