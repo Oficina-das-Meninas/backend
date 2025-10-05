@@ -4,69 +4,63 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class Donation {
-    private UUID id;
-    private long value;
-    private LocalDateTime donationAt;
-    private String idCheckout;
-    private PaymentMethodEnum paymentMethod;
-    private UUID userId;
 
-    public Donation() {}
+	private UUID id;
+	private long value;
+	private LocalDateTime donationAt;
+	private UUID userId;
+	private DonationStatusEnum status;
 
-    public Donation(UUID id, long value, LocalDateTime donationAt, String idCheckout, PaymentMethodEnum paymentMethod, UUID userId) {
-        this.id = id;
-        this.value = value;
-        this.donationAt = donationAt;
-        this.idCheckout = idCheckout;
-        this.paymentMethod = paymentMethod;
-        this.userId = userId;
-    }
+	public Donation() {
+	}
 
-    public UUID getId() {
-        return id;
-    }
+	public Donation(UUID id, long value, LocalDateTime donationAt, UUID userId, DonationStatusEnum status) {
+		super();
+		this.id = id;
+		this.value = value;
+		this.donationAt = donationAt;
+		this.userId = userId;
+		this.status = status;
+	}
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
+	public UUID getId() {
+		return id;
+	}
 
-    public long getValue() {
-        return value;
-    }
+	public void setId(UUID id) {
+		this.id = id;
+	}
 
-    public void setValue(long value) {
-        this.value = value;
-    }
+	public long getValue() {
+		return value;
+	}
 
-    public LocalDateTime getDonationAt() {
-        return donationAt;
-    }
+	public void setValue(long value) {
+		this.value = value;
+	}
 
-    public void setDonationAt(LocalDateTime donationAt) {
-        this.donationAt = donationAt;
-    }
+	public LocalDateTime getDonationAt() {
+		return donationAt;
+	}
 
-    public String getIdCheckout() {
-        return idCheckout;
-    }
+	public void setDonationAt(LocalDateTime donationAt) {
+		this.donationAt = donationAt;
+	}
 
-    public void setIdCheckout(String idCheckout) {
-        this.idCheckout = idCheckout;
-    }
+	public UUID getUserId() {
+		return userId;
+	}
 
-    public PaymentMethodEnum getPaymentMethod() {
-        return paymentMethod;
-    }
+	public void setUserId(UUID userId) {
+		this.userId = userId;
+	}
 
-    public void setPaymentMethod(PaymentMethodEnum paymentMethod) {
-        this.paymentMethod = paymentMethod;
-    }
+	public DonationStatusEnum getStatus() {
+		return status;
+	}
 
-    public UUID getUserId() {
-        return userId;
-    }
+	public void setStatus(DonationStatusEnum status) {
+		this.status = status;
+	}
 
-    public void setUserId(UUID userId) {
-        this.userId = userId;
-    }
 }
