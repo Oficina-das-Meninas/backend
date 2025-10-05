@@ -4,6 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import br.org.oficinadasmeninas.domain.Response;
+import br.org.oficinadasmeninas.infra.exceptions.ObjectStorageException;
+import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
+import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -17,6 +21,27 @@ import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsExcepti
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<?> handleNotFoundException(NotFoundException ex) {
+
+       return buildResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<?> handleValidationException(ValidationException ex) {
+
+        return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ObjectStorageException.class)
+    public ResponseEntity<?> handleObjectStorageException(ObjectStorageException ex) {
+
+        return buildResponse(ex.getMessage(), HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
+
+
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<String> handleEntityNotFound(EntityNotFoundException ex) {
@@ -54,5 +79,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DocumentAlreadyExistsException.class)
     public ResponseEntity<String> handleDocumentAlreadyExists(DocumentAlreadyExistsException ex) {
     	return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    private static ResponseEntity<?> buildResponse(String message, HttpStatus status) {
+
+        var body = new Response<Void>(message, null);
+        return ResponseEntity.status(status).body(body);
     }
 }
