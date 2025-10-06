@@ -12,5 +12,6 @@ public record RequestCreateCheckoutConfig(
         List<String> notificationUrls,
         List<String> paymentNotificationUrls,
         List<PaymentsMethodEnum> paymentMethods,
-        String itemImage
+        String itemImage,
+        RequestCreateCheckoutRecurrenceInterval interval
 ) {}

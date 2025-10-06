@@ -46,8 +46,8 @@ public class DonationApplication {
         ResponseCreateCheckoutDto checkout = paymentGatewayService.createCheckout(createPaymentGateway(donation.id().toString(), donationCheckout.donor(), donationCheckout.donation()));
 		
 //		//PaymentMethodEnum paymentMethod = PaymentMethodEnum.fromString(checkout.payment_methods().getFirst().type());
-		CreatePaymentDto createPayment = new CreatePaymentDto(donation.id(), PaymentGatewayEnum.PAGBANK, checkout.checkoutId(), null, PaymentStatusEnum.WAITING);
-		paymentService.createPayment(createPayment);
+//		CreatePaymentDto createPayment = new CreatePaymentDto(donation.id(), PaymentGatewayEnum.PAGBANK, checkout.checkoutId(), null, PaymentStatusEnum.WAITING);
+//		paymentService.createPayment(createPayment);
 
 		return new DonationCheckoutDto(checkout.link());
 	}

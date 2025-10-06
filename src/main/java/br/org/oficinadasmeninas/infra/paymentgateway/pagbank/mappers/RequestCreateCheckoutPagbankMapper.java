@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -35,11 +36,26 @@ public class RequestCreateCheckoutPagbankMapper {
                 config.itemImage()
         );
 
+
+       RequestCreateCheckoutRecurrence recurrence = null;
+
+       if (domain.signatureDto().isRecurrence()){
+           recurrence = new RequestCreateCheckoutRecurrence(
+                   config.itemName(),
+                   config.interval(),
+                   domain.signatureDto().cycles().get()
+           );
+           System.out.println(recurrence);
+
+       }
+
+
         RequestCreateCheckoutPagbank pagbank = new RequestCreateCheckoutPagbank(
                 domain.internalId(),
                 config.expirationDate(),
                 customer,
                 List.of(item),
+                recurrence,
                 toPaymentMethods(config.paymentMethods()),
                 config.redirectUrl(),
                 config.notificationUrls(),
@@ -59,7 +75,8 @@ public class RequestCreateCheckoutPagbankMapper {
         return new RequestCreateCheckoutCustomerPhone(country, area, number);
     }
     private long toLong(double value) {
-        return (long) (value * 1000);
+        System.out.println(value);
+        return (long) (value * 100);
     }
     private List<RequestCreateCheckoutPaymentMethod> toPaymentMethods(List<PaymentsMethodEnum> methods){
         return methods.stream()

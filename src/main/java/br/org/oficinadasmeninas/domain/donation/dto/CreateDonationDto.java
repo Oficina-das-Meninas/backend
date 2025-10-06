@@ -4,6 +4,6 @@ import java.util.UUID;
 
 import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
 
-public record CreateDonationDto(long value, UUID userId, DonationStatusEnum status) {
+public record CreateDonationDto(double value, UUID userId, DonationStatusEnum status) {
 
 }

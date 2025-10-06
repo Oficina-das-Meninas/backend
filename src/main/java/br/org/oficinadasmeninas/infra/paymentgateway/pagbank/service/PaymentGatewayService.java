@@ -5,10 +5,7 @@ import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreate
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.ResponseCreateCheckoutDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.PaymentsMethodEnum;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutConfig;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutPagbank;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseCreateCheckoutLink;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseCreateCheckoutPagbank;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.*;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.mappers.RequestCreateCheckoutPagbankMapper;
 import br.org.oficinadasmeninas.infra.shared.exception.PaymentGatewayException;
 import br.org.oficinadasmeninas.presentation.shared.utils.IsoDateFormater;
@@ -54,19 +51,24 @@ public class PaymentGatewayService implements IPaymentGatewayService {
     @Override
     public ResponseCreateCheckoutDto createCheckout(RequestCreateCheckoutDto requestCreateCheckoutDto) {
 
+
+
         // Default configurations Pagbank
 
         RequestCreateCheckoutConfig defaults = new RequestCreateCheckoutConfig(
                 IsoDateFormater.addHours(4),
                 redirectUrl,
-                "DOAÇÃO OFICINA DAS MENINAS",
+                requestCreateCheckoutDto.signatureDto().isRecurrence()? "APADRINHAMENTO OFICINA DAS MENINAS": "DOAÇÃO OFICINA DAS MENINAS",
                 1,
                 List.of(notificationUrls),
                 List.of(paymentNotificationUrls),
                 List.of(PaymentsMethodEnum.CREDIT_CARD),
-                "https://dev.apollomusic.com.br/logo_preenchimento_branco.png"
+                "https://dev.apollomusic.com.br/logo_preenchimento_branco.png",
+                new RequestCreateCheckoutRecurrenceInterval(
+                        "MONTH",
+                        1
+                )
         );
-
 
         RequestCreateCheckoutPagbank pagbankRequest = mapper.toGateway(requestCreateCheckoutDto,defaults);
 
@@ -75,7 +77,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
         String link = responseCreateCheckoutPagbank.links()
                 .stream()
                 .findFirst()
-                .map(ResponseCreateCheckoutLink::href) // pega o campo href
+                .map(ResponseCreateCheckoutLink::href)
                 .orElseThrow(() -> new PaymentGatewayException("Link de pagamento não encontrado"));
 
         return new ResponseCreateCheckoutDto(link, responseCreateCheckoutPagbank.id());
