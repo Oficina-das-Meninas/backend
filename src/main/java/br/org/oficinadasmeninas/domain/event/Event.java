@@ -5,7 +5,6 @@ import java.util.UUID;
 
 public class Event {
     private UUID id;
-    private Boolean isActive;
     private String title;
     private String previewImageUrl;
     private String partnersImageUrl;
@@ -36,10 +35,6 @@ public class Event {
     public UUID getId() { return id; }
 
     public void setId(UUID id) { this.id = id; }
-
-    public Boolean isActive() { return isActive; }
-
-    public void setIsActive(Boolean isActive) { this.isActive = isActive; }
 
     public String getTitle() { return title; }
 
