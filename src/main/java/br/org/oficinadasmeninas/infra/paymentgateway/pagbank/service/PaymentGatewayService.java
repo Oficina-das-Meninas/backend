@@ -1,12 +1,17 @@
 package br.org.oficinadasmeninas.infra.paymentgateway.pagbank.service;
 
+import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
+import br.org.oficinadasmeninas.domain.donation.repository.IDonationRepository;
+import br.org.oficinadasmeninas.domain.donation.service.IDonationService;
 import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
+import br.org.oficinadasmeninas.domain.payment.service.IPaymentService;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.ResponseCreateCheckoutDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.PaymentsMethodEnum;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.*;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.mappers.RequestCreateCheckoutPagbankMapper;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.mappers.RequestNotifyPaymentDonationStatusMapper;
 import br.org.oficinadasmeninas.infra.shared.exception.PaymentGatewayException;
 import br.org.oficinadasmeninas.presentation.shared.utils.IsoDateFormater;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +30,10 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
     private final WebClient webClient;
 
+    private final IDonationService donationService;
+
+    private final IPaymentService paymentService;
+
     @Value("${app.redirectCheckoutUrl}")
     private String redirectUrl;
 
@@ -42,8 +51,10 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
 
 
-    public PaymentGatewayService(RequestCreateCheckoutPagbankMapper mapper, WebClient.Builder builder, @Value("${app.url}") String url) {
+    public PaymentGatewayService(RequestCreateCheckoutPagbankMapper mapper, WebClient.Builder builder, @Value("${app.url}") String url, IDonationService donationService, IPaymentService paymentService) {
         this.mapper = mapper;
+        this.donationService = donationService;
+        this.paymentService = paymentService;
         this.webClient = builder.baseUrl(url)
                 .build();
     }
@@ -56,7 +67,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
         // Default configurations Pagbank
 
         RequestCreateCheckoutConfig defaults = new RequestCreateCheckoutConfig(
-                IsoDateFormater.addHours(4),
+                IsoDateFormater.addMinutes(2),
                 redirectUrl,
                 requestCreateCheckoutDto.signatureDto().isRecurrence()? "APADRINHAMENTO OFICINA DAS MENINAS": "DOAÇÃO OFICINA DAS MENINAS",
                 1,
@@ -85,6 +96,9 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
     @Override
     public void updatePaymentStatus(UUID paymentId, PaymentStatusEnum paymentStatus) {
+       DonationStatusEnum donationStatusEnum = RequestNotifyPaymentDonationStatusMapper.fromPaymentStatus(paymentStatus);
+       donationService.updateDonationStatus(paymentId, donationStatusEnum);
+       paymentService.updatePaymentStatus(paymentId, paymentStatus);
 
     }
 
@@ -95,7 +109,6 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
     private ResponseCreateCheckoutPagbank createPagBankCheckout(RequestCreateCheckoutPagbank checkoutPagbank) {
         try {
-            System.out.println(checkoutPagbank);
             var response = webClient.post()
                     .uri("/checkouts")
                     .header("Authorization", "Bearer " + token)
@@ -114,12 +127,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
                     response.status()
             );
         } catch (WebClientResponseException e) {
-                       // captura o body da resposta do erro
-                System.err.println("Status code: " + e.getRawStatusCode());
-                System.err.println("Response body: " + e.getResponseBodyAsString());
-                System.err.println(checkoutPagbank.toString());
-                throw new PaymentGatewayException(e.getRawStatusCode() + " " + e.getStatusText());
-
+            throw new PaymentGatewayException(e.getRawStatusCode() + " " + e.getStatusText());
         }
     }
 }

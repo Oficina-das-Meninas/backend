@@ -10,7 +10,7 @@ import java.util.Optional;
 
 
 public record RequestCreateCheckoutPagbank(
-        String externalId,
+        String reference_id,
         String expiration_date,
         RequestCreateCheckoutCustomer customer,
         List<RequestCreateCheckoutItem> items,

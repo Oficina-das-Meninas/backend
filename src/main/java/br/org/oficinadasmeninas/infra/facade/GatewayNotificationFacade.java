@@ -21,6 +21,7 @@ public class GatewayNotificationFacade {
 	}
 
 	public void updatePaymentStatus(UUID paymentId, PaymentStatusEnum paymentStatus) {
+
 	}
 
 	public void updateCheckoutStatus(String checkoutId, UUID paymentId) {

@@ -17,4 +17,12 @@ public class IsoDateFormater {
                 .truncatedTo(ChronoUnit.MILLIS)
                 .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
     }
+
+    public static String addMinutes(long minutes) {
+        return ZonedDateTime.now()
+                .plusMinutes(minutes)
+                .truncatedTo(ChronoUnit.MILLIS)
+                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+    }
+
 }

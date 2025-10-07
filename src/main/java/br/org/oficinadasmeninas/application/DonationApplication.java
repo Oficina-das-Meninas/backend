@@ -36,14 +36,12 @@ public class DonationApplication {
 
         PaymentGatewayEnum paymentGatewayEnum = donationCheckout.donation().gatewayPayment();
 
-        System.out.println(paymentGatewayEnum.toString());
-
 		CreatePaymentDto createPayment = new CreatePaymentDto(donation.id(), paymentGatewayEnum, checkout.checkoutId(), null, PaymentStatusEnum.WAITING);
 		paymentService.createPayment(createPayment);
 
 		return new DonationCheckoutDto(checkout.link());
 	}
-//    String name, String phone, String email, String document
+
     private RequestCreateCheckoutDto createPaymentGateway(String donationId, DonorInfoDto customer, DonationItemDto donation){
         return new RequestCreateCheckoutDto(
                 donationId,

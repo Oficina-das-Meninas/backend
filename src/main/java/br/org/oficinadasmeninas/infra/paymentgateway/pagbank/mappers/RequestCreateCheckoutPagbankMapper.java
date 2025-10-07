@@ -45,7 +45,6 @@ public class RequestCreateCheckoutPagbankMapper {
                    config.interval(),
                    domain.signatureDto().cycles().get()
            );
-           System.out.println(recurrence);
 
        }
 
@@ -75,7 +74,6 @@ public class RequestCreateCheckoutPagbankMapper {
         return new RequestCreateCheckoutCustomerPhone(country, area, number);
     }
     private long toLong(double value) {
-        System.out.println(value);
         return (long) (value * 100);
     }
     private List<RequestCreateCheckoutPaymentMethod> toPaymentMethods(List<PaymentsMethodEnum> methods){

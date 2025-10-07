@@ -29,7 +29,6 @@ public class SponsorService implements ISponsorService {
 
     @Override
     public UUID createSponsor(SponsorDto sponsorDto) {
-        // converte DTO em entidade antes de salvar
         Sponsor sponsor = new Sponsor();
         sponsor.setId(sponsorDto.id());
         sponsor.setMonthlyAmount(sponsorDto.monthlyAmount());

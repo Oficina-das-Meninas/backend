@@ -1,5 +1,6 @@
 package br.org.oficinadasmeninas.presentation.controller;
 
+import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,21 +14,21 @@ import br.org.oficinadasmeninas.infra.facade.GatewayNotificationFacade;
 @RequestMapping("/api/nofitication")
 public class GatewayNotificationController {
 
-	private final GatewayNotificationFacade gatewayNotificationFacade;
+	private final IPaymentGatewayService paymentGatewayService;
 
-	public GatewayNotificationController(GatewayNotificationFacade gatewayNotificationFacade) {
+	public GatewayNotificationController(IPaymentGatewayService paymentGatewayService) {
 		super();
-		this.gatewayNotificationFacade = gatewayNotificationFacade;
+        this.paymentGatewayService = paymentGatewayService;
 	}
 	
 	@PostMapping("/checkout")
     public void notifyCheckout(@RequestBody CheckoutNotificationDto request) {
-		gatewayNotificationFacade.updateCheckoutStatus(request.id(), request.reference_id());
+		paymentGatewayService.updateCheckoutStatus(request.id(), request.reference_id());
     }
 
     @PostMapping("/payment")
     public void notifyPayment(@RequestBody PaymentNotificationDto request) {
-    	gatewayNotificationFacade.updatePaymentStatus(request.reference_id(), request.charges().getFirst().status());
+    	paymentGatewayService.updatePaymentStatus(request.reference_id(), request.charges().getFirst().status());
     }
 
 }
