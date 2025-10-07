@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import br.org.oficinadasmeninas.domain.paymentgateway.PaymentGatewayEnum;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import br.org.oficinadasmeninas.domain.payment.Payment;
-import br.org.oficinadasmeninas.domain.payment.PaymentGatewayEnum;
 import br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum;
 import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
 import br.org.oficinadasmeninas.domain.payment.repository.IPaymentRepository;

@@ -1,11 +1,9 @@
 package br.org.oficinadasmeninas.application;
 
-import java.util.List;
-
 import br.org.oficinadasmeninas.domain.donation.dto.*;
-import br.org.oficinadasmeninas.domain.payment.PaymentGatewayEnum;
 import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
 import br.org.oficinadasmeninas.domain.payment.dto.*;
+import br.org.oficinadasmeninas.domain.paymentgateway.PaymentGatewayEnum;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.*;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
@@ -34,20 +32,14 @@ public class DonationApplication {
 				donationCheckout.donor().id(), DonationStatusEnum.PENDING);
 		DonationDto donation = donationService.createDonation(createDonation);
 
-//		CustomerPhoneDto customerPhone = new CustomerPhoneDto(donationCheckout.donor().phone().country(),
-//				donationCheckout.donor().phone().area(), donationCheckout.donor().phone().number());
-//		CustomerDto customer = new CustomerDto(donationCheckout.donor().name(), donationCheckout.donor().email(),
-//				donationCheckout.donor().document(), customerPhone);
-		
-//		String itemName = donationCheckout.donation().isRecurring() ? "Apadrinhamento" : "Doação única";
-//		List<ItemDto> items = List.of(new ItemDto(itemName, 1, donationCheckout.donation().value(), null));
-//		CreateCheckoutDto createCheckout = new CreateCheckoutDto(donation.id().toString(), customer, items);
-
         ResponseCreateCheckoutDto checkout = paymentGatewayService.createCheckout(createPaymentGateway(donation.id().toString(), donationCheckout.donor(), donationCheckout.donation()));
-		
-//		//PaymentMethodEnum paymentMethod = PaymentMethodEnum.fromString(checkout.payment_methods().getFirst().type());
-//		CreatePaymentDto createPayment = new CreatePaymentDto(donation.id(), PaymentGatewayEnum.PAGBANK, checkout.checkoutId(), null, PaymentStatusEnum.WAITING);
-//		paymentService.createPayment(createPayment);
+
+        PaymentGatewayEnum paymentGatewayEnum = donationCheckout.donation().gatewayPayment();
+
+        System.out.println(paymentGatewayEnum.toString());
+
+		CreatePaymentDto createPayment = new CreatePaymentDto(donation.id(), paymentGatewayEnum, checkout.checkoutId(), null, PaymentStatusEnum.WAITING);
+		paymentService.createPayment(createPayment);
 
 		return new DonationCheckoutDto(checkout.link());
 	}

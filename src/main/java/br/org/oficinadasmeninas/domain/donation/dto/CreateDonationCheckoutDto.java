@@ -1,7 +1,7 @@
 package br.org.oficinadasmeninas.domain.donation.dto;
 
 import br.org.oficinadasmeninas.presentation.shared.notations.DonationNotation;
+import jakarta.validation.Valid;
 
-@DonationNotation.ValidDonationItem
-public record CreateDonationCheckoutDto(DonorInfoDto donor, DonationItemDto donation) {
+public record CreateDonationCheckoutDto(@Valid DonorInfoDto donor, @Valid DonationItemDto donation) {
 }

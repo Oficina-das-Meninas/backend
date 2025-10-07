@@ -1,5 +1,7 @@
 package br.org.oficinadasmeninas.domain.payment;
 
+import br.org.oficinadasmeninas.domain.paymentgateway.PaymentGatewayEnum;
+
 import java.util.UUID;
 
 public class Payment {

@@ -1,5 +1,6 @@
 package br.org.oficinadasmeninas.presentation.shared.notations;
 
+import br.org.oficinadasmeninas.domain.donation.dto.DonationItemDto;
 import br.org.oficinadasmeninas.presentation.shared.validator.DonationItemValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

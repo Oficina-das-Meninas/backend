@@ -6,13 +6,12 @@ import br.org.oficinadasmeninas.presentation.shared.notations.DonationNotation;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class DonationItemValidator implements ConstraintValidator<DonationNotation.ValidDonationItem, CreateDonationCheckoutDto> {
+public class DonationItemValidator implements ConstraintValidator<DonationNotation.ValidDonationItem, DonationItemDto> {
 
     @Override
-    public boolean isValid(CreateDonationCheckoutDto dto, ConstraintValidatorContext context) {
+    public boolean isValid(DonationItemDto dto, ConstraintValidatorContext context) {
         if (dto == null) return true;
-        System.out.println(dto.toString());
-        if (dto.donation().isRecurring() && (dto.donation().cycles().isEmpty())) {
+        if (dto.isRecurring() && (dto.cycles().isEmpty())) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("Atributo cycle obrigatório para doações recorrentes")
                     .addPropertyNode("cycles")
