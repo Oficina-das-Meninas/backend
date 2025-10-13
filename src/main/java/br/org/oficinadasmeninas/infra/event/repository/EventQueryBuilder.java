@@ -8,12 +8,6 @@ public class EventQueryBuilder {
           AND active
     """;
 
-    public static final String SELECT_COUNT = """
-        SELECT count(*)
-        FROM events
-        WHERE active
-    """;
-
     public static final String GET_FILTERED_EVENTS = """
             SELECT id, title, preview_image_url, partners_image_url, description, event_date, location,  url_to_platform
             FROM EVENTS
