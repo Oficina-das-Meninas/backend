@@ -1,18 +1,18 @@
 package br.org.oficinadasmeninas.infra.sponsor.repository;
 
-import br.org.oficinadasmeninas.domain.sponsor.Sponsor;
-import br.org.oficinadasmeninas.domain.sponsor.dto.SponsorDto;
-import br.org.oficinadasmeninas.domain.sponsor.dto.UpdateSponsorDto;
-import br.org.oficinadasmeninas.domain.sponsor.repository.ISponsorRepository;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.UUID;
+import br.org.oficinadasmeninas.domain.sponsor.Sponsor;
+import br.org.oficinadasmeninas.domain.sponsor.dto.UpdateSponsorDto;
+import br.org.oficinadasmeninas.domain.sponsor.repository.ISponsorRepository;
 
 @Repository
 public class SponsorRepository implements ISponsorRepository {
@@ -21,9 +21,16 @@ public class SponsorRepository implements ISponsorRepository {
     public SponsorRepository(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
     }
+    
+    @Override
+	public List<Sponsor> findAllSponsors() {
+    	 String sql = "SELECT id, monthlyAmount, billingDay, userId, sponsorSince, sponsorUntil, isActive, subscriptionId FROM sponsors";
+
+         return jdbc.query(sql, this::mapRowSponsor);
+	}
 
     @Override
-    public Optional<SponsorDto> findById(UUID id) {
+    public Optional<Sponsor> findById(UUID id) {
         String sql = "SELECT id, monthlyAmount, billingDay, userId, sponsorSince, sponsorUntil, isActive, subscriptionId FROM sponsors WHERE id = ?";
 
         try {
@@ -35,7 +42,7 @@ public class SponsorRepository implements ISponsorRepository {
     }
 
     @Override
-    public Optional<SponsorDto> findBySubscriptionId(UUID subscriptionId) {
+    public Optional<Sponsor> findBySubscriptionId(UUID subscriptionId) {
         String sql = "SELECT id, monthlyAmount, billingDay, userId, sponsorSince, sponsorUntil, isActive, subscriptionId FROM sponsors WHERE subscriptionId = ?";
 
         try {
@@ -45,6 +52,19 @@ public class SponsorRepository implements ISponsorRepository {
             return Optional.empty();
         }
     }
+    
+
+	@Override
+	public Optional<Sponsor> findByUserId(UUID id) {
+		String sql = "SELECT id, monthlyAmount, billingDay, userId, sponsorSince, sponsorUntil, isActive, subscriptionId FROM sponsors WHERE userId = ?";
+
+        try {
+            var sponsor = jdbc.queryForObject(sql, this::mapRowSponsor, id.toString());
+            return Optional.ofNullable(sponsor);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+	}
 
     @Override
     public UUID createSponsor(Sponsor sponsor) {
@@ -78,8 +98,8 @@ public class SponsorRepository implements ISponsorRepository {
         );
     }
 
-    private SponsorDto mapRowSponsor(ResultSet rs, int rowNum) throws SQLException {
-        return new SponsorDto(
+    private Sponsor mapRowSponsor(ResultSet rs, int rowNum) throws SQLException {
+        return new Sponsor(
                 UUID.fromString(rs.getString("id")),
                 rs.getLong("monthlyAmount"),
                 rs.getInt("billingDay"),
@@ -90,4 +110,12 @@ public class SponsorRepository implements ISponsorRepository {
                 rs.getString("subscriptionId")
         );
     }
+
+	@Override
+	public void suspendSponsor(UUID id) {
+		String sql = "UPDATE sponsors SET isActive = ? " +
+                "WHERE id = ?";
+
+        jdbc.update(sql, false, id);
+	}
 }
