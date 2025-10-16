@@ -25,7 +25,7 @@ public class PaymentRepository implements IPaymentRepository {
 		this.jdbc = jdbc;
 	}
 	
-	public Optional<Payment> findPaymentById(UUID id) {
+	public Optional<Payment> findById(UUID id) {
         try {
             Payment payment = jdbc.queryForObject(
             		PaymentQueryBuilder.SELECT_PAYMENT_BY_ID,
@@ -38,12 +38,12 @@ public class PaymentRepository implements IPaymentRepository {
         }
     }
 	
-	public List<Payment> findPaymentsByDonation(UUID donationId) {
+	public List<Payment> findByDonation(UUID donationId) {
         return jdbc.query(PaymentQueryBuilder.SELECT_PAYMENTS_BY_DONATION, this::mapRowPayment, donationId);
     }
 	
 	@Override
-	public UUID createPayment(Payment payment) {
+	public UUID create(Payment payment) {
 		 UUID id = payment.getId() != null ? payment.getId() : UUID.randomUUID();
 	        jdbc.update(PaymentQueryBuilder.INSERT_PAYMENT,
 	                id,
@@ -57,7 +57,7 @@ public class PaymentRepository implements IPaymentRepository {
 	}
 
 	@Override
-	public void updatePaymentStatus(UUID id, PaymentStatusEnum status) {
+	public void updateStatus(UUID id, PaymentStatusEnum status) {
 		 jdbc.update(PaymentQueryBuilder.UPDATE_PAYMENT_STATUS, status.name(), id);
 	}
 	

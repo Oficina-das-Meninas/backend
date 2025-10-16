@@ -26,12 +26,12 @@ public class EventService implements IEventService {
     }
 
     public PageDTO<Event> getFilteredEvents(GetEventDto getEventDto){
-        return eventRepository.getFilteredEvents(getEventDto);
+        return eventRepository.getFiltered(getEventDto);
     }
 
     public Event findById(UUID id) {
 
-        return eventRepository.getEventById(id)
+        return eventRepository.getById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Evento não encontrado: " + id));
     }
 
@@ -39,7 +39,7 @@ public class EventService implements IEventService {
         var previewFileName = uploadMultipartFile(createEventDto.previewImage());
         var partnersFileName = uploadMultipartFile(createEventDto.partnersImage());
 
-        var createdEventId = eventRepository.createEvent(createEventDto, previewFileName, partnersFileName);
+        var createdEventId = eventRepository.create(createEventDto, previewFileName, partnersFileName);
 
         return new Event(
                 createdEventId,
@@ -54,13 +54,13 @@ public class EventService implements IEventService {
     }
 
     public Event updateEvent(UUID id, UpdateEventDto updateEventDto) throws Exception {
-        eventRepository.getEventById(id)
+        eventRepository.getById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Evento não encontrado: " + id));
 
         var previewFileName = uploadMultipartFile(updateEventDto.previewImage());
         var partnersFileName = uploadMultipartFile(updateEventDto.partnersImage());
 
-        eventRepository.updateEvent(updateEventDto, previewFileName, partnersFileName);
+        eventRepository.update(updateEventDto, previewFileName, partnersFileName);
 
         return new Event(
                 id,
@@ -75,10 +75,10 @@ public class EventService implements IEventService {
     }
 
     public void deleteEvent(UUID id) {
-        var event = eventRepository.getEventById(id)
+        var event = eventRepository.getById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Evento não encontrado: " + id));
 
-        eventRepository.updateEvent(
+        eventRepository.update(
             UpdateEventDto.forDeletion(event.getId()),
             event.getPreviewImageUrl(),
             event.getPartnersImageUrl()

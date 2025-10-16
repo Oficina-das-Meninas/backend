@@ -9,12 +9,12 @@ import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
 
 public interface IPaymentRepository {
 	
-	Optional<Payment> findPaymentById(UUID id);
+	Optional<Payment> findById(UUID id);
 	
-	List<Payment> findPaymentsByDonation(UUID donationId);
+	List<Payment> findByDonation(UUID donationId);
 
-	UUID createPayment(Payment payment);
+	UUID create(Payment payment);
 	
-	void updatePaymentStatus(UUID id, PaymentStatusEnum status);
+	void updateStatus(UUID id, PaymentStatusEnum status);
 	
 }

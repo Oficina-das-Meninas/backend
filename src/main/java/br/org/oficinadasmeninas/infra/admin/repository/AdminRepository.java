@@ -23,12 +23,12 @@ public class AdminRepository implements IAdminRepository {
 	}
 
 	@Override
-	public List<Admin> findAllAdmins() {
+	public List<Admin> findAll() {
 		return jdbc.query(AdminQueryBuilder.FIND_ALL_ADMINS, this::mapRowAdmin);
 	}
 
 	@Override
-	public Optional<Admin> findAdminById(UUID id) {
+	public Optional<Admin> findById(UUID id) {
 		try {
             var admin = jdbc.queryForObject(AdminQueryBuilder.FIND_ADMIN_BY_ID, this::mapRowAdmin, id);
             return Optional.ofNullable(admin);
@@ -38,7 +38,7 @@ public class AdminRepository implements IAdminRepository {
 	}
 
 	@Override
-	public Optional<Admin> findAdminByEmail(String email) {
+	public Optional<Admin> findByEmail(String email) {
         try {
             var admin = jdbc.queryForObject(AdminQueryBuilder.FIND_ADMIN_BY_EMAIL, this::mapRowAdmin, email);
             return Optional.ofNullable(admin);
@@ -48,14 +48,14 @@ public class AdminRepository implements IAdminRepository {
 	}
 
 	@Override
-	public UUID createAdmin(Admin admin) {
+	public UUID create(Admin admin) {
 		UUID id = UUID.randomUUID();
 		jdbc.update(AdminQueryBuilder.INSERT_ADMIN, id, admin.getName(), admin.getEmail(), admin.getPassword());
 		return id;
 	}
 
 	@Override
-	public void updateAdmin(Admin admin) {
+	public void update(Admin admin) {
 		jdbc.update(AdminQueryBuilder.UPDATE_ADMIN, admin.getName(), admin.getEmail(), admin.getPassword(), admin.getId());
 	}
 	

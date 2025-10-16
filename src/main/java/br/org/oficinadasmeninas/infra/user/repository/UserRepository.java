@@ -23,12 +23,12 @@ public class UserRepository implements IUserRepository {
 	}
 
 	@Override
-	public List<User> findAllUsers() {
+	public List<User> findAll() {
 		return jdbc.query(UserQueryBuilder.FIND_ALL_USERS, this::mapRowUser);
 	}
 
 	@Override
-	public Optional<User> findUserById(UUID id) {
+	public Optional<User> findById(UUID id) {
 		try {
 			var user = jdbc.queryForObject(UserQueryBuilder.FIND_USER_BY_ID, this::mapRowUser, id);
 			return Optional.ofNullable(user);
@@ -38,7 +38,7 @@ public class UserRepository implements IUserRepository {
 	}
 
 	@Override
-	public Optional<User> findUserByEmail(String email) {
+	public Optional<User> findByEmail(String email) {
 		try {
 			var user = jdbc.queryForObject(UserQueryBuilder.FIND_USER_BY_EMAIL, this::mapRowUser, email);
 			return Optional.ofNullable(user);
@@ -48,14 +48,14 @@ public class UserRepository implements IUserRepository {
 	}
 
 	@Override
-	public UUID createUser(User user) {
+	public UUID create(User user) {
 		UUID id = UUID.randomUUID();
 		jdbc.update(UserQueryBuilder.INSERT_USER, id, user.getName(), user.getEmail(), user.getPassword(), user.getPhone(), user.getDocument());
 		return id;
 	}
 
 	@Override
-	public void updateUser(User user) {
+	public void update(User user) {
 		jdbc.update(UserQueryBuilder.UPDATE_USER, user.getName(), user.getEmail(), user.getPassword(), user.getPhone(), user.getDocument(),
 				user.getId());
 	}

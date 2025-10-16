@@ -32,13 +32,13 @@ public class ApplicationConfiguration {
 	@Bean
 	UserDetailsService userDetailsService() {
 		return username -> {
-			User user = userRepository.findUserByEmail(username)
+			User user = userRepository.findByEmail(username)
 					.orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
 			if (user != null) {
 				return createUserDetailsCustom(user);
 			}
 
-			Admin admin = adminRepository.findAdminByEmail(username)
+			Admin admin = adminRepository.findByEmail(username)
 					.orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
 			if (admin != null) {
 				return createUserDetailsCustom(admin);
