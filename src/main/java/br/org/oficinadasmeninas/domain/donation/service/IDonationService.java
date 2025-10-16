@@ -1,23 +1,20 @@
 package br.org.oficinadasmeninas.domain.donation.service;
 
-import br.org.oficinadasmeninas.domain.donation.dto.checkout.RequestCheckoutDTO;
-import br.org.oficinadasmeninas.domain.donation.dto.checkout.ResponseCreateCheckoutDTO;
+import java.util.List;
+import java.util.UUID;
 
-/**
- * Interface para operações relacionadas a doações.
- *
- * Define contratos para a criação de processos de checkout de doações.
- */
+import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
+import br.org.oficinadasmeninas.domain.donation.dto.CreateDonationDto;
+import br.org.oficinadasmeninas.domain.donation.dto.DonationDto;
+
 public interface IDonationService {
 
-    /**
-     * Cria um processo de checkout para efetivação de uma doação.
-     *
-     * @param request objeto contendo os dados necessários para a criação do checkout
-     *                (ex: valor da doação, forma de pagamento, informações do doador)
-     * @return objeto de resposta contendo os dados do checkout gerado,
-     *         incluindo possíveis links ou identificadores externos
-     */
-    ResponseCreateCheckoutDTO createCheckout(RequestCheckoutDTO request);
+	List<DonationDto> getAllDonations();
+
+	DonationDto getDonationById(UUID id);
+
+	DonationDto createDonation(CreateDonationDto donation);
+
+	void updateDonationStatus(UUID id, DonationStatusEnum status);
 
 }

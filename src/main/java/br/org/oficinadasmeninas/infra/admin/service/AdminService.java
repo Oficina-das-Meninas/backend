@@ -30,7 +30,7 @@ public class AdminService implements IAdminService {
 
 	@Override
 	public List<AdminDto> getAllAdmin() {
-		return adminRepository.findAllAdmins().stream()
+		return adminRepository.findAll().stream()
 				.map(admin -> new AdminDto(admin.getId(), admin.getName(), admin.getEmail())).toList();
 	}
 
@@ -38,7 +38,7 @@ public class AdminService implements IAdminService {
 	public AdminDto getAdminById(UUID id) {
 		AdminDto adminDto = new AdminDto();
 
-		Admin admin = adminRepository.findAdminById(id)
+		Admin admin = adminRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("Admin não encontrado com id: " + id));
 
 		adminDto.setId(admin.getId());
@@ -52,7 +52,7 @@ public class AdminService implements IAdminService {
 	public AdminDto getAdminByEmail(String email) {
 		AdminDto adminDto = new AdminDto();
 
-		Admin admin = adminRepository.findAdminByEmail(email)
+		Admin admin = adminRepository.findByEmail(email)
 				.orElseThrow(() -> new EntityNotFoundException("Admin não encontrado com o email: " + email));
 
 		adminDto.setId(admin.getId());
@@ -70,7 +70,7 @@ public class AdminService implements IAdminService {
 		newAdmin.setPassword(passwordEncoder.encode(admin.getPassword()));
 
 		try {
-			return adminRepository.createAdmin(newAdmin);
+			return adminRepository.create(newAdmin);
 		} catch (DataIntegrityViolationException e) {
 			throw new EmailAlreadyExistsException();
 		}
@@ -78,7 +78,7 @@ public class AdminService implements IAdminService {
 
 	@Override
 	public void updateAdmin(UUID adminId, UpdateAdminDto admin) {
-		Admin existingAdmin = adminRepository.findAdminById(adminId)
+		Admin existingAdmin = adminRepository.findById(adminId)
 				.orElseThrow(() -> new EntityNotFoundException("Admin não encontrado com id: " + adminId));
 
 		if (admin.getName() != null && !admin.getName().isBlank() && !existingAdmin.getName().equals(admin.getName())) {
@@ -94,7 +94,7 @@ public class AdminService implements IAdminService {
 		}
 
 		try {
-			adminRepository.updateAdmin(existingAdmin);
+			adminRepository.update(existingAdmin);
 		} catch (DataIntegrityViolationException e) {
 			throw new EmailAlreadyExistsException();
 		}

@@ -16,7 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @RestController
@@ -36,11 +36,11 @@ public class EventController {
                                   @RequestParam @Nullable String title,
                                   @RequestParam @Nullable String description,
                                   @RequestParam @Nullable String location,
-                                  @RequestParam @Nullable LocalDateTime startDate,
-                                  @RequestParam @Nullable LocalDateTime endDate
+                                  @RequestParam @Nullable LocalDate startDate,
+                                  @RequestParam @Nullable LocalDate endDate
     ) {
         return eventService.getFilteredEvents(
-                new GetEventDto(page, pageSize, title, description, location, startDate, endDate)
+                GetEventDto.FromRequestParams(page, pageSize, title, description, location, startDate, endDate)
         );
     }
 
@@ -52,7 +52,7 @@ public class EventController {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public Event addEvent(@ModelAttribute @Valid CreateEventDto createEventDto) throws IOException {
+    public Event createEvent(@ModelAttribute @Valid CreateEventDto createEventDto) throws IOException {
         return eventService.createEvent(createEventDto);
     }
 
