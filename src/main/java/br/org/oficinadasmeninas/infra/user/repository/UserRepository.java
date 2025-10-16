@@ -24,17 +24,13 @@ public class UserRepository implements IUserRepository {
 
 	@Override
 	public List<User> findAllUsers() {
-		String sql = "SELECT id, name, email, password, phone, document FROM users";
-
-		return jdbc.query(sql, this::mapRowUser);
+		return jdbc.query(UserQueryBuilder.FIND_ALL_USERS, this::mapRowUser);
 	}
 
 	@Override
 	public Optional<User> findUserById(UUID id) {
-		String sql = "SELECT id, name, email, password, phone, document FROM users WHERE id = ?";
-
 		try {
-			var user = jdbc.queryForObject(sql, this::mapRowUser, id);
+			var user = jdbc.queryForObject(UserQueryBuilder.FIND_USER_BY_ID, this::mapRowUser, id);
 			return Optional.ofNullable(user);
 		} catch (EmptyResultDataAccessException e) {
 			return Optional.empty();
@@ -43,10 +39,8 @@ public class UserRepository implements IUserRepository {
 
 	@Override
 	public Optional<User> findUserByEmail(String email) {
-		String sql = "SELECT id, name, email, password, phone, document FROM users WHERE email = ?";
-
 		try {
-			var user = jdbc.queryForObject(sql, this::mapRowUser, email);
+			var user = jdbc.queryForObject(UserQueryBuilder.FIND_USER_BY_EMAIL, this::mapRowUser, email);
 			return Optional.ofNullable(user);
 		} catch (EmptyResultDataAccessException e) {
 			return Optional.empty();
@@ -56,29 +50,25 @@ public class UserRepository implements IUserRepository {
 	@Override
 	public UUID createUser(User user) {
 		UUID id = UUID.randomUUID();
-		String sql = "INSERT INTO users (id, name, email, password, phone, document) VALUES (?, ?, ?, ?, ?, ?)";
-		jdbc.update(sql, id, user.getName(), user.getEmail(), user.getPassword(), user.getPhone(), user.getDocument());
+		jdbc.update(UserQueryBuilder.INSERT_USER, id, user.getName(), user.getEmail(), user.getPassword(), user.getPhone(), user.getDocument());
 		return id;
 	}
 
 	@Override
 	public void updateUser(User user) {
-		String sql = "UPDATE users SET name = ?, email = ?, password = ?, phone = ?, document = ? WHERE id = ?";
-		jdbc.update(sql, user.getName(), user.getEmail(), user.getPassword(), user.getPhone(), user.getDocument(),
+		jdbc.update(UserQueryBuilder.UPDATE_USER, user.getName(), user.getEmail(), user.getPassword(), user.getPhone(), user.getDocument(),
 				user.getId());
 	}
 
 	@Override
 	public boolean existsByEmail(String email) {
-		String sql = "SELECT COUNT(*) FROM users WHERE email = ?";
-        Integer count = jdbc.queryForObject(sql, Integer.class, email);
+        Integer count = jdbc.queryForObject(UserQueryBuilder.EXISTS_USER_BY_EMAIL, Integer.class, email);
         return count != null && count > 0;
 	}
 
 	@Override
 	public boolean existsByDocument(String document) {
-		String sql = "SELECT COUNT(*) FROM users WHERE document = ?";
-        Integer count = jdbc.queryForObject(sql, Integer.class, document);
+        Integer count = jdbc.queryForObject(UserQueryBuilder.EXISTS_USER_BY_DOCUMENT, Integer.class, document);
         return count != null && count > 0;
 	}
 
