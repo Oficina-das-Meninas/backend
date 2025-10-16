@@ -32,7 +32,7 @@ public class DocumentsRepository implements IDocumentsRepository {
 
 
     @Override
-    public UUID insertDocument(CreateDocumentDto request) {
+    public UUID insert(CreateDocumentDto request) {
         var id = UUID.randomUUID();
 
         jdbc.update(DocumentsQueryBuilder.INSERT_DOCUMENT,
@@ -47,19 +47,19 @@ public class DocumentsRepository implements IDocumentsRepository {
     }
 
     @Override
-    public void deleteDocument(UUID id) {
+    public void delete(UUID id) {
         jdbc.update(DocumentsQueryBuilder.DELETE_DOCUMENT, id);
     }
 
 
     @Override
-    public int countDocumentsByCategoryId(UUID id) {
+    public int countByCategoryId(UUID id) {
         Integer count = jdbc.queryForObject(DocumentsQueryBuilder.COUNT_DOCUMENTS_BY_CATEGORY, Integer.class, id);
         return count == null ? 0 : count;
     }
 
     @Override
-    public Optional<Document> findDocumentById(UUID id) {
+    public Optional<Document> findById(UUID id) {
         try {
             var document = jdbc.queryForObject(DocumentsQueryBuilder.GET_DOCUMENT_BY_ID, this::mapRowDocument, id);
             return Optional.ofNullable(document);
@@ -69,7 +69,7 @@ public class DocumentsRepository implements IDocumentsRepository {
     }
 
     @Override
-    public List<Document> findAllDocuments() {
+    public List<Document> findAll() {
         return jdbc.query(DocumentsQueryBuilder.GET_ALL_DOCUMENTS, this::mapRowDocument);
     }
 
@@ -81,7 +81,7 @@ public class DocumentsRepository implements IDocumentsRepository {
         document.setPreviewLink(rs.getString("preview_link"));
 
         UUID categoryId = rs.getObject("category_id", UUID.class);
-        Category category = categoriesRepository.findCategoryById(categoryId)
+        Category category = categoriesRepository.findById(categoryId)
                 .orElse(null);
         document.setCategory(category);
 

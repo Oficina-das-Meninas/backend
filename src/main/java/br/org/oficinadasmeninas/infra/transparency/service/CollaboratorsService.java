@@ -33,7 +33,7 @@ public class CollaboratorsService implements ICollaboratorsService {
     public UUID uploadCollaborator(CreateCollaboratorRequestDto request) {
 
         var category = categoriesRepository
-                .findCategoryById(UUID.fromString(request.categoryId()))
+                .findById(UUID.fromString(request.categoryId()))
                 .orElseThrow(() -> new NotFoundException(Messages.CATEGORY_NOT_FOUND));
         try {
             var imageLink = objectStorage.uploadTransparencyFile(request.file(), true);
@@ -41,7 +41,7 @@ public class CollaboratorsService implements ICollaboratorsService {
             /*TODO: USAR MAPPER*/
             var dto = new CreateCollaboratorDto(imageLink, category.getId(), request.name(), request.role(), request.description(), 0);
 
-            var id = collaboratorsRepository.insertCollaborator(dto);
+            var id = collaboratorsRepository.insert(dto);
 
             return id;
 
@@ -54,11 +54,11 @@ public class CollaboratorsService implements ICollaboratorsService {
     public UUID deleteCollaborator(UUID id) {
 
         var collaborator = collaboratorsRepository
-                .findCollaboratorById(id)
+                .findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.COLLABORATOR_NOT_FOUND));
 
         try {
-            collaboratorsRepository.deleteCollaborator(collaborator.getId());
+            collaboratorsRepository.delete(collaborator.getId());
             objectStorage.deleteTransparencyFile(collaborator.getImage());
 
             return collaborator.getId();

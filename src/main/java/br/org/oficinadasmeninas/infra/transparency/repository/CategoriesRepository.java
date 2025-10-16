@@ -25,7 +25,7 @@ public class CategoriesRepository implements ICategoriesRepository {
     }
 
     @Override
-    public Category insertCategory(Category category) {
+    public Category insert(Category category) {
         var id = UUID.randomUUID();
         category.setId(id);
 
@@ -40,7 +40,7 @@ public class CategoriesRepository implements ICategoriesRepository {
     }
 
     @Override
-    public Category updateCategory(Category category) {
+    public Category update(Category category) {
         jdbc.update(
                 CategoriesQueryBuilder.UPDATE_CATEGORY,
                 category.getName(),
@@ -51,20 +51,20 @@ public class CategoriesRepository implements ICategoriesRepository {
     }
 
     @Override
-    public void deleteCategory(UUID id) {
+    public void delete(UUID id) {
         jdbc.update(CategoriesQueryBuilder.DELETE_CATEGORY, id);
     }
 
 
     @Override
-    public boolean existsCategoryById(UUID id) {
+    public boolean existsById(UUID id) {
         return Boolean.TRUE.equals(
                 jdbc.queryForObject(CategoriesQueryBuilder.EXISTS_CATEGORY_BY_ID, Boolean.class, id)
         );
     }
 
     @Override
-    public Optional<Category> findCategoryById(UUID id) {
+    public Optional<Category> findById(UUID id) {
 
         try {
             var category = jdbc.queryForObject(CategoriesQueryBuilder.GET_CATEGORY_BY_ID, this::mapRowCategory, id);
@@ -74,7 +74,7 @@ public class CategoriesRepository implements ICategoriesRepository {
         }
     }
 
-    public List<Category> findAllCategories() {
+    public List<Category> findAll() {
         return jdbc.query(CategoriesQueryBuilder.GET_CATEGORIES_ALL, this::mapRowCategory);
     }
 

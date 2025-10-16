@@ -33,7 +33,7 @@ public class DocumentsService implements IDocumentsService {
     public UUID uploadDocument(CreateDocumentRequestDto request) {
 
         var category = categoriesRepository
-                .findCategoryById(UUID.fromString(request.categoryId()))
+                .findById(UUID.fromString(request.categoryId()))
                 .orElseThrow(() -> new NotFoundException(Messages.CATEGORY_NOT_FOUND));
 
         try {
@@ -41,7 +41,7 @@ public class DocumentsService implements IDocumentsService {
 
             var dto = new CreateDocumentDto(request.title(), category.getId(), request.effectiveDate(), previewLink);
 
-            return documentsRepository.insertDocument(dto);
+            return documentsRepository.insert(dto);
 
         } catch (IOException e) {
             throw new ObjectStorageException(e);
@@ -51,11 +51,11 @@ public class DocumentsService implements IDocumentsService {
     @Override
     public UUID deleteDocument(UUID id) {
         var document = documentsRepository
-                .findDocumentById(id)
+                .findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.DOCUMENT_NOT_FOUND));
 
         try {
-            documentsRepository.deleteDocument(document.getId());
+            documentsRepository.delete(document.getId());
             objectStorage.deleteTransparencyFile(document.getPreviewLink());
 
             return document.getId();

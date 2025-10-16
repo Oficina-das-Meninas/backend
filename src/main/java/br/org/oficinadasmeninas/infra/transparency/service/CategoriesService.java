@@ -47,7 +47,7 @@ public class CategoriesService implements ICategoriesService {
     @Override
     public UUID insertCategory(CreateCategoryRequestDto request) {
 
-        var entity = categoriesRepository.insertCategory(CategoryMapper.toEntity(request));
+        var entity = categoriesRepository.insert(CategoryMapper.toEntity(request));
 
         return entity.getId();
     }
@@ -55,13 +55,13 @@ public class CategoriesService implements ICategoriesService {
     @Override
     public UUID updateCategory(UUID id, UpdateCategoryDto request) {
 
-        var existing = categoriesRepository.findCategoryById(id)
+        var existing = categoriesRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada: " + id));
 
         existing.setName(request.name());
         existing.setPriority(request.priority());
 
-        var updated = categoriesRepository.updateCategory(existing);
+        var updated = categoriesRepository.update(existing);
 
         return updated.getId();
     }
@@ -71,7 +71,7 @@ public class CategoriesService implements ICategoriesService {
         checkCategoryExists(id);
         checkCategoryLinks(id);
 
-        categoriesRepository.deleteCategory(id);
+        categoriesRepository.delete(id);
 
         return id;
     }
@@ -79,7 +79,7 @@ public class CategoriesService implements ICategoriesService {
     @Override
     public ResponseCategoryDto getCategoryById(UUID id) {
 
-        var category = categoriesRepository.findCategoryById(id)
+        var category = categoriesRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.CATEGORY_NOT_FOUND));
 
         return CategoryMapper.toDto(category);
@@ -88,7 +88,7 @@ public class CategoriesService implements ICategoriesService {
     @Override
     public List<ResponseCategoryDto> getAllCategories() {
 
-        return categoriesRepository.findAllCategories()
+        return categoriesRepository.findAll()
                 .stream()
                 .map(CategoryMapper::toDto)
                 .toList();
@@ -97,22 +97,22 @@ public class CategoriesService implements ICategoriesService {
     @Override
     public GetCategoriesResponseDto getAllCategoriesWithDocuments() {
 
-        var categories = categoriesRepository.findAllCategories();
-        var documents = documentsRepository.findAllDocuments();
-        var collaborators = collaboratorsRepository.findAllCollaborators();
+        var categories = categoriesRepository.findAll();
+        var documents = documentsRepository.findAll();
+        var collaborators = collaboratorsRepository.findAll();
 
         return new GetCategoriesResponseDto(mapCategoriesToDto(categories, documents, collaborators));
     }
 
     private void checkCategoryExists(UUID id) {
-        if (!categoriesRepository.existsCategoryById(id)) {
+        if (!categoriesRepository.existsById(id)) {
             throw new NotFoundException(Messages.CATEGORY_NOT_FOUND);
         }
     }
 
     private void checkCategoryLinks(UUID id) {
-        int docs = documentsRepository.countDocumentsByCategoryId(id);
-        int collabs = collaboratorsRepository.countCollaboratorsByCategoryId(id);
+        int docs = documentsRepository.countByCategoryId(id);
+        int collabs = collaboratorsRepository.countByCategoryId(id);
 
         if (docs > 0 || collabs > 0) {
             throw new ValidationException(buildLinkMessage(docs, collabs));

@@ -30,7 +30,7 @@ public class CollaboratorsRepository implements ICollaboratorsRepository {
     }
 
     @Override
-    public UUID insertCollaborator(CreateCollaboratorDto request) {
+    public UUID insert(CreateCollaboratorDto request) {
         var id = UUID.randomUUID();
 
         jdbc.update(CollaboratorsQueryBuilder.INSERT_COLLABORATOR,
@@ -47,19 +47,19 @@ public class CollaboratorsRepository implements ICollaboratorsRepository {
     }
 
     @Override
-    public void deleteCollaborator(UUID id) {
+    public void delete(UUID id) {
         jdbc.update(CollaboratorsQueryBuilder.DELETE_COLLABORATOR, id);
     }
 
 
     @Override
-    public int countCollaboratorsByCategoryId(UUID id) {
+    public int countByCategoryId(UUID id) {
         Integer count = jdbc.queryForObject(CollaboratorsQueryBuilder.COUNT_COLLABORATORS_BY_CATEGORY, Integer.class, id);
         return count == null ? 0 : count;
     }
 
     @Override
-    public Optional<Collaborator> findCollaboratorById(UUID id) {
+    public Optional<Collaborator> findById(UUID id) {
         try {
             var collaborator = jdbc.queryForObject(CollaboratorsQueryBuilder.GET_COLLABORATOR_BY_ID, this::mapRowCollaborator, id);
             return Optional.ofNullable(collaborator);
@@ -69,7 +69,7 @@ public class CollaboratorsRepository implements ICollaboratorsRepository {
     }
 
     @Override
-    public List<Collaborator> findAllCollaborators() {
+    public List<Collaborator> findAll() {
         return jdbc.query(CollaboratorsQueryBuilder.GET_ALL_COLLABORATORS, this::mapRowCollaborator);
     }
 
@@ -84,7 +84,7 @@ public class CollaboratorsRepository implements ICollaboratorsRepository {
 
         UUID categoryId = rs.getObject("category_id", UUID.class);
 
-        Category category = categoriesRepository.findCategoryById(categoryId)
+        Category category = categoriesRepository.findById(categoryId)
                 .orElse(null);
         collaborator.setCategory(category);
 

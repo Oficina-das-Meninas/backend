@@ -9,13 +9,13 @@ import java.util.UUID;
 
 public interface IDocumentsRepository {
 
-    UUID insertDocument(CreateDocumentDto request);
+    UUID insert(CreateDocumentDto request);
 
-    void deleteDocument(UUID id);
+    void delete(UUID id);
 
-    int countDocumentsByCategoryId(UUID id);
+    int countByCategoryId(UUID id);
 
-    Optional<Document> findDocumentById(UUID id);
+    Optional<Document> findById(UUID id);
 
-    List<Document> findAllDocuments();
+    List<Document> findAll();
 }

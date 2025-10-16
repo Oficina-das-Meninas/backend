@@ -9,13 +9,13 @@ import java.util.UUID;
 
 public interface ICollaboratorsRepository {
 
-    UUID insertCollaborator(CreateCollaboratorDto request);
+    UUID insert(CreateCollaboratorDto request);
 
-    void deleteCollaborator(UUID id);
+    void delete(UUID id);
 
-    int countCollaboratorsByCategoryId(UUID id);
+    int countByCategoryId(UUID id);
 
-    Optional<Collaborator> findCollaboratorById(UUID id);
+    Optional<Collaborator> findById(UUID id);
 
-    List<Collaborator> findAllCollaborators();
+    List<Collaborator> findAll();
 }

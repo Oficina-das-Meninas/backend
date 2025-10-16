@@ -8,15 +8,15 @@ import java.util.UUID;
 
 public interface ICategoriesRepository {
 
-    Category insertCategory(Category category);
+    Category insert(Category category);
 
-    Category updateCategory(Category category);
+    Category update(Category category);
 
-    void deleteCategory(UUID id);
+    void delete(UUID id);
 
-    boolean existsCategoryById(UUID id);
+    boolean existsById(UUID id);
 
-    Optional<Category> findCategoryById(UUID id);
+    Optional<Category> findById(UUID id);
 
-    List<Category> findAllCategories();
+    List<Category> findAll();
 }
