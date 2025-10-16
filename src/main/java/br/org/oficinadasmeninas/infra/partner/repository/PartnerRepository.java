@@ -39,7 +39,7 @@ public class PartnerRepository implements IPartnerRepository {
     }
 
     @Override
-    public Optional<Partner> getPartnerById(UUID id) {
+    public Optional<Partner> getById(UUID id) {
         try
         {
             var partner = jdbc.queryForObject(PartnerQueryBuilder.GET_PARTNER_BY_ID, this::mapRow, id);
@@ -51,7 +51,7 @@ public class PartnerRepository implements IPartnerRepository {
         }
     }
 
-    public UUID createPartner(CreatePartnerDto createPartnerDto, String previewFileName) {
+    public UUID create(CreatePartnerDto createPartnerDto, String previewFileName) {
         var id = UUID.randomUUID();
 
         jdbc.update(PartnerQueryBuilder.CREATE_PARTNER,
@@ -63,7 +63,7 @@ public class PartnerRepository implements IPartnerRepository {
     }
 
     @Override
-    public void updatePartner(UpdatePartnerDto updatePartnerDto, String previewFileName) {
+    public void update(UpdatePartnerDto updatePartnerDto, String previewFileName) {
         jdbc.update(PartnerQueryBuilder.UPDATE_PARTNER,
                 previewFileName,
                 updatePartnerDto.name(),

@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public interface IPartnerRepository {
     PageDTO<Partner> findAll(int page, int pageSize);
-    Optional<Partner> getPartnerById(UUID id);
-    UUID createPartner(CreatePartnerDto createPartnerDto, String previewFileName);
-    void updatePartner(UpdatePartnerDto partnerDto, String previewFileName);
+    Optional<Partner> getById(UUID id);
+    UUID create(CreatePartnerDto createPartnerDto, String previewFileName);
+    void update(UpdatePartnerDto partnerDto, String previewFileName);
 }

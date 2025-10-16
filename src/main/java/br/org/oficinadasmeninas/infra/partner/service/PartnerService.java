@@ -35,14 +35,14 @@ public class PartnerService implements IPartnerService{
 
     public Partner findById(UUID id) {
 
-        return partnerRepository.getPartnerById(id)
+        return partnerRepository.getById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Patrocinador não encontrado: " + id));
     }
 
     public Partner createPartner(CreatePartnerDto createPartnerDto) throws IOException {
         var previewFileName = uploadMultipartFile(createPartnerDto.previewImage());
 
-        var createdPartnerId = partnerRepository.createPartner(createPartnerDto, previewFileName);
+        var createdPartnerId = partnerRepository.create(createPartnerDto, previewFileName);
 
         return new Partner(
                 createdPartnerId,
@@ -52,12 +52,12 @@ public class PartnerService implements IPartnerService{
     }
 
     public Partner updatePartner(UUID id, UpdatePartnerDto updatePartnerDto) throws Exception {
-        partnerRepository.getPartnerById(id)
+        partnerRepository.getById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Patrocinador não encontrado: " + id));
 
         var previewFileName = uploadMultipartFile(updatePartnerDto.previewImage());
 
-        partnerRepository.updatePartner(updatePartnerDto, previewFileName);
+        partnerRepository.update(updatePartnerDto, previewFileName);
 
         return new Partner(
                 id,
@@ -67,10 +67,10 @@ public class PartnerService implements IPartnerService{
     }
 
     public void deletePartner(UUID id) {
-        var partner = partnerRepository.getPartnerById(id)
+        var partner = partnerRepository.getById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Patrocinador não encontrado: " + id));
 
-        partnerRepository.updatePartner(
+        partnerRepository.update(
                 UpdatePartnerDto.forDeletion(partner.getId()),
                 partner.getPreviewImageUrl()
         );

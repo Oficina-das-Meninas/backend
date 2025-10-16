@@ -25,7 +25,7 @@ public class PaymentService implements IPaymentService {
 
 	@Override
 	public PaymentDto getPaymentById(UUID id) {
-		Payment payment = paymentRepository.findPaymentById(id)
+		Payment payment = paymentRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("Pagamento não encontrado com id: " + id));
 
 		return new PaymentDto(payment.getId(), payment.getDonationId(), payment.getGateway(), payment.getCheckoutId(),
@@ -34,7 +34,7 @@ public class PaymentService implements IPaymentService {
 
 	@Override
 	public List<PaymentDto> getPaymentsByDonation(UUID donationId) {
-		return paymentRepository.findPaymentsByDonation(donationId)
+		return paymentRepository.findByDonationId(donationId)
                 .stream()
                 .map(payment -> new PaymentDto(
                         payment.getId(),
@@ -58,7 +58,7 @@ public class PaymentService implements IPaymentService {
                 payment.status()
         );
 
-        UUID id = paymentRepository.createPayment(newPayment);
+        UUID id = paymentRepository.create(newPayment);
 
         return new PaymentDto(
                 id,
@@ -72,7 +72,7 @@ public class PaymentService implements IPaymentService {
 	@Override
 	@Transactional
 	public void updatePaymentStatus(UUID id, PaymentStatusEnum status) {
-		 paymentRepository.updatePaymentStatus(id, status);
+		 paymentRepository.updateStatus(id, status);
 
 	}
 

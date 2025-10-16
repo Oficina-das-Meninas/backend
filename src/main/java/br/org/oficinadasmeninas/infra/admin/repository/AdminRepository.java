@@ -23,18 +23,14 @@ public class AdminRepository implements IAdminRepository {
 	}
 
 	@Override
-	public List<Admin> findAllAdmins() {
-		String sql = "SELECT id, name, email, password FROM admin";
-
-		return jdbc.query(sql, this::mapRowAdmin);
+	public List<Admin> findAll() {
+		return jdbc.query(AdminQueryBuilder.FIND_ALL_ADMINS, this::mapRowAdmin);
 	}
 
 	@Override
-	public Optional<Admin> findAdminById(UUID id) {
-		String sql = "SELECT id, name, email, password FROM admin WHERE id = ?";
-
+	public Optional<Admin> findById(UUID id) {
 		try {
-            var admin = jdbc.queryForObject(sql, this::mapRowAdmin, id);
+            var admin = jdbc.queryForObject(AdminQueryBuilder.FIND_ADMIN_BY_ID, this::mapRowAdmin, id);
             return Optional.ofNullable(admin);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
@@ -42,11 +38,9 @@ public class AdminRepository implements IAdminRepository {
 	}
 
 	@Override
-	public Optional<Admin> findAdminByEmail(String email) {
-		String sql = "SELECT id, name, email, password FROM admin WHERE email = ?";
-		
+	public Optional<Admin> findByEmail(String email) {
         try {
-            var admin = jdbc.queryForObject(sql, this::mapRowAdmin, email);
+            var admin = jdbc.queryForObject(AdminQueryBuilder.FIND_ADMIN_BY_EMAIL, this::mapRowAdmin, email);
             return Optional.ofNullable(admin);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
@@ -54,17 +48,15 @@ public class AdminRepository implements IAdminRepository {
 	}
 
 	@Override
-	public UUID createAdmin(Admin admin) {
+	public UUID create(Admin admin) {
 		UUID id = UUID.randomUUID();
-		String sql = "INSERT INTO admin (id, name, email, password) VALUES (?, ?, ?, ?)";
-		jdbc.update(sql, id, admin.getName(), admin.getEmail(), admin.getPassword());
+		jdbc.update(AdminQueryBuilder.INSERT_ADMIN, id, admin.getName(), admin.getEmail(), admin.getPassword());
 		return id;
 	}
 
 	@Override
-	public void updateAdmin(Admin admin) {
-		String sql = "UPDATE admin SET name = ?, email = ?, password = ? WHERE id = ?";
-		jdbc.update(sql, admin.getName(), admin.getEmail(), admin.getPassword(), admin.getId());
+	public void update(Admin admin) {
+		jdbc.update(AdminQueryBuilder.UPDATE_ADMIN, admin.getName(), admin.getEmail(), admin.getPassword(), admin.getId());
 	}
 	
 	private Admin mapRowAdmin(ResultSet rs, int rowNum) throws SQLException {
