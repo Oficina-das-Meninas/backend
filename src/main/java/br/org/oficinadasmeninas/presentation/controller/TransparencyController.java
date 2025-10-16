@@ -2,7 +2,9 @@ package br.org.oficinadasmeninas.presentation.controller;
 
 import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.transparency.dto.*;
-import br.org.oficinadasmeninas.domain.transparency.service.ITransparencyService;
+import br.org.oficinadasmeninas.domain.transparency.service.ICategoriesService;
+import br.org.oficinadasmeninas.domain.transparency.service.ICollaboratorsService;
+import br.org.oficinadasmeninas.domain.transparency.service.IDocumentsService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +31,15 @@ import java.util.UUID;
 @RequestMapping("/api/transparencies")
 public class TransparencyController extends BaseController {
 
-    private final ITransparencyService transparencyService;
+    private final IDocumentsService documentsService;
+    private final ICollaboratorsService collaboratorsService;
+    private final ICategoriesService categoriesService;
 
     @Autowired
-    public TransparencyController(ITransparencyService transparencyService) {
-        this.transparencyService = transparencyService;
+    public TransparencyController(IDocumentsService documentsService, ICollaboratorsService collaboratorsService, ICategoriesService categoriesService) {
+        this.documentsService = documentsService;
+        this.collaboratorsService = collaboratorsService;
+        this.categoriesService = categoriesService;
     }
 
     @PostMapping("/documents")
@@ -47,7 +53,7 @@ public class TransparencyController extends BaseController {
         var request = new CreateDocumentRequestDto(file, title, effectiveDate, categoryId);
 
         return handle(
-            () -> transparencyService.uploadDocument(request),
+            () -> documentsService.uploadDocument(request),
             Messages.DOCUMENT_CREATED_SUCCESSFULLY,
             HttpStatus.CREATED
         );
@@ -65,7 +71,7 @@ public class TransparencyController extends BaseController {
         var request = new CreateCollaboratorRequestDto(image, name, role, description, categoryId);
 
         return handle(
-            () -> transparencyService.uploadCollaborator(request),
+            () -> collaboratorsService.uploadCollaborator(request),
             Messages.COLLABORATOR_CREATED_SUCCESSFULLY,
             HttpStatus.CREATED
         );
@@ -76,7 +82,7 @@ public class TransparencyController extends BaseController {
             @PathVariable("documentId") @NotBlank String documentId
     ) {
         return handle(
-            () -> transparencyService.deleteDocument(UUID.fromString(documentId)),
+            () -> documentsService.deleteDocument(UUID.fromString(documentId)),
             Messages.DOCUMENT_DELETED_SUCCESSFULLY
         );
     }
@@ -88,7 +94,7 @@ public class TransparencyController extends BaseController {
         var id = UUID.fromString(collaboratorId);
 
         return handle(
-            () -> transparencyService.deleteCollaborator(id),
+            () -> collaboratorsService.deleteCollaborator(id),
             Messages.COLLABORATOR_DELETED_SUCCESSFULLY
         );
     }
@@ -98,7 +104,7 @@ public class TransparencyController extends BaseController {
             @Valid @RequestBody CreateCategoryRequestDto request
     ) {
         return handle(
-            () -> transparencyService.insertCategory(request),
+            () -> categoriesService.insertCategory(request),
             Messages.CATEGORY_CREATED_SUCCESSFULLY,
             HttpStatus.CREATED
         );
@@ -108,18 +114,18 @@ public class TransparencyController extends BaseController {
     public ResponseEntity<?> getCategoryById(
             @PathVariable UUID id
     ) {
-        return handle(() -> transparencyService.getCategoryById(id));
+        return handle(() -> categoriesService.getCategoryById(id));
     }
 
     @GetMapping("/categories")
     public ResponseEntity<?> getAllCategories() {
-        return handle(transparencyService::getAllCategories);
+        return handle(categoriesService::getAllCategories);
     }
 
     @GetMapping
     public ResponseEntity<?> getAll() {
 
-        return handle(transparencyService::getAllCategoriesWithDocuments);
+        return handle(categoriesService::getAllCategoriesWithDocuments);
     }
 
     @PatchMapping("/categories/{id}")
@@ -128,7 +134,7 @@ public class TransparencyController extends BaseController {
             @Valid @RequestBody UpdateCategoryDto request
     ) {
         return handle(
-            () -> transparencyService.updateCategory(id, request),
+            () -> categoriesService.updateCategory(id, request),
             Messages.CATEGORY_UPDATED_SUCCESSFULLY
         );
     }
@@ -138,7 +144,7 @@ public class TransparencyController extends BaseController {
             @PathVariable UUID id
     ) {
         return handle(
-            () -> transparencyService.deleteCategory(id),
+            () -> categoriesService.deleteCategory(id),
             Messages.CATEGORY_DELETED_SUCCESSFULLY
         );
     }
