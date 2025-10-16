@@ -11,7 +11,7 @@ public interface IPaymentRepository {
 	
 	Optional<Payment> findById(UUID id);
 	
-	List<Payment> findByDonation(UUID donationId);
+	List<Payment> findByDonationId(UUID donationId);
 
 	UUID create(Payment payment);
 	

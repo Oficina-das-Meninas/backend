@@ -38,7 +38,7 @@ public class PaymentRepository implements IPaymentRepository {
         }
     }
 	
-	public List<Payment> findByDonation(UUID donationId) {
+	public List<Payment> findByDonationId(UUID donationId) {
         return jdbc.query(PaymentQueryBuilder.SELECT_PAYMENTS_BY_DONATION, this::mapRowPayment, donationId);
     }
 	

@@ -34,7 +34,7 @@ public class PaymentService implements IPaymentService {
 
 	@Override
 	public List<PaymentDto> getPaymentsByDonation(UUID donationId) {
-		return paymentRepository.findByDonation(donationId)
+		return paymentRepository.findByDonationId(donationId)
                 .stream()
                 .map(payment -> new PaymentDto(
                         payment.getId(),
