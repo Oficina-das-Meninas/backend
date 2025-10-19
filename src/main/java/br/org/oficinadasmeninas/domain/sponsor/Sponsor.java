@@ -6,7 +6,7 @@ import java.util.UUID;
 public class Sponsor {
 
 	private UUID id;
-	private long monthlyAmount;
+	private double monthlyAmount;
 	private int billingDay;
 	private UUID userId;
 	private LocalDateTime sponsorSince;
@@ -39,11 +39,11 @@ public class Sponsor {
 		this.id = id;
 	}
 
-	public long getMonthlyAmount() {
+	public double getMonthlyAmount() {
 		return monthlyAmount;
 	}
 
-	public void setMonthlyAmount(long monthlyAmount) {
+	public void setMonthlyAmount(double monthlyAmount) {
 		this.monthlyAmount = monthlyAmount;
 	}
 

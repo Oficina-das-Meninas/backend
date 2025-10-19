@@ -4,8 +4,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record SponsorDto(
-    UUID id,
-    long monthlyAmount,
+    double monthlyAmount,
     int billingDay,
     UUID userId,
     LocalDateTime sponsorSince,
