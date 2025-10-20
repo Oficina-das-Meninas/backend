@@ -27,7 +27,7 @@ public class EventRepository implements IEventRepository {
     }
 
     @Override
-    public PageDTO<Event> getFilteredEvents(GetEventDto getEventDto) {
+    public PageDTO<Event> getFiltered(GetEventDto getEventDto) {
         List<Event> events = jdbc.query(
                 EventQueryBuilder.GET_FILTERED_EVENTS,
                 this::mapRow,
@@ -47,7 +47,7 @@ public class EventRepository implements IEventRepository {
     }
 
     @Override
-    public Optional<Event> getEventById(UUID id) {
+    public Optional<Event> getById(UUID id) {
         try
         {
             var event = jdbc.queryForObject(EventQueryBuilder.GET_EVENT_BY_ID, this::mapRow, id);
@@ -59,7 +59,7 @@ public class EventRepository implements IEventRepository {
         }
     }
 
-    public UUID createEvent(CreateEventDto createEventDto, String previewFileName, String partnersFileName) {
+    public UUID create(CreateEventDto createEventDto, String previewFileName, String partnersFileName) {
         var id = UUID.randomUUID();
 
         jdbc.update(EventQueryBuilder.CREATE_EVENT,
@@ -76,7 +76,7 @@ public class EventRepository implements IEventRepository {
     }
 
     @Override
-    public void updateEvent(UpdateEventDto updateEventDto, String previewFileName, String partnersFileName) {
+    public void update(UpdateEventDto updateEventDto, String previewFileName, String partnersFileName) {
         jdbc.update(EventQueryBuilder.UPDATE_EVENT,
                 updateEventDto.title(),
                 previewFileName,

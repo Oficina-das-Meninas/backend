@@ -25,12 +25,12 @@ public class DonationRepository implements IDonationRepository {
 	}
 
 	@Override
-	public List<Donation> findAllDonations() {
+	public List<Donation> findAll() {
 		return jdbc.query(DonationQueryBuilder.SELECT_ALL_DONATIONS, this::mapRowDonation);
 	}
 
 	@Override
-	public Optional<Donation> findDonationById(UUID id) {
+	public Optional<Donation> findById(UUID id) {
 		try {
 			Donation donation = jdbc.queryForObject(DonationQueryBuilder.SELECT_DONATION_BY_ID, this::mapRowDonation, id);
 			return Optional.ofNullable(donation);
@@ -40,7 +40,7 @@ public class DonationRepository implements IDonationRepository {
 	}
 
 	@Override
-	public UUID createDonation(Donation donation) {
+	public UUID create(Donation donation) {
 		UUID id = donation.getId() != null ? donation.getId() : UUID.randomUUID();
 		jdbc.update(DonationQueryBuilder.INSERT_DONATION, id, donation.getValue(), donation.getDonationAt(),
 				donation.getUserId(), donation.getStatus().name());
@@ -48,7 +48,7 @@ public class DonationRepository implements IDonationRepository {
 	}
 
 	@Override
-	public void updateDonationStatus(UUID id, DonationStatusEnum status) {
+	public void updateStatus(UUID id, DonationStatusEnum status) {
 		jdbc.update(DonationQueryBuilder.UPDATE_DONATION_STATUS, status.name(), id);
 	}
 

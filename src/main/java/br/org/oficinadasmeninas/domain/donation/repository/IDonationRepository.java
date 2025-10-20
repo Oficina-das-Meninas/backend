@@ -9,12 +9,12 @@ import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
 
 public interface IDonationRepository {
 
-	List<Donation> findAllDonations();
+	List<Donation> findAll();
 
-	Optional<Donation> findDonationById(UUID id);
+	Optional<Donation> findById(UUID id);
 	
-	UUID createDonation(Donation donation);
+	UUID create(Donation donation);
 	
-	void updateDonationStatus(UUID id, DonationStatusEnum status);
+	void updateStatus(UUID id, DonationStatusEnum status);
 	
 }

@@ -8,18 +8,18 @@ import br.org.oficinadasmeninas.domain.user.User;
 
 public interface IUserRepository {
 
-	List<User> findAllUsers();
+	List<User> findAll();
 
-	Optional<User> findUserById(UUID id);
+	Optional<User> findById(UUID id);
 
-	Optional<User> findUserByEmail(String email);
+	Optional<User> findByEmail(String email);
 	
 	boolean existsByEmail(String email);
 	
 	boolean existsByDocument(String document);
 
-	UUID createUser(User user);
+	UUID create(User user);
 
-	void updateUser(User user);
+	void update(User user);
 	
 }
