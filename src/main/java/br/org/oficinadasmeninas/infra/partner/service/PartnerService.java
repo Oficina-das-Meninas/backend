@@ -1,6 +1,6 @@
 package br.org.oficinadasmeninas.infra.partner.service;
 
-import br.org.oficinadasmeninas.domain.objectStorage.IObjectStorage;
+import br.org.oficinadasmeninas.domain.objectstorage.IObjectStorage;
 import br.org.oficinadasmeninas.domain.partner.Partner;
 import br.org.oficinadasmeninas.domain.partner.dto.CreatePartnerDto;
 import br.org.oficinadasmeninas.domain.partner.dto.UpdatePartnerDto;
