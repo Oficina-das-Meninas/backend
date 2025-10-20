@@ -26,13 +26,13 @@ public class DonationService implements IDonationService {
 
 	@Override
 	public List<DonationDto> getAllDonations() {
-		return donationRepository.findAllDonations().stream().map(donation -> new DonationDto(donation.getId(),
+		return donationRepository.findAll().stream().map(donation -> new DonationDto(donation.getId(),
 				donation.getValue(), donation.getDonationAt(), donation.getUserId(), donation.getStatus())).toList();
 	}
 
 	@Override
 	public DonationDto getDonationById(UUID id) {
-		Donation donation = donationRepository.findDonationById(id)
+		Donation donation = donationRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("Doação não encontrada com id: " + id));
 
 		return new DonationDto(donation.getId(), donation.getValue(), donation.getDonationAt(), donation.getUserId(),
@@ -47,7 +47,7 @@ public class DonationService implements IDonationService {
 		newDonation.setDonationAt(LocalDateTime.now());
 		newDonation.setUserId(donation.userId());
 		
-		UUID id = donationRepository.createDonation(newDonation);
+		UUID id = donationRepository.create(newDonation);
 		
 		return new DonationDto(id, donation.value(), newDonation.getDonationAt(), donation.userId(),
 				donation.status());
@@ -56,7 +56,7 @@ public class DonationService implements IDonationService {
 
 	@Override
 	public void updateDonationStatus(UUID id, DonationStatusEnum status) {
-		donationRepository.updateDonationStatus(id, status);
+		donationRepository.updateStatus(id, status);
 	}
 
 }

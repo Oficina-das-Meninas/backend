@@ -8,14 +8,14 @@ import br.org.oficinadasmeninas.domain.admin.Admin;
 
 public interface IAdminRepository {
 	
-	List<Admin> findAllAdmins();
+	List<Admin> findAll();
 
-	Optional<Admin> findAdminById(UUID id);
+	Optional<Admin> findById(UUID id);
 
-	Optional<Admin> findAdminByEmail(String email);
+	Optional<Admin> findByEmail(String email);
 
-	UUID createAdmin(Admin admin);
+	UUID create(Admin admin);
 
-	void updateAdmin(Admin admin);
+	void update(Admin admin);
 
 }

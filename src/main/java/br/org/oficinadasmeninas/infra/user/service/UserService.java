@@ -31,7 +31,7 @@ public class UserService implements IUserService {
 
 	@Override
 	public List<UserDto> getAllUsers() {
-		return userRepository.findAllUsers().stream().map(user -> new UserDto(user.getId(), user.getName(),
+		return userRepository.findAll().stream().map(user -> new UserDto(user.getId(), user.getName(),
 				user.getEmail(), user.getDocument(), user.getPhone())).toList();
 	}
 
@@ -39,7 +39,7 @@ public class UserService implements IUserService {
 	public UserDto getUserById(UUID id) {
 		UserDto userDto = new UserDto();
 
-		User user = userRepository.findUserById(id)
+		User user = userRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com id: " + id));
 
 		userDto.setId(user.getId());
@@ -71,7 +71,7 @@ public class UserService implements IUserService {
 	public UserDto getUserByEmail(String email) {
 		UserDto userDto = new UserDto();
 
-		User user = userRepository.findUserByEmail(email)
+		User user = userRepository.findByEmail(email)
 				.orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com o email: " + email));
 
 		userDto.setId(user.getId());
@@ -93,7 +93,7 @@ public class UserService implements IUserService {
 			newUser.setPhone(user.getPhone());
 			newUser.setPassword(passwordEncoder.encode(user.getPassword()));
 			
-			UUID userId = userRepository.createUser(newUser);
+			UUID userId = userRepository.create(newUser);
 			newUser.setId(userId);
 			
 			return new UserDto(newUser);
@@ -110,7 +110,7 @@ public class UserService implements IUserService {
 
 	@Override
 	public void updateUser(UUID id, UpdateUserDto user) {
-        User existingUser = userRepository.findUserById(id)
+        User existingUser = userRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com id: " + id));
 
         if (user.getName() != null && !user.getName().isBlank()) {
@@ -135,7 +135,7 @@ public class UserService implements IUserService {
         }
 
         try {
-            userRepository.updateUser(existingUser);
+            userRepository.update(existingUser);
         } catch (DataIntegrityViolationException e) {
         	throw new EmailAlreadyExistsException();
         }

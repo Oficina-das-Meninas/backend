@@ -27,12 +27,7 @@ public class EventRepository implements IEventRepository {
     }
 
     @Override
-    public PageDTO<Event> getFilteredEvents(GetEventDto getEventDto) {
-        String rowCountSql = EventQueryBuilder.SELECT_COUNT;
-
-        int total = jdbc.queryForObject(rowCountSql, Integer.class);
-        int totalPages = Math.toIntExact((total / getEventDto.pageSize()) + (total % getEventDto.pageSize() == 0 ? 0 : 1));
-
+    public PageDTO<Event> getFiltered(GetEventDto getEventDto) {
         List<Event> events = jdbc.query(
                 EventQueryBuilder.GET_FILTERED_EVENTS,
                 this::mapRow,
@@ -45,11 +40,14 @@ public class EventRepository implements IEventRepository {
                 getEventDto.page()
         );
 
+        int total = events.size();
+        int totalPages = Math.toIntExact((total / getEventDto.pageSize()) + (total % getEventDto.pageSize() == 0 ? 0 : 1));
+
         return new PageDTO<>(events, total, totalPages);
     }
 
     @Override
-    public Optional<Event> getEventById(UUID id) {
+    public Optional<Event> getById(UUID id) {
         try
         {
             var event = jdbc.queryForObject(EventQueryBuilder.GET_EVENT_BY_ID, this::mapRow, id);
@@ -61,7 +59,7 @@ public class EventRepository implements IEventRepository {
         }
     }
 
-    public UUID createEvent(CreateEventDto createEventDto, String previewFileName, String partnersFileName) {
+    public UUID create(CreateEventDto createEventDto, String previewFileName, String partnersFileName) {
         var id = UUID.randomUUID();
 
         jdbc.update(EventQueryBuilder.CREATE_EVENT,
@@ -78,7 +76,7 @@ public class EventRepository implements IEventRepository {
     }
 
     @Override
-    public void updateEvent(UpdateEventDto updateEventDto, String previewFileName, String partnersFileName) {
+    public void update(UpdateEventDto updateEventDto, String previewFileName, String partnersFileName) {
         jdbc.update(EventQueryBuilder.UPDATE_EVENT,
                 updateEventDto.title(),
                 previewFileName,

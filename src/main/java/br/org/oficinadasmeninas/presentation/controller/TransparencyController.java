@@ -1,17 +1,15 @@
 package br.org.oficinadasmeninas.presentation.controller;
 
-import br.org.oficinadasmeninas.domain.transparency.Document;
-import br.org.oficinadasmeninas.infra.transparency.exception.CollaboratorNotFoundException;
-import br.org.oficinadasmeninas.infra.transparency.exception.DocumentNotFoundException;
-import br.org.oficinadasmeninas.domain.transparency.dto.CreateCategoryDto;
-import br.org.oficinadasmeninas.domain.transparency.dto.ResponseCategoryDto;
-import br.org.oficinadasmeninas.domain.transparency.dto.UpdateCategoryDto;
-import br.org.oficinadasmeninas.domain.transparency.dto.getCategories.GetCategoriesResponseDto;
-import br.org.oficinadasmeninas.domain.transparency.service.ITransparencyService;
+import br.org.oficinadasmeninas.domain.resources.Messages;
+import br.org.oficinadasmeninas.domain.transparency.dto.*;
+import br.org.oficinadasmeninas.domain.transparency.service.ICategoriesService;
+import br.org.oficinadasmeninas.domain.transparency.service.ICollaboratorsService;
+import br.org.oficinadasmeninas.domain.transparency.service.IDocumentsService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,126 +22,130 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 @Validated
 @RestController
 @RequestMapping("/api/transparencies")
-public class TransparencyController {
+public class TransparencyController extends BaseController {
 
-    private final ITransparencyService transparencyService;
+    private final IDocumentsService documentsService;
+    private final ICollaboratorsService collaboratorsService;
+    private final ICategoriesService categoriesService;
 
     @Autowired
-    public TransparencyController(ITransparencyService transparencyService) {
-        this.transparencyService = transparencyService;
+    public TransparencyController(IDocumentsService documentsService, ICollaboratorsService collaboratorsService, ICategoriesService categoriesService) {
+        this.documentsService = documentsService;
+        this.collaboratorsService = collaboratorsService;
+        this.categoriesService = categoriesService;
     }
 
     @PostMapping("/documents")
-    public ResponseEntity<String> uploadDocument(
+    public ResponseEntity<?> uploadDocument(
             @RequestParam("file") MultipartFile file,
             @RequestParam("title") @NotBlank String title,
             @RequestParam("effectiveDate")
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date effectiveDate,
             @RequestParam("categoryId") @NotBlank String categoryId
-    ) throws IOException {
+    ) {
+        var request = new CreateDocumentRequestDto(file, title, effectiveDate, categoryId);
 
-        transparencyService.uploadDocument(file, title, effectiveDate, categoryId);
-
-        return ResponseEntity.ok("Arquivo enviado com sucesso!");
+        return handle(
+            () -> documentsService.uploadDocument(request),
+            Messages.DOCUMENT_CREATED_SUCCESSFULLY,
+            HttpStatus.CREATED
+        );
     }
 
     @PostMapping("/collaborators")
-    public ResponseEntity<String> uploadCollaborator(
+    public ResponseEntity<?> uploadCollaborator(
             @RequestParam("image") MultipartFile image,
             @RequestParam("name") @NotBlank String name,
             @RequestParam("role") String role,
             @RequestParam("description") String description,
             @RequestParam("priority") @NotBlank String priority,
             @RequestParam("categoryId") @NotBlank String categoryId
-    ) throws IOException {
+    ) {
+        var request = new CreateCollaboratorRequestDto(image, name, role, description, categoryId);
 
-        transparencyService.uploadCollaborator(image, name, role, description, priority, categoryId);
-
-        return ResponseEntity.ok("Colaborador enviado com sucesso!");
+        return handle(
+            () -> collaboratorsService.uploadCollaborator(request),
+            Messages.COLLABORATOR_CREATED_SUCCESSFULLY,
+            HttpStatus.CREATED
+        );
     }
 
     @DeleteMapping("/documents/{documentId}")
-    public ResponseEntity<String> deleteDocument(
+    public ResponseEntity<?> deleteDocument(
             @PathVariable("documentId") @NotBlank String documentId
-    ) throws IOException {
-
-        try{
-            transparencyService.deleteDocument(UUID.fromString(documentId));
-        }catch (DocumentNotFoundException d){
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok("Documento deletado com sucesso!");
+    ) {
+        return handle(
+            () -> documentsService.deleteDocument(UUID.fromString(documentId)),
+            Messages.DOCUMENT_DELETED_SUCCESSFULLY
+        );
     }
 
     @DeleteMapping("/collaborators/{collaboratorId}")
-    public ResponseEntity<String> deleteCollaborator(
+    public ResponseEntity<?> deleteCollaborator(
             @PathVariable("collaboratorId") @NotBlank String collaboratorId
-    ) throws IOException {
+    ) {
+        var id = UUID.fromString(collaboratorId);
 
-        try {
-            transparencyService.deleteCollaborator(UUID.fromString(collaboratorId));
-        } catch (CollaboratorNotFoundException c) {
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok("Colaborador deletado com sucesso!");
+        return handle(
+            () -> collaboratorsService.deleteCollaborator(id),
+            Messages.COLLABORATOR_DELETED_SUCCESSFULLY
+        );
     }
 
     @PostMapping("/categories")
-    public ResponseEntity<ResponseCategoryDto> insertCategory(@Valid @RequestBody CreateCategoryDto request) {
-        ResponseCategoryDto response = transparencyService.insertCategory(request);
-
-        return ResponseEntity.created(ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(response.id())
-                .toUri())
-                .body(response);
+    public ResponseEntity<?> insertCategory(
+            @Valid @RequestBody CreateCategoryRequestDto request
+    ) {
+        return handle(
+            () -> categoriesService.insertCategory(request),
+            Messages.CATEGORY_CREATED_SUCCESSFULLY,
+            HttpStatus.CREATED
+        );
     }
 
     @GetMapping("/categories/{id}")
-    public ResponseEntity<ResponseCategoryDto> getCategoryById(@PathVariable UUID id) {
-        ResponseCategoryDto dto = transparencyService.getCategoryById(id);
-
-        return ResponseEntity.ok(dto);
+    public ResponseEntity<?> getCategoryById(
+            @PathVariable UUID id
+    ) {
+        return handle(() -> categoriesService.getCategoryById(id));
     }
 
     @GetMapping("/categories")
-    public ResponseEntity<List<ResponseCategoryDto>> getAllCategories() {
-        List<ResponseCategoryDto> dtos = transparencyService.getAllCategories();
-
-        return ResponseEntity.ok(dtos);
+    public ResponseEntity<?> getAllCategories() {
+        return handle(categoriesService::getAllCategories);
     }
 
     @GetMapping
-    public ResponseEntity<GetCategoriesResponseDto> getAll() {
-        var response = transparencyService
-                .getAllCategoriesWithDocuments();
+    public ResponseEntity<?> getAll() {
 
-        return ResponseEntity.ok(response);
+        return handle(categoriesService::getAllCategoriesWithDocuments);
     }
 
     @PatchMapping("/categories/{id}")
-    public ResponseEntity<ResponseCategoryDto> updateCategory(@PathVariable UUID id, @Valid @RequestBody UpdateCategoryDto request) {
-        ResponseCategoryDto dto = transparencyService.updateCategory(id, request);
-
-        return ResponseEntity.ok(dto);
+    public ResponseEntity<?> updateCategory(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateCategoryDto request
+    ) {
+        return handle(
+            () -> categoriesService.updateCategory(id, request),
+            Messages.CATEGORY_UPDATED_SUCCESSFULLY
+        );
     }
 
     @DeleteMapping("/categories/{id}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable UUID id) {
-        transparencyService.deleteCategory(id);
-
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deleteCategory(
+            @PathVariable UUID id
+    ) {
+        return handle(
+            () -> categoriesService.deleteCategory(id),
+            Messages.CATEGORY_DELETED_SUCCESSFULLY
+        );
     }
 }
