@@ -14,6 +14,8 @@ public interface IUserService {
 	public UserDto getUserById(UUID id);
 	
 	public UserDto getUserByEmail(String email);
+
+    public UserDto getUserByDocument(String document);
 	
 	public UserDto createUser(CreateUserDto user);
 	

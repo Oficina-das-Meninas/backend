@@ -2,7 +2,7 @@ package br.org.oficinadasmeninas.domain.payment;
 
 public enum PaymentStatusEnum {
 
-	ACTIVE("ACTIVE"), PAID("PAID"), IN_ANALYSIS("IN_ANALYSIS"), DECLINED("DECLINED"), CANCELED("CANCELED"), WAITING("WAITING");
+	ACTIVE("ACTIVE"), PAID("PAID"), IN_ANALYSIS("IN_ANALYSIS"), DECLINED("DECLINED"), CANCELED("CANCELED"), WAITING("WAITING"), EXPIRED("EXPIRED");
 
 	private final String name;
 

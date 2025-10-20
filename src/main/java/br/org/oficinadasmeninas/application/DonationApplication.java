@@ -7,11 +7,20 @@ import br.org.oficinadasmeninas.domain.paymentgateway.PaymentGatewayEnum;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.*;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
+import br.org.oficinadasmeninas.domain.sponsor.Sponsor;
+import br.org.oficinadasmeninas.domain.sponsor.dto.CreateSponsorDto;
+import br.org.oficinadasmeninas.domain.sponsor.dto.SponsorDto;
+import br.org.oficinadasmeninas.domain.sponsor.service.ISponsorService;
+import br.org.oficinadasmeninas.infra.shared.exception.ActiveSubscriptionAlreadyExistsException;
 import org.springframework.stereotype.Service;
 
 import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
 import br.org.oficinadasmeninas.domain.donation.service.IDonationService;
 import br.org.oficinadasmeninas.domain.payment.service.IPaymentService;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class DonationApplication {
@@ -19,22 +28,33 @@ public class DonationApplication {
 	private final IDonationService donationService;
 	private final IPaymentService paymentService;
 	private final IPaymentGatewayService paymentGatewayService;
+    private final ISponsorService sponsorService;
 
 	public DonationApplication(IDonationService donationService, IPaymentService paymentService,
-                               IPaymentGatewayService paymentGatewayService) {
+                               IPaymentGatewayService paymentGatewayService, ISponsorService sponsorService) {
 		this.donationService = donationService;
 		this.paymentService = paymentService;
         this.paymentGatewayService = paymentGatewayService;
+        this.sponsorService = sponsorService;
 	}
 
 	public DonationCheckoutDto createDonationCheckout(CreateDonationCheckoutDto donationCheckout) {
+        if (donationCheckout.donation().isRecurring()){
+            Optional<SponsorDto> sponsor = this.sponsorService.getActiveSponsorByUserId(donationCheckout.donor().id());
+
+            if (sponsor.isPresent()) {
+                throw new ActiveSubscriptionAlreadyExistsException("Usuário já possui assinatura ativa");
+            }
+            this.createSponsor(donationCheckout);
+        }
+
 		CreateDonationDto createDonation = new CreateDonationDto(donationCheckout.donation().value(),
 				donationCheckout.donor().id(), DonationStatusEnum.PENDING);
 		DonationDto donation = donationService.createDonation(createDonation);
 
         ResponseCreateCheckoutDto checkout = paymentGatewayService.createCheckout(createPaymentGateway(donation.id().toString(), donationCheckout.donor(), donationCheckout.donation()));
 
-        PaymentGatewayEnum paymentGatewayEnum = donationCheckout.donation().gatewayPayment();
+        PaymentGatewayEnum paymentGatewayEnum = PaymentGatewayEnum.PAGBANK;
 
 		CreatePaymentDto createPayment = new CreatePaymentDto(donation.id(), paymentGatewayEnum, checkout.checkoutId(), null, PaymentStatusEnum.WAITING);
 		paymentService.createPayment(createPayment);
@@ -49,5 +69,18 @@ public class DonationApplication {
                 new RequestCreateCheckoutSignatureDto(donation.isRecurring(), donation.cycles()),
                 new RequestCreateCheckoutDonationDto(donation.value())
         );
+    }
+    private UUID createSponsor(CreateDonationCheckoutDto donationCheckout) {
+        var donor = donationCheckout.donor();
+        var donation = donationCheckout.donation();
+       return sponsorService.createSponsor(new SponsorDto(
+                donation.value(),
+                LocalDateTime.now().getDayOfMonth(),
+                donor.id(),
+                LocalDateTime.now(),
+                null,
+                false,
+                null
+        ));
     }
 }

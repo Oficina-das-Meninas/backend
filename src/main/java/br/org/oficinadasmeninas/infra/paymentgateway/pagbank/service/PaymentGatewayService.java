@@ -4,21 +4,28 @@ import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
 import br.org.oficinadasmeninas.domain.donation.repository.IDonationRepository;
 import br.org.oficinadasmeninas.domain.donation.service.IDonationService;
 import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
+import br.org.oficinadasmeninas.domain.payment.dto.PaymentDto;
 import br.org.oficinadasmeninas.domain.payment.service.IPaymentService;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.ResponseCreateCheckoutDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
+import br.org.oficinadasmeninas.domain.sponsor.dto.SponsorDto;
+import br.org.oficinadasmeninas.domain.sponsor.service.ISponsorService;
+import br.org.oficinadasmeninas.domain.user.dto.UserDto;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.PaymentsMethodEnum;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.*;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.mappers.RequestCreateCheckoutPagbankMapper;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.mappers.RequestNotifyPaymentDonationStatusMapper;
 import br.org.oficinadasmeninas.infra.shared.exception.PaymentGatewayException;
+import br.org.oficinadasmeninas.infra.user.service.UserService;
 import br.org.oficinadasmeninas.presentation.shared.utils.IsoDateFormater;
+import br.org.oficinadasmeninas.presentation.shared.utils.MoneyConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -33,6 +40,9 @@ public class PaymentGatewayService implements IPaymentGatewayService {
     private final IDonationService donationService;
 
     private final IPaymentService paymentService;
+
+    private final ISponsorService sponsorService;
+    private final UserService userService;
 
     @Value("${app.redirectCheckoutUrl}")
     private String redirectUrl;
@@ -51,23 +61,44 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
 
 
-    public PaymentGatewayService(RequestCreateCheckoutPagbankMapper mapper, WebClient.Builder builder, @Value("${app.url}") String url, IDonationService donationService, IPaymentService paymentService) {
+    public PaymentGatewayService(RequestCreateCheckoutPagbankMapper mapper, WebClient.Builder builder, @Value("${app.url}") String url, IDonationService donationService, IPaymentService paymentService, ISponsorService sponsorService, UserService userService) {
         this.mapper = mapper;
         this.donationService = donationService;
         this.paymentService = paymentService;
+        this.sponsorService = sponsorService;
         this.webClient = builder.baseUrl(url)
                 .build();
+        this.userService = userService;
     }
+
+    @Override
+    public void cancelCheckout(String checkoutId) {
+        try {
+            StringBuilder uriBuilder = new StringBuilder()
+                    .append("/checkouts/")
+                    .append(checkoutId)
+                    .append("/inactivate");
+
+            var response = webClient.post()
+                    .uri(uriBuilder.toString())
+                    .header("Authorization", "Bearer " + token)
+                    .retrieve()
+                    .bodyToMono(ResponseSignatureCustomer.class)
+                    .block();
+
+            System.out.println(response);
+        } catch (WebClientResponseException e) {
+            throw new PaymentGatewayException(e.getRawStatusCode() + " " + e.getStatusText() + e.getResponseBodyAs(String.class));
+        }
+    }
+
 
     @Override
     public ResponseCreateCheckoutDto createCheckout(RequestCreateCheckoutDto requestCreateCheckoutDto) {
 
 
-
-        // Default configurations Pagbank
-
         RequestCreateCheckoutConfig defaults = new RequestCreateCheckoutConfig(
-                IsoDateFormater.addMinutes(2),
+                IsoDateFormater.addMinutes(15),
                 redirectUrl,
                 requestCreateCheckoutDto.signatureDto().isRecurrence()? "APADRINHAMENTO OFICINA DAS MENINAS": "DOAÇÃO OFICINA DAS MENINAS",
                 1,
@@ -75,6 +106,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
                 List.of(paymentNotificationUrls),
                 List.of(PaymentsMethodEnum.CREDIT_CARD),
                 "https://dev.apollomusic.com.br/logo_preenchimento_branco.png",
+                12,
                 new RequestCreateCheckoutRecurrenceInterval(
                         "MONTH",
                         1
@@ -95,18 +127,44 @@ public class PaymentGatewayService implements IPaymentGatewayService {
     }
 
     @Override
-    public void updatePaymentStatus(UUID paymentId, PaymentStatusEnum paymentStatus) {
+    public void updatePaymentStatus(UUID paymentId, PaymentStatusEnum paymentStatus, PaymentsMethodEnum paymentMethod, boolean recurring, ResponseWebhookCustomer customer) {
        DonationStatusEnum donationStatusEnum = RequestNotifyPaymentDonationStatusMapper.fromPaymentStatus(paymentStatus);
        donationService.updateDonationStatus(paymentId, donationStatusEnum);
        paymentService.updatePaymentStatus(paymentId, paymentStatus);
+       paymentService.updatePaymentMethod(paymentId, paymentMethod);
 
+
+       if (recurring) {
+         UserDto userDto = userService.getUserByDocument(customer.tax_id());
+         sponsorService.activeSponsorByUserId(userDto.getId());
+       }
     }
 
     @Override
-    public void updateCheckoutStatus(String checkoutId, UUID paymentId) {
-
+    public void updateCheckoutStatus(String checkoutId, UUID paymentId, PaymentStatusEnum paymentStatus) {
+        DonationStatusEnum donationStatusEnum = RequestNotifyPaymentDonationStatusMapper.fromPaymentStatus(paymentStatus);
+        donationService.updateDonationStatus(paymentId, donationStatusEnum);
+        paymentService.updatePaymentStatus(paymentId, paymentStatus);
     }
 
+    private UUID getUserId(UUID donationId){
+        return  donationService.getDonationById(donationId).userId();
+    }
+    private String getSubscriberId(String taxId){
+        try {
+            var response = webClient.get()
+                    .uri("/subscriptions")
+                    .header("Authorization", "Bearer " + token)
+                    .header("q", taxId) // 👈 aqui vai o header extra
+                    .retrieve()
+                    .bodyToMono(ResponseSignatureCustomer.class)
+                    .block();
+
+            return response.id();
+        } catch (WebClientResponseException e) {
+            throw new PaymentGatewayException(e.getRawStatusCode() + " " + e.getStatusText());
+        }
+    }
     private ResponseCreateCheckoutPagbank createPagBankCheckout(RequestCreateCheckoutPagbank checkoutPagbank) {
         try {
             var response = webClient.post()

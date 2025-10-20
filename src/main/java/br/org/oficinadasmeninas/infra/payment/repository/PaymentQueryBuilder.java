@@ -22,7 +22,13 @@ public class PaymentQueryBuilder {
 	public static final String UPDATE_PAYMENT_STATUS = """
 			    UPDATE payment
 			    SET status = ?
-			    WHERE id = ?
+			    WHERE donation_id = ?
+			""";
+
+    public static final String UPDATE_PAYMENT_METHOD = """
+			    UPDATE payment
+			    SET method = ?
+			    WHERE donation_id = ?
 			""";
 
 }

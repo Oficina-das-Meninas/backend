@@ -53,6 +53,18 @@ public class UserRepository implements IUserRepository {
 		}
 	}
 
+    @Override
+    public Optional<User> findUserByDocument(String email) {
+        String sql = "SELECT id, name, email, password, phone, document FROM users WHERE document = ?";
+
+        try {
+            var user = jdbc.queryForObject(sql, this::mapRowUser, email);
+            return Optional.ofNullable(user);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
 	@Override
 	public UUID createUser(User user) {
 		UUID id = UUID.randomUUID();

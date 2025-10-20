@@ -18,7 +18,7 @@ public class Sponsor {
 		super();
 	}
 
-	public Sponsor(UUID id, long monthlyAmount, int billingDay, UUID userId, LocalDateTime sponsorSince,
+	public Sponsor(UUID id, double monthlyAmount, int billingDay, UUID userId, LocalDateTime sponsorSince,
 			LocalDateTime sponsorUntil, Boolean isActive, String subscriptionId) {
 		super();
 		this.id = id;

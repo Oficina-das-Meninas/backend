@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import br.org.oficinadasmeninas.domain.paymentgateway.PaymentGatewayEnum;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.PaymentsMethodEnum;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -60,8 +61,13 @@ public class PaymentRepository implements IPaymentRepository {
 	public void updatePaymentStatus(UUID id, PaymentStatusEnum status) {
 		 jdbc.update(PaymentQueryBuilder.UPDATE_PAYMENT_STATUS, status.name(), id);
 	}
-	
-	private Payment mapRowPayment(ResultSet rs, int rowNum) throws SQLException {
+
+    @Override
+    public void updatePaymentMethod(UUID id, PaymentsMethodEnum status) {
+        jdbc.update(PaymentQueryBuilder.UPDATE_PAYMENT_METHOD, status.name(), id);
+    }
+
+    private Payment mapRowPayment(ResultSet rs, int rowNum) throws SQLException {
         Payment payment = new Payment(
                 rs.getObject("id", UUID.class),
                 rs.getObject("donation_id", UUID.class),

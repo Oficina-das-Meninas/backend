@@ -9,6 +9,7 @@ import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreate
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.ResponseCreateCheckoutDto;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.PaymentsMethodEnum;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.*;
+import br.org.oficinadasmeninas.presentation.shared.utils.MoneyConverter;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ public class RequestCreateCheckoutPagbankMapper {
         RequestCreateCheckoutItem item = new RequestCreateCheckoutItem(
                 config.itemName(),
                 config.quantity(),
-                toLong(oldDonation.value()),
+                MoneyConverter.doubleToLong(oldDonation.value()),
                 config.itemImage()
         );
 
@@ -43,11 +44,10 @@ public class RequestCreateCheckoutPagbankMapper {
            recurrence = new RequestCreateCheckoutRecurrence(
                    config.itemName(),
                    config.interval(),
-                   domain.signatureDto().cycles().get()
+                   config.cycles()
            );
 
        }
-
 
         RequestCreateCheckoutPagbank pagbank = new RequestCreateCheckoutPagbank(
                 domain.internalId(),
@@ -72,9 +72,6 @@ public class RequestCreateCheckoutPagbankMapper {
         String number = digits.substring(4);
 
         return new RequestCreateCheckoutCustomerPhone(country, area, number);
-    }
-    private long toLong(double value) {
-        return (long) (value * 100);
     }
     private List<RequestCreateCheckoutPaymentMethod> toPaymentMethods(List<PaymentsMethodEnum> methods){
         return methods.stream()

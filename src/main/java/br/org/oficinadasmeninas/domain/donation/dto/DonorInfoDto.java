@@ -17,6 +17,5 @@ public record DonorInfoDto(
         String document,
         @NotBlank(message = "O telefone é obrigatório")
         String phone,
-        @NotNull(message = "O ID é obrigatório")
         UUID id
 ) {}

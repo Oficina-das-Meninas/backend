@@ -10,7 +10,7 @@ public class RequestNotifyPaymentDonationStatusMapper {
         return switch (paymentStatus) {
             case PAID -> DonationStatusEnum.PAID;
             case ACTIVE, IN_ANALYSIS, WAITING -> DonationStatusEnum.PENDING;
-            case DECLINED, CANCELED -> DonationStatusEnum.CANCELED;
+            case DECLINED, CANCELED, EXPIRED -> DonationStatusEnum.CANCELED;
         };
     }
 

@@ -7,6 +7,7 @@ import br.org.oficinadasmeninas.domain.sponsor.repository.ISponsorRepository;
 import br.org.oficinadasmeninas.domain.sponsor.service.ISponsorService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,12 +22,28 @@ public class SponsorService implements ISponsorService {
 
     @Override
     public Optional<SponsorDto> getSponsorbyId(UUID id) {
-        return sponsorRepository.findById(id);
+        Optional<Sponsor> sponsor = sponsorRepository.findById(id);
+        return sponsor.map(this::mapSponsor);
+    }
+
+    @Override
+    public List<SponsorDto> getSponsorByUserId(UUID id) {
+        return sponsorRepository.findByUserId(id)
+                .stream()
+                .map(this::mapSponsor)
+                .toList();
+    }
+
+    @Override
+    public Optional<SponsorDto> getActiveSponsorByUserId(UUID id) {
+        return sponsorRepository.findActiveByUserId(id)
+                .map(this::mapSponsor);
     }
 
     @Override
     public Optional<SponsorDto> getBySubscriptionId(UUID subscriptionId) {
-        return sponsorRepository.findBySubscriptionId(subscriptionId);
+        return sponsorRepository.findBySubscriptionId(subscriptionId)
+                .map(this::mapSponsor);
     }
 
     @Override
@@ -44,7 +61,24 @@ public class SponsorService implements ISponsorService {
     }
 
     @Override
+    public void activeSponsorByUserId(UUID userId) {
+     sponsorRepository.activeSponsorByuserId(userId);
+    }
+
+    @Override
     public void updateSponsor(UpdateSponsorDto sponsor) {
         sponsorRepository.updateSponsor(sponsor);
+    }
+
+    private SponsorDto mapSponsor(Sponsor sponsor) {
+        return new SponsorDto(
+                sponsor.getMonthlyAmount(),
+                sponsor.getBillingDay(),
+                sponsor.getUserId(),
+                sponsor.getSponsorSince(),
+                sponsor.getSponsorUntil(),
+                sponsor.getIsActive(),
+                sponsor.getSubscriptionId()
+        );
     }
 }

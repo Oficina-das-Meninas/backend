@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import br.org.oficinadasmeninas.domain.payment.Payment;
 import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.PaymentsMethodEnum;
 
 public interface IPaymentRepository {
 	
@@ -16,5 +17,7 @@ public interface IPaymentRepository {
 	UUID createPayment(Payment payment);
 	
 	void updatePaymentStatus(UUID id, PaymentStatusEnum status);
-	
+
+    void updatePaymentMethod(UUID id, PaymentsMethodEnum status);
+
 }

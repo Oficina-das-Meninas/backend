@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,7 +29,7 @@ public class SponsorRepository implements ISponsorRepository {
     }
 
     @Override
-    public Optional<SponsorDto> findById(UUID id) {
+    public Optional<Sponsor> findById(UUID id) {
         String sql = "SELECT id, monthlyAmount, billingDay, userId, sponsorSince, sponsorUntil, isActive, subscriptionId FROM sponsors WHERE id = ?";
 
         try {
@@ -40,7 +41,7 @@ public class SponsorRepository implements ISponsorRepository {
     }
 
     @Override
-    public Optional<SponsorDto> findBySubscriptionId(UUID subscriptionId) {
+    public Optional<Sponsor> findBySubscriptionId(UUID subscriptionId) {
         String sql = "SELECT id, monthlyAmount, billingDay, userId, sponsorSince, sponsorUntil, isActive, subscriptionId FROM sponsors WHERE subscriptionId = ?";
 
         try {
@@ -52,8 +53,26 @@ public class SponsorRepository implements ISponsorRepository {
     }
 
     @Override
-    public Optional<Sponsor> findByUserId(UUID id) {
-        return Optional.empty();
+    public List<Sponsor> findByUserId(UUID id) {
+        String sql = """
+        SELECT id, monthlyAmount, billingDay, userId, sponsorSince, sponsorUntil, isActive, subscriptionId
+        FROM sponsors
+        WHERE userId = ?
+        """;
+
+        return jdbc.query(sql, this::mapRowSponsor, id);
+    }
+
+    @Override
+    public Optional<Sponsor> findActiveByUserId(UUID id) {
+        String sql = "SELECT id, monthlyAmount, billingDay, userId, sponsorSince, sponsorUntil, isActive, subscriptionId FROM sponsors WHERE userId = ? AND isActive = true";
+
+        try {
+            var sponsor = jdbc.queryForObject(sql, this::mapRowSponsor, id);
+            return Optional.ofNullable(sponsor);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     @Override
@@ -90,12 +109,31 @@ public class SponsorRepository implements ISponsorRepository {
 
     @Override
     public void suspendSponsor(UUID id) {
+        String sql = "UPDATE sponsors SET sponsorUntil = ?, isActive = ? " +
+                "WHERE id = ?";
 
+        jdbc.update(sql,
+          LocalDateTime.now(),
+          false,
+          id
+        );
     }
 
-    private SponsorDto mapRowSponsor(ResultSet rs, int rowNum) throws SQLException {
-        return new SponsorDto(
-                rs.getLong("monthlyAmount"),
+    @Override
+    public void activeSponsorByuserId(UUID userId) {
+        String sql = "UPDATE sponsors SET isActive = ? " +
+                "WHERE userId = ?";
+
+        jdbc.update(sql,
+                true,
+                userId
+        );
+    }
+
+    private Sponsor mapRowSponsor(ResultSet rs, int rowNum) throws SQLException {
+        return new Sponsor(
+                UUID.fromString(rs.getString("id")),
+                rs.getDouble("monthlyAmount"),
                 rs.getInt("billingDay"),
                 UUID.fromString(rs.getString("userId")),
                 rs.getTimestamp("sponsorSince") != null ? rs.getTimestamp("sponsorSince").toLocalDateTime() : null,
