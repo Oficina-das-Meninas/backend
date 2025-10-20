@@ -25,15 +25,15 @@ public class PartnerRepository implements IPartnerRepository {
 
     @Override
     public PageDTO<Partner> findAll(int page, int pageSize) {
-        long total = jdbc.queryForObject(PartnerQueryBuilder.SELECT_COUNT, Integer.class);
-        int totalPages = Math.toIntExact((total / pageSize) + (total % pageSize == 0 ? 0 : 1));
-
         List<Partner> partners = jdbc.query(
                 PartnerQueryBuilder.GET_PARTNERS,
                 this::mapRow,
                 pageSize,
                 page
         );
+
+        long total = partners.size();
+        int totalPages = Math.toIntExact((total / pageSize) + (total % pageSize == 0 ? 0 : 1));
 
         return new PageDTO<>(partners, total, totalPages);
     }
