@@ -5,6 +5,7 @@ import br.org.oficinadasmeninas.domain.transparency.Collaborator;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateCollaboratorDto;
 import br.org.oficinadasmeninas.domain.transparency.repository.ICategoriesRepository;
 import br.org.oficinadasmeninas.domain.transparency.repository.ICollaboratorsRepository;
+import br.org.oficinadasmeninas.infra.transparency.repository.queries.CategoriesQueryBuilder;
 import br.org.oficinadasmeninas.infra.transparency.repository.queries.CollaboratorsQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -44,6 +45,16 @@ public class CollaboratorsRepository implements ICollaboratorsRepository {
         );
 
         return id;
+    }
+
+    @Override
+    public Collaborator updateCollaborator(Collaborator collaborator) {
+        jdbc.update(
+                CollaboratorsQueryBuilder.UPDATE_COLLABORATOR_PRIORITY,
+                collaborator.getPriority() != null ? collaborator.getPriority() : 0,
+                collaborator.getId()
+        );
+        return collaborator;
     }
 
     @Override
