@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import br.org.oficinadasmeninas.domain.payment.Payment;
 import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.PaymentsMethodEnum;
 
 /**
  * Repositório responsável pelas operações de persistência de pagamentos.
@@ -33,10 +34,7 @@ public interface IPaymentRepository {
      * @throws IllegalArgumentException se {@code donationId} for {@code null}
      */
     List<Payment> findByDonationId(UUID donationId);
-	
-	void updatePaymentStatus(UUID id, PaymentStatusEnum status);
 
-    void updatePaymentMethod(UUID id, PaymentsMethodEnum status);
 
     /**
      * Persiste um novo pagamento e retorna o identificador gerado.

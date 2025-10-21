@@ -57,7 +57,7 @@ public class DonationApplication {
         PaymentGatewayEnum paymentGatewayEnum = PaymentGatewayEnum.PAGBANK;
 
 		CreatePaymentDto createPayment = new CreatePaymentDto(donation.id(), paymentGatewayEnum, checkout.checkoutId(), null, PaymentStatusEnum.WAITING);
-		paymentService.createPayment(createPayment);
+		paymentService.create(createPayment);
 
 		return new DonationCheckoutDto(checkout.link());
 	}

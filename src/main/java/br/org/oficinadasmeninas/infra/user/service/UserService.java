@@ -55,7 +55,7 @@ public class UserService implements IUserService {
     public UserDto getUserByDocument(String document) {
         UserDto userDto = new UserDto();
 
-        User user = userRepository.findUserByDocument(document)
+        User user = userRepository.findByDocument(document)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com documento: " + document));
 
         userDto.setId(user.getId());

@@ -14,7 +14,7 @@ public interface IPaymentService {
 	
 	List<PaymentDto> getPaymentsByDonation(UUID donationId);
 
-	PaymentDto createPayment(CreatePaymentDto payment);
+	PaymentDto create(CreatePaymentDto payment);
 	
 	void updatePaymentStatus(UUID id, PaymentStatusEnum status);
 
