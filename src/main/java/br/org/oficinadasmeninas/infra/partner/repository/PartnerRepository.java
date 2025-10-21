@@ -29,7 +29,7 @@ public class PartnerRepository implements IPartnerRepository {
                 PartnerQueryBuilder.GET_PARTNERS,
                 this::mapRow,
                 pageSize,
-                (page - 1) * pageSize
+                page * pageSize
         );
 
         long total = jdbc.queryForObject(PartnerQueryBuilder.SELECT_COUNT, Integer.class);
