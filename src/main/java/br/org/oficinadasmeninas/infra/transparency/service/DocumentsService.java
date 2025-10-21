@@ -1,6 +1,11 @@
 package br.org.oficinadasmeninas.infra.transparency.service;
 
-import br.org.oficinadasmeninas.domain.objectStorage.IObjectStorage;
+import java.io.IOException;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+
+import br.org.oficinadasmeninas.domain.objectstorage.IObjectStorage;
 import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateDocumentDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateDocumentRequestDto;
@@ -9,11 +14,6 @@ import br.org.oficinadasmeninas.domain.transparency.repository.IDocumentsReposit
 import br.org.oficinadasmeninas.domain.transparency.service.IDocumentsService;
 import br.org.oficinadasmeninas.infra.exceptions.ObjectStorageException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.util.UUID;
 
 @Service
 public class DocumentsService implements IDocumentsService {
@@ -22,7 +22,6 @@ public class DocumentsService implements IDocumentsService {
     private final ICategoriesRepository categoriesRepository;
     private final IDocumentsRepository documentsRepository;
 
-    @Autowired
     public DocumentsService(IObjectStorage objectStorage, ICategoriesRepository categoriesRepository, IDocumentsRepository documentsRepository) {
         this.objectStorage = objectStorage;
         this.categoriesRepository = categoriesRepository;

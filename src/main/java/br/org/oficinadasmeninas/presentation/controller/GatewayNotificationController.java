@@ -1,26 +1,23 @@
 package br.org.oficinadasmeninas.presentation.controller;
 
-import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
-import br.org.oficinadasmeninas.domain.payment.dto.PaymentDto;
-import br.org.oficinadasmeninas.domain.paymentgateway.dto.PaymentChargesDto;
-import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
-import br.org.oficinadasmeninas.infra.donation.service.DonationService;
-import br.org.oficinadasmeninas.infra.payment.service.PaymentService;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseWebhookCustomer;
-import br.org.oficinadasmeninas.infra.sponsor.service.SponsorService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.org.oficinadasmeninas.domain.payment.dto.CheckoutNotificationDto;
-import br.org.oficinadasmeninas.domain.payment.dto.PaymentNotificationDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Optional;
-import java.util.UUID;
+import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
+import br.org.oficinadasmeninas.domain.payment.dto.CheckoutNotificationDto;
+import br.org.oficinadasmeninas.domain.payment.dto.PaymentDto;
+import br.org.oficinadasmeninas.domain.payment.dto.PaymentNotificationDto;
+import br.org.oficinadasmeninas.domain.paymentgateway.dto.PaymentChargesDto;
+import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
+import br.org.oficinadasmeninas.infra.payment.service.PaymentService;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseWebhookCustomer;
 
 @RestController
 @RequestMapping("/api/nofitication")
@@ -28,15 +25,11 @@ public class GatewayNotificationController {
 
 	private final IPaymentGatewayService paymentGatewayService;
     private final ObjectMapper mapper = new ObjectMapper();
-    private final DonationService donationService;
-    private final SponsorService sponsorService;
     private final PaymentService paymentService;
 
-    public GatewayNotificationController(IPaymentGatewayService paymentGatewayService, DonationService donationService, SponsorService sponsorService, PaymentService paymentService) {
+    public GatewayNotificationController(IPaymentGatewayService paymentGatewayService, PaymentService paymentService) {
 		super();
         this.paymentGatewayService = paymentGatewayService;
-        this.donationService = donationService;
-        this.sponsorService = sponsorService;
         this.paymentService = paymentService;
     }
 	

@@ -9,8 +9,12 @@ import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseWebhook
 import java.util.UUID;
 
 public interface IPaymentGatewayService {
-    ResponseCreateCheckoutDto createCheckout(RequestCreateCheckoutDto responseCreateCheckoutDto);
-    void cancelCheckout(String checkoutId);
-    void updatePaymentStatus(UUID paymentId, PaymentStatusEnum paymentStatus, PaymentsMethodEnum paymentMethod, boolean recurring, ResponseWebhookCustomer customer);
-    void updateCheckoutStatus(String checkoutId, UUID paymentId, PaymentStatusEnum paymentStatus);
+	ResponseCreateCheckoutDto createCheckout(RequestCreateCheckoutDto responseCreateCheckoutDto);
+
+	void cancelCheckout(String checkoutId);
+
+	void updatePaymentStatus(UUID paymentId, PaymentStatusEnum paymentStatus, PaymentsMethodEnum paymentMethod,
+			boolean recurring, ResponseWebhookCustomer customer);
+
+	void updateCheckoutStatus(String checkoutId, UUID paymentId, PaymentStatusEnum paymentStatus);
 }

@@ -1,21 +1,22 @@
 package br.org.oficinadasmeninas.infra.paymentgateway.pagbank.mappers;
 
-import br.org.oficinadasmeninas.domain.payment.dto.CustomerDto;
-import br.org.oficinadasmeninas.domain.payment.dto.ItemDto;
-import br.org.oficinadasmeninas.domain.payment.dto.PaymentMethodDto;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
+
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutCustomerDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDonationDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDto;
-import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.ResponseCreateCheckoutDto;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.PaymentsMethodEnum;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.*;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutConfig;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutCustomer;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutCustomerPhone;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutItem;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutPagbank;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutPaymentMethod;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutRecurrence;
 import br.org.oficinadasmeninas.presentation.shared.utils.MoneyConverter;
-import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 public class RequestCreateCheckoutPagbankMapper {

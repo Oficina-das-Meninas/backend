@@ -25,7 +25,7 @@ public class PaymentQueryBuilder {
 			    WHERE donation_id = ?
 			""";
 
-    public static final String UPDATE_PAYMENT_METHOD = """
+	public static final String UPDATE_PAYMENT_METHOD = """
 			    UPDATE payment
 			    SET method = ?
 			    WHERE donation_id = ?

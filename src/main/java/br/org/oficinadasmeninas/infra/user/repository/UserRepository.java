@@ -48,7 +48,7 @@ public class UserRepository implements IUserRepository {
 	}
 
     @Override
-    public Optional<User> findUserByDocument(String email) {
+    public Optional<User> findByDocument(String email) {
         String sql = "SELECT id, name, email, password, phone, document FROM users WHERE document = ?";
 
         try {

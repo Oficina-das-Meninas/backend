@@ -58,7 +58,7 @@ public class PaymentRepository implements IPaymentRepository {
 	}
 
 	@Override
-	public void updateStatus(UUID id, PaymentStatusEnum status) {
+	public void updatePaymentStatus(UUID id, PaymentStatusEnum status) {
 		 jdbc.update(PaymentQueryBuilder.UPDATE_PAYMENT_STATUS, status.name(), id);
 	}
 

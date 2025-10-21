@@ -1,6 +1,11 @@
 package br.org.oficinadasmeninas.infra.transparency.service;
 
-import br.org.oficinadasmeninas.domain.objectStorage.IObjectStorage;
+import java.io.IOException;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+
+import br.org.oficinadasmeninas.domain.objectstorage.IObjectStorage;
 import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateCollaboratorDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateCollaboratorRequestDto;
@@ -9,11 +14,6 @@ import br.org.oficinadasmeninas.domain.transparency.repository.ICollaboratorsRep
 import br.org.oficinadasmeninas.domain.transparency.service.ICollaboratorsService;
 import br.org.oficinadasmeninas.infra.exceptions.ObjectStorageException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.util.UUID;
 
 @Service
 public class CollaboratorsService implements ICollaboratorsService {
@@ -22,7 +22,6 @@ public class CollaboratorsService implements ICollaboratorsService {
     private final ICollaboratorsRepository   collaboratorsRepository;
     private final IObjectStorage objectStorage;
 
-    @Autowired
     public CollaboratorsService(ICategoriesRepository categoriesRepository, ICollaboratorsRepository collaboratorsRepository, IObjectStorage objectStorage) {
         this.categoriesRepository = categoriesRepository;
         this.collaboratorsRepository = collaboratorsRepository;

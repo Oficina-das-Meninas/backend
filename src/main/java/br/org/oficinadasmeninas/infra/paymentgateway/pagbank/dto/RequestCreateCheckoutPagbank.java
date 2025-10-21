@@ -1,12 +1,6 @@
 package br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto;
 
-import br.org.oficinadasmeninas.domain.payment.dto.CustomerDto;
-import br.org.oficinadasmeninas.domain.payment.dto.ItemDto;
-import br.org.oficinadasmeninas.domain.payment.dto.PaymentMethodDto;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.PaymentsMethodEnum;
-
 import java.util.List;
-import java.util.Optional;
 
 
 public record RequestCreateCheckoutPagbank(

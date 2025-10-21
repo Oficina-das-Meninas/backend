@@ -1,14 +1,13 @@
 package br.org.oficinadasmeninas.domain.sponsor.service;
 
-import br.org.oficinadasmeninas.domain.sponsor.Sponsor;
-import br.org.oficinadasmeninas.domain.sponsor.dto.SponsorDto;
-import br.org.oficinadasmeninas.domain.sponsor.dto.UpdateSponsorDto;
-import org.springframework.stereotype.Repository;
-
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.springframework.stereotype.Repository;
+
+import br.org.oficinadasmeninas.domain.sponsor.dto.SponsorDto;
+import br.org.oficinadasmeninas.domain.sponsor.dto.UpdateSponsorDto;
 
 @Repository
 public interface ISponsorService {

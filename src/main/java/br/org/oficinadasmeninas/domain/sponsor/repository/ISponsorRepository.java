@@ -1,12 +1,11 @@
 package br.org.oficinadasmeninas.domain.sponsor.repository;
 
-import br.org.oficinadasmeninas.domain.sponsor.Sponsor;
-import br.org.oficinadasmeninas.domain.sponsor.dto.SponsorDto;
-import br.org.oficinadasmeninas.domain.sponsor.dto.UpdateSponsorDto;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import br.org.oficinadasmeninas.domain.sponsor.Sponsor;
+import br.org.oficinadasmeninas.domain.sponsor.dto.UpdateSponsorDto;
 
 public interface ISponsorRepository {
 	List<Sponsor> findAllSponsors();

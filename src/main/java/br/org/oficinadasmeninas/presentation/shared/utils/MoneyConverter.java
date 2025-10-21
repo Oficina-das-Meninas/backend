@@ -1,7 +1,5 @@
 package br.org.oficinadasmeninas.presentation.shared.utils;
 
-import java.math.BigDecimal;
-
 public class MoneyConverter {
     private static final int SCALE = 2; // 2 casas decimais para centavos
 

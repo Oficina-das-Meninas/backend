@@ -12,6 +12,7 @@ import br.org.oficinadasmeninas.domain.payment.dto.CreatePaymentDto;
 import br.org.oficinadasmeninas.domain.payment.dto.PaymentDto;
 import br.org.oficinadasmeninas.domain.payment.repository.IPaymentRepository;
 import br.org.oficinadasmeninas.domain.payment.service.IPaymentService;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.PaymentsMethodEnum;
 import br.org.oficinadasmeninas.infra.shared.exception.EntityNotFoundException;
 
 @Service
@@ -72,8 +73,14 @@ public class PaymentService implements IPaymentService {
 	@Override
 	@Transactional
 	public void updatePaymentStatus(UUID id, PaymentStatusEnum status) {
-		 paymentRepository.updateStatus(id, status);
+		 paymentRepository.updatePaymentStatus(id, status);
 
+	}
+
+	@Override
+	public void updatePaymentMethod(UUID id, PaymentsMethodEnum status) {
+		paymentRepository.updatePaymentMethod(id, status);
+		
 	}
 
 }
