@@ -29,10 +29,10 @@ public class PartnerRepository implements IPartnerRepository {
                 PartnerQueryBuilder.GET_PARTNERS,
                 this::mapRow,
                 pageSize,
-                page
+                (page - 1) * pageSize
         );
 
-        long total = partners.size();
+        long total = jdbc.queryForObject(PartnerQueryBuilder.SELECT_COUNT, Integer.class);
         int totalPages = Math.toIntExact((total / pageSize) + (total % pageSize == 0 ? 0 : 1));
 
         return new PageDTO<>(partners, total, totalPages);

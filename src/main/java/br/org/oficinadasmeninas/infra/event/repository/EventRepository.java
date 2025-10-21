@@ -37,10 +37,17 @@ public class EventRepository implements IEventRepository {
                 getEventDto.startDate(),
                 getEventDto.endDate(),
                 getEventDto.pageSize(),
-                getEventDto.page()
-        );
+                (getEventDto.page() - 1) * getEventDto.pageSize());
 
-        int total = events.size();
+        int total = jdbc.queryForObject(
+                EventQueryBuilder.SELECT_COUNT,
+                Integer.class,
+                getEventDto.title(),
+                getEventDto.description(),
+                getEventDto.location(),
+                getEventDto.startDate(),
+                getEventDto.endDate());
+
         int totalPages = Math.toIntExact((total / getEventDto.pageSize()) + (total % getEventDto.pageSize() == 0 ? 0 : 1));
 
         return new PageDTO<>(events, total, totalPages);
