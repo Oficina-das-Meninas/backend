@@ -1,11 +1,9 @@
 package br.org.oficinadasmeninas.domain.donation.dto;
 
-import jakarta.validation.Valid;
+import java.util.UUID;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-
-import java.util.UUID;
 
 public record DonorInfoDto(
         @NotBlank(message = "O nome é obrigatório")

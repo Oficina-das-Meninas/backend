@@ -14,14 +14,14 @@ public interface IUserRepository {
 
 	Optional<User> findByEmail(String email);
 
-    Optional<User> findByDocument(String document);
+	Optional<User> findByDocument(String document);
 
 	boolean existsByEmail(String email);
-	
+
 	boolean existsByDocument(String document);
 
 	UUID create(User user);
 
 	void update(User user);
-	
+
 }

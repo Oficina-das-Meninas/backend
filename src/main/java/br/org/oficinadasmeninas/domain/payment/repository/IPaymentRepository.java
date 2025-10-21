@@ -35,7 +35,6 @@ public interface IPaymentRepository {
      */
     List<Payment> findByDonationId(UUID donationId);
 
-
     /**
      * Persiste um novo pagamento e retorna o identificador gerado.
      *
@@ -52,7 +51,7 @@ public interface IPaymentRepository {
      * @param status novo {@link PaymentStatusEnum} a ser aplicado; não deve ser {@code null}
      * @throws IllegalArgumentException se {@code id} ou {@code status} forem {@code null}
      */
-    void updateStatus(UUID id, PaymentStatusEnum status);
+    void updatePaymentStatus(UUID id, PaymentStatusEnum status);
 
     /**
      * Atualiza o metodo de um pagamento existente.

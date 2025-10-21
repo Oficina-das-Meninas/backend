@@ -1,35 +1,37 @@
 package br.org.oficinadasmeninas.infra.paymentgateway.pagbank.service;
 
-import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
-import br.org.oficinadasmeninas.domain.donation.repository.IDonationRepository;
-import br.org.oficinadasmeninas.domain.donation.service.IDonationService;
-import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
-import br.org.oficinadasmeninas.domain.payment.dto.PaymentDto;
-import br.org.oficinadasmeninas.domain.payment.service.IPaymentService;
-import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDto;
-import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.ResponseCreateCheckoutDto;
-import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
-import br.org.oficinadasmeninas.domain.sponsor.dto.SponsorDto;
-import br.org.oficinadasmeninas.domain.sponsor.service.ISponsorService;
-import br.org.oficinadasmeninas.domain.user.dto.UserDto;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.PaymentsMethodEnum;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.*;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.mappers.RequestCreateCheckoutPagbankMapper;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.mappers.RequestNotifyPaymentDonationStatusMapper;
-import br.org.oficinadasmeninas.infra.shared.exception.PaymentGatewayException;
-import br.org.oficinadasmeninas.infra.user.service.UserService;
-import br.org.oficinadasmeninas.presentation.shared.utils.IsoDateFormater;
-import br.org.oficinadasmeninas.presentation.shared.utils.MoneyConverter;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
+import br.org.oficinadasmeninas.domain.donation.service.IDonationService;
+import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
+import br.org.oficinadasmeninas.domain.payment.service.IPaymentService;
+import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDto;
+import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.ResponseCreateCheckoutDto;
+import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
+import br.org.oficinadasmeninas.domain.sponsor.service.ISponsorService;
+import br.org.oficinadasmeninas.domain.user.dto.UserDto;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.PaymentsMethodEnum;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutConfig;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutPagbank;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutRecurrenceInterval;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseCreateCheckoutLink;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseCreateCheckoutPagbank;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseSignatureCustomer;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseWebhookCustomer;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.mappers.RequestCreateCheckoutPagbankMapper;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.mappers.RequestNotifyPaymentDonationStatusMapper;
+import br.org.oficinadasmeninas.infra.shared.exception.PaymentGatewayException;
+import br.org.oficinadasmeninas.infra.user.service.UserService;
+import br.org.oficinadasmeninas.presentation.shared.utils.IsoDateFormater;
 
 @Service
 public class PaymentGatewayService implements IPaymentGatewayService {
@@ -145,25 +147,6 @@ public class PaymentGatewayService implements IPaymentGatewayService {
         DonationStatusEnum donationStatusEnum = RequestNotifyPaymentDonationStatusMapper.fromPaymentStatus(paymentStatus);
         donationService.updateDonationStatus(paymentId, donationStatusEnum);
         paymentService.updatePaymentStatus(paymentId, paymentStatus);
-    }
-
-    private UUID getUserId(UUID donationId){
-        return  donationService.getDonationById(donationId).userId();
-    }
-    private String getSubscriberId(String taxId){
-        try {
-            var response = webClient.get()
-                    .uri("/subscriptions")
-                    .header("Authorization", "Bearer " + token)
-                    .header("q", taxId) // 👈 aqui vai o header extra
-                    .retrieve()
-                    .bodyToMono(ResponseSignatureCustomer.class)
-                    .block();
-
-            return response.id();
-        } catch (WebClientResponseException e) {
-            throw new PaymentGatewayException(e.getRawStatusCode() + " " + e.getStatusText());
-        }
     }
     private ResponseCreateCheckoutPagbank createPagBankCheckout(RequestCreateCheckoutPagbank checkoutPagbank) {
         try {

@@ -1,5 +1,11 @@
 package br.org.oficinadasmeninas.infra.event.service;
 
+import java.io.IOException;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import br.org.oficinadasmeninas.domain.event.Event;
 import br.org.oficinadasmeninas.domain.event.dto.CreateEventDto;
 import br.org.oficinadasmeninas.domain.event.dto.GetEventDto;
@@ -9,11 +15,6 @@ import br.org.oficinadasmeninas.domain.event.service.IEventService;
 import br.org.oficinadasmeninas.domain.objectstorage.IObjectStorage;
 import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.UUID;
 
 @Service
 public class EventService implements IEventService {
