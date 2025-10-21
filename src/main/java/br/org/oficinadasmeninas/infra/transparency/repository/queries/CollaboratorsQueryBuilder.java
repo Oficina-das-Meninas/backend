@@ -8,6 +8,12 @@ public class CollaboratorsQueryBuilder {
         VALUES (?, ?, ?, ?, ?, ?, ?)
     """;
 
+    public static final String UPDATE_COLLABORATOR_PRIORITY = """
+        UPDATE collaborators SET
+            priority = ?
+        WHERE id = ?
+    """;
+
     public static final String DELETE_COLLABORATOR = """
         DELETE FROM collaborators
         WHERE id = ?;

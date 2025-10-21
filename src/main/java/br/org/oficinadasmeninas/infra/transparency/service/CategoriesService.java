@@ -56,7 +56,7 @@ public class CategoriesService implements ICategoriesService {
     public UUID updateCategory(UUID id, UpdateCategoryDto request) {
 
         var existing = categoriesRepository.findCategoryById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada: " + id));
+                .orElseThrow(() -> new NotFoundException(Messages.CATEGORY_NOT_FOUND));
 
         existing.setName(request.name());
         existing.setPriority(request.priority());
