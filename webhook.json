@@ -23,3 +23,13 @@
 {"id":"CHAR_835344C5-A1FD-4A04-8DDC-59BAADAECC45","reference_id":"e4201d12-ab4d-4b93-85cb-92731992200c","status":"PAID","payment_method":{"type":"CREDIT_CARD"},"recurring":{"type":"INITIAL"},"customer":null}
 {"id":"CHAR_835344C5-A1FD-4A04-8DDC-59BAADAECC45","reference_id":"e4201d12-ab4d-4b93-85cb-92731992200c","status":"PAID","payment_method":{"type":"CREDIT_CARD"},"recurring":{"type":"INITIAL"},"customer":null}
 {"id":"CHAR_835344C5-A1FD-4A04-8DDC-59BAADAECC45","reference_id":"e4201d12-ab4d-4b93-85cb-92731992200c","status":"PAID","payment_method":{"type":"CREDIT_CARD"},"recurring":{"type":"INITIAL"},"customer":null}
+{"id":"CHAR_933CD4F9-C483-4720-9CC6-B529FA2A39E5","reference_id":"1fa9ee4d-43da-47a5-903d-fb7baf1639b5","status":"PAID","payment_method":{"type":"CREDIT_CARD"},"recurring":{"type":"INITIAL"},"customer":null}
+{"id":"CHAR_933CD4F9-C483-4720-9CC6-B529FA2A39E5","reference_id":"1fa9ee4d-43da-47a5-903d-fb7baf1639b5","status":"PAID","payment_method":{"type":"CREDIT_CARD"},"recurring":{"type":"INITIAL"},"customer":null}
+{"id":"CHAR_933CD4F9-C483-4720-9CC6-B529FA2A39E5","reference_id":"1fa9ee4d-43da-47a5-903d-fb7baf1639b5","status":"PAID","payment_method":{"type":"CREDIT_CARD"},"recurring":{"type":"INITIAL"},"customer":null}
+{"id":"CHAR_989CB4FE-67CF-4CA6-8300-161648A271FD","reference_id":"ac0e3f8c-5500-4f3e-a99d-e4ea4a0ced1e","status":"PAID","payment_method":{"type":"CREDIT_CARD"},"recurring":{"type":"INITIAL"},"customer":null}
+{"id":"CHAR_989CB4FE-67CF-4CA6-8300-161648A271FD","reference_id":"ac0e3f8c-5500-4f3e-a99d-e4ea4a0ced1e","status":"PAID","payment_method":{"type":"CREDIT_CARD"},"recurring":{"type":"INITIAL"},"customer":null}
+{"id":"CHAR_989CB4FE-67CF-4CA6-8300-161648A271FD","reference_id":"ac0e3f8c-5500-4f3e-a99d-e4ea4a0ced1e","status":"PAID","payment_method":{"type":"CREDIT_CARD"},"recurring":{"type":"INITIAL"},"customer":null}
+{"id":"CHAR_989CB4FE-67CF-4CA6-8300-161648A271FD","reference_id":"ac0e3f8c-5500-4f3e-a99d-e4ea4a0ced1e","status":"PAID","payment_method":{"type":"CREDIT_CARD"},"recurring":{"type":"INITIAL"},"customer":null}
+{"id":"CHAR_989CB4FE-67CF-4CA6-8300-161648A271FD","reference_id":"ac0e3f8c-5500-4f3e-a99d-e4ea4a0ced1e","status":"PAID","payment_method":{"type":"CREDIT_CARD"},"recurring":{"type":"INITIAL"},"customer":null}
+{"id":"CHAR_75FA53C5-F2F2-4FAF-ABE8-B993767A4E52","reference_id":"8fb859d2-f2c1-4696-a3c8-8d3cb9250b83","status":"PAID","payment_method":{"type":"CREDIT_CARD"},"recurring":{"type":"INITIAL"},"customer":null}
+{"id":"CHAR_75FA53C5-F2F2-4FAF-ABE8-B993767A4E52","reference_id":"8fb859d2-f2c1-4696-a3c8-8d3cb9250b83","status":"PAID","payment_method":{"type":"CREDIT_CARD"},"recurring":{"type":"INITIAL"},"customer":null}

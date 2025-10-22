@@ -59,7 +59,8 @@ public class RequestCreateCheckoutPagbankMapper {
                 toPaymentMethods(config.paymentMethods()),
                 config.redirectUrl(),
                 config.notificationUrls(),
-                config.paymentNotificationUrls()
+                config.paymentNotificationUrls(),
+                false
         );
 
         return  pagbank;

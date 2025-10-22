@@ -121,8 +121,7 @@ public class SponsorRepository implements ISponsorRepository {
 
     @Override
     public void activeSponsorByuserId(UUID userId) {
-        String sql = "UPDATE sponsors SET isActive = ? " +
-                "WHERE userId = ?";
+        String sql = "UPDATE sponsors SET isActive = ? WHERE id = (SELECT lastId FROM (SELECT id AS lastId FROM sponsors WHERE userId = ? ORDER BY id DESC LIMIT 1) AS sub)";
 
         jdbc.update(sql,
                 true,

@@ -12,5 +12,6 @@ public record RequestCreateCheckoutPagbank(
         List<RequestCreateCheckoutPaymentMethod> payment_methods,
         String redirect_url,
         List<String> notification_urls,
-        List<String> payment_notification_urls
+        List<String> payment_notification_urls,
+        boolean customer_modifiable
 ) {}

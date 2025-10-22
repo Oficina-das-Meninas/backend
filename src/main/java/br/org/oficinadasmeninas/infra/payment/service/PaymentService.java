@@ -73,7 +73,7 @@ public class PaymentService implements IPaymentService {
 	@Override
 	@Transactional
 	public void updatePaymentStatus(UUID id, PaymentStatusEnum status) {
-		 paymentRepository.updateStatus(id, status);
+		 paymentRepository.updatePaymentStatus(id, status);
 	}
 
     @Override

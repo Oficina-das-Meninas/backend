@@ -90,7 +90,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
             System.out.println(response);
         } catch (WebClientResponseException e) {
-            throw new PaymentGatewayException(e.getRawStatusCode() + " " + e.getStatusText() + e.getResponseBodyAs(String.class));
+            throw new PaymentGatewayException(e.getStatusCode() + " " + e.getStatusText() + e.getResponseBodyAs(String.class));
         }
     }
 
@@ -98,9 +98,9 @@ public class PaymentGatewayService implements IPaymentGatewayService {
     @Override
     public ResponseCreateCheckoutDto createCheckout(RequestCreateCheckoutDto requestCreateCheckoutDto) {
 
-
+    	
         RequestCreateCheckoutConfig defaults = new RequestCreateCheckoutConfig(
-                IsoDateFormater.addMinutes(15),
+                IsoDateFormater.addHours(4),
                 redirectUrl,
                 requestCreateCheckoutDto.signatureDto().isRecurrence()? "APADRINHAMENTO OFICINA DAS MENINAS": "DOAÇÃO OFICINA DAS MENINAS",
                 1,
