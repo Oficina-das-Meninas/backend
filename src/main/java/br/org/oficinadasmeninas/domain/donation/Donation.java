@@ -6,7 +6,7 @@ import java.util.UUID;
 public class Donation {
 
 	private UUID id;
-	private long value;
+	private double value;
 	private LocalDateTime donationAt;
 	private UUID userId;
 	private DonationStatusEnum status;
@@ -31,11 +31,11 @@ public class Donation {
 		this.id = id;
 	}
 
-	public long getValue() {
+	public double getValue() {
 		return value;
 	}
 
-	public void setValue(long value) {
+	public void setValue(double value) {
 		this.value = value;
 	}
 

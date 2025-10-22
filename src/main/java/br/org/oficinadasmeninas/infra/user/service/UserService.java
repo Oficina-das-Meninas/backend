@@ -50,6 +50,22 @@ public class UserService implements IUserService {
 
 		return userDto;
 	}
+
+    @Override
+    public UserDto getUserByDocument(String document) {
+        UserDto userDto = new UserDto();
+
+        User user = userRepository.findByDocument(document)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com documento: " + document));
+
+        userDto.setId(user.getId());
+        userDto.setEmail(user.getEmail());
+        userDto.setName(user.getName());
+        userDto.setPhone(user.getPhone());
+        userDto.setDocument(user.getDocument());
+
+        return userDto;
+    }
 	
 	@Override
 	public UserDto getUserByEmail(String email) {

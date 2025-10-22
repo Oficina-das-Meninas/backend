@@ -1,4 +1,4 @@
-package br.org.oficinadasmeninas.domain.objectStorage;
+package br.org.oficinadasmeninas.domain.objectstorage;
 
 import org.springframework.web.multipart.MultipartFile;
 

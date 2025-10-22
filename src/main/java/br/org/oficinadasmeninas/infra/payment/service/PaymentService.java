@@ -3,6 +3,7 @@ package br.org.oficinadasmeninas.infra.payment.service;
 import java.util.List;
 import java.util.UUID;
 
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.PaymentsMethodEnum;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,7 +49,7 @@ public class PaymentService implements IPaymentService {
 
 	@Override
 	@Transactional
-	public PaymentDto createPayment(CreatePaymentDto payment) {
+	public PaymentDto create(CreatePaymentDto payment) {
 	    Payment newPayment = new Payment(
                 null,
                 payment.donationId(),
@@ -72,8 +73,12 @@ public class PaymentService implements IPaymentService {
 	@Override
 	@Transactional
 	public void updatePaymentStatus(UUID id, PaymentStatusEnum status) {
-		 paymentRepository.updateStatus(id, status);
-
+		 paymentRepository.updatePaymentStatus(id, status);
 	}
+
+    @Override
+    public void updatePaymentMethod(UUID id, PaymentsMethodEnum status) {
+        paymentRepository.updatePaymentMethod(id, status);
+    }
 
 }

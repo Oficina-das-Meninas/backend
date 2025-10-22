@@ -1,5 +1,6 @@
 package br.org.oficinadasmeninas.presentation.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +21,7 @@ public class DonationController {
 	}
 
 	@PostMapping("/create")
-	public DonationCheckoutDto createDonationCheckout(@RequestBody CreateDonationCheckoutDto donationCheckout) {
+	public DonationCheckoutDto createDonationCheckout(@Valid @RequestBody CreateDonationCheckoutDto donationCheckout) {
 		return donationApplication.createDonationCheckout(donationCheckout);
 	}
 	

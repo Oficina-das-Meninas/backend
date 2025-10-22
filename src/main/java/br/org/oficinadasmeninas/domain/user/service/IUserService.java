@@ -40,6 +40,15 @@ public interface IUserService {
     UserDto getUserByEmail(String email);
 
     /**
+     * Busca um usuário pelo documento.
+     *
+     * @param document documento do usuário
+     * @return objeto contendo os dados do usuário encontrado,
+     *         ou {@code null} se não existir
+     */
+    UserDto getUserByDocument(String document);
+
+    /**
      * Cria e insere um novo usuário no sistema.
      *
      * @param user objeto contendo os dados necessários para criação

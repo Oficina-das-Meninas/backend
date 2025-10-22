@@ -1,62 +1,86 @@
 package br.org.oficinadasmeninas.application;
 
-import java.util.List;
-
+import br.org.oficinadasmeninas.domain.donation.dto.*;
+import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
+import br.org.oficinadasmeninas.domain.payment.dto.*;
+import br.org.oficinadasmeninas.domain.paymentgateway.PaymentGatewayEnum;
+import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.*;
+import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDto;
+import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
+import br.org.oficinadasmeninas.domain.sponsor.Sponsor;
+import br.org.oficinadasmeninas.domain.sponsor.dto.CreateSponsorDto;
+import br.org.oficinadasmeninas.domain.sponsor.dto.SponsorDto;
+import br.org.oficinadasmeninas.domain.sponsor.service.ISponsorService;
+import br.org.oficinadasmeninas.infra.shared.exception.ActiveSubscriptionAlreadyExistsException;
 import org.springframework.stereotype.Service;
 
 import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
-import br.org.oficinadasmeninas.domain.donation.dto.CreateDonationCheckoutDto;
-import br.org.oficinadasmeninas.domain.donation.dto.CreateDonationDto;
-import br.org.oficinadasmeninas.domain.donation.dto.DonationCheckoutDto;
-import br.org.oficinadasmeninas.domain.donation.dto.DonationDto;
 import br.org.oficinadasmeninas.domain.donation.service.IDonationService;
-import br.org.oficinadasmeninas.domain.payment.PaymentGatewayEnum;
-import br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum;
-import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
-import br.org.oficinadasmeninas.domain.payment.dto.CheckoutDto;
-import br.org.oficinadasmeninas.domain.payment.dto.CreateCheckoutDto;
-import br.org.oficinadasmeninas.domain.payment.dto.CreatePaymentDto;
-import br.org.oficinadasmeninas.domain.payment.dto.CustomerDto;
-import br.org.oficinadasmeninas.domain.payment.dto.CustomerPhoneDto;
-import br.org.oficinadasmeninas.domain.payment.dto.ItemDto;
 import br.org.oficinadasmeninas.domain.payment.service.IPaymentService;
-import br.org.oficinadasmeninas.infra.facade.PaymentGatewayFacade;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class DonationApplication {
 
 	private final IDonationService donationService;
 	private final IPaymentService paymentService;
-	private final PaymentGatewayFacade paymentGatewayFacade;
+	private final IPaymentGatewayService paymentGatewayService;
+    private final ISponsorService sponsorService;
 
 	public DonationApplication(IDonationService donationService, IPaymentService paymentService,
-			PaymentGatewayFacade paymentGatewayFacade) {
+                               IPaymentGatewayService paymentGatewayService, ISponsorService sponsorService) {
 		this.donationService = donationService;
 		this.paymentService = paymentService;
-		this.paymentGatewayFacade = paymentGatewayFacade;
+        this.paymentGatewayService = paymentGatewayService;
+        this.sponsorService = sponsorService;
 	}
 
 	public DonationCheckoutDto createDonationCheckout(CreateDonationCheckoutDto donationCheckout) {
+        if (donationCheckout.donation().isRecurring()){
+            Optional<SponsorDto> sponsor = this.sponsorService.getActiveSponsorByUserId(donationCheckout.donor().id());
+
+            if (sponsor.isPresent()) {
+                throw new ActiveSubscriptionAlreadyExistsException("Usuário já possui assinatura ativa");
+            }
+            this.createSponsor(donationCheckout);
+        }
+
 		CreateDonationDto createDonation = new CreateDonationDto(donationCheckout.donation().value(),
 				donationCheckout.donor().id(), DonationStatusEnum.PENDING);
 		DonationDto donation = donationService.createDonation(createDonation);
 
-		CustomerPhoneDto customerPhone = new CustomerPhoneDto(donationCheckout.donor().phone().country(),
-				donationCheckout.donor().phone().area(), donationCheckout.donor().phone().number());
-		CustomerDto customer = new CustomerDto(donationCheckout.donor().name(), donationCheckout.donor().email(),
-				donationCheckout.donor().document(), customerPhone);
-		
-		String itemName = donationCheckout.donation().isRecurring() ? "Apadrinhamento" : "Doação única"; 
-		List<ItemDto> items = List.of(new ItemDto(itemName, 1, donationCheckout.donation().value(), null));
-		CreateCheckoutDto createCheckout = new CreateCheckoutDto(donation.id().toString(), customer, items);
+        ResponseCreateCheckoutDto checkout = paymentGatewayService.createCheckout(createPaymentGateway(donation.id().toString(), donationCheckout.donor(), donationCheckout.donation()));
 
-		CheckoutDto checkout = paymentGatewayFacade.createCheckout(createCheckout);
-		
-		//PaymentMethodEnum paymentMethod = PaymentMethodEnum.fromString(checkout.payment_methods().getFirst().type()); 
-		CreatePaymentDto createPayment = new CreatePaymentDto(donation.id(), PaymentGatewayEnum.PAGBANK, checkout.id(), PaymentMethodEnum.CREDIT_CARD, PaymentStatusEnum.WAITING);
-		paymentService.createPayment(createPayment);
+        PaymentGatewayEnum paymentGatewayEnum = PaymentGatewayEnum.PAGBANK;
 
-		return new DonationCheckoutDto(checkout.links().getFirst().href());
+		CreatePaymentDto createPayment = new CreatePaymentDto(donation.id(), paymentGatewayEnum, checkout.checkoutId(), null, PaymentStatusEnum.WAITING);
+		paymentService.create(createPayment);
+
+		return new DonationCheckoutDto(checkout.link());
 	}
 
+    private RequestCreateCheckoutDto createPaymentGateway(String donationId, DonorInfoDto customer, DonationItemDto donation){
+        return new RequestCreateCheckoutDto(
+                donationId,
+                new RequestCreateCheckoutCustomerDto(customer.name(), customer.phone(), customer.email(), customer.document()),
+                new RequestCreateCheckoutSignatureDto(donation.isRecurring(), donation.cycles()),
+                new RequestCreateCheckoutDonationDto(donation.value())
+        );
+    }
+    private UUID createSponsor(CreateDonationCheckoutDto donationCheckout) {
+        var donor = donationCheckout.donor();
+        var donation = donationCheckout.donation();
+       return sponsorService.createSponsor(new SponsorDto(
+                donation.value(),
+                LocalDateTime.now().getDayOfMonth(),
+                donor.id(),
+                LocalDateTime.now(),
+                null,
+                false,
+                null
+        ));
+    }
 }
