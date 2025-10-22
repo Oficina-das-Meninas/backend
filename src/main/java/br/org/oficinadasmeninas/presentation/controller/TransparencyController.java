@@ -23,6 +23,7 @@ import br.org.oficinadasmeninas.domain.transparency.dto.CreateCategoryRequestDto
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateCollaboratorRequestDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateDocumentRequestDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.UpdateCategoryDto;
+import br.org.oficinadasmeninas.domain.transparency.dto.UpdateCollaboratorDto;
 import br.org.oficinadasmeninas.domain.transparency.service.ICategoriesService;
 import br.org.oficinadasmeninas.domain.transparency.service.ICollaboratorsService;
 import br.org.oficinadasmeninas.domain.transparency.service.IDocumentsService;
