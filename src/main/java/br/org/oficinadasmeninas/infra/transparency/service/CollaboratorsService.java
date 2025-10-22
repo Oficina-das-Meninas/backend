@@ -2,8 +2,10 @@ package br.org.oficinadasmeninas.infra.transparency.service;
 
 import br.org.oficinadasmeninas.domain.objectstorage.IObjectStorage;
 import br.org.oficinadasmeninas.domain.resources.Messages;
+import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateCollaboratorDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateCollaboratorRequestDto;
+import br.org.oficinadasmeninas.domain.transparency.dto.UpdateCollaboratorDto;
 import br.org.oficinadasmeninas.domain.transparency.repository.ICategoriesRepository;
 import br.org.oficinadasmeninas.domain.transparency.repository.ICollaboratorsRepository;
 import br.org.oficinadasmeninas.domain.transparency.service.ICollaboratorsService;
@@ -65,5 +67,17 @@ public class CollaboratorsService implements ICollaboratorsService {
         } catch (IOException e) {
             throw new ObjectStorageException(e);
         }
+    }
+
+    @Override
+    public UUID updateCollaborator(UUID id, UpdateCollaboratorDto request) {
+        var existing = collaboratorsRepository.findCollaboratorById(id)
+                .orElseThrow(() -> new NotFoundException(Messages.COLLABORATOR_NOT_FOUND));
+
+        existing.setPriority(request.priority());
+
+        var updated = collaboratorsRepository.updateCollaborator(existing);
+
+        return updated.getId();
     }
 }

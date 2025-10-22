@@ -89,6 +89,19 @@ public class TransparencyController extends BaseController {
         );
     }
 
+    @PatchMapping("/collaborators/{collaboratorId}")
+    public ResponseEntity<?> updateCollaborator(
+            @PathVariable("collaboratorId") @NotBlank String collaboratorId,
+            @Valid @RequestBody UpdateCollaboratorDto request
+    ) {
+        var id = UUID.fromString(collaboratorId);
+
+        return handle(
+                () -> collaboratorsService.updateCollaborator(id, request),
+                Messages.COLLABORATOR_UPDATED_SUCCESSFULLY
+        );
+    }
+
     @DeleteMapping("/collaborators/{collaboratorId}")
     public ResponseEntity<?> deleteCollaborator(
             @PathVariable("collaboratorId") @NotBlank String collaboratorId
