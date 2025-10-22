@@ -1,6 +1,17 @@
 package br.org.oficinadasmeninas.infra.event.repository;
 
 public class EventQueryBuilder {
+    public static final String SELECT_COUNT = """
+        SELECT count(*)
+        FROM events
+        WHERE (title ILIKE COALESCE('%' || ? || '%', title))
+          AND (description ILIKE COALESCE('%' || ? || '%', description))
+          AND (location ILIKE COALESCE('%' || ? || '%', location))
+          AND event_date BETWEEN COALESCE(?, event_date)
+                         AND COALESCE(?, event_date)
+          AND active
+    """;
+
     public static final String GET_EVENT_BY_ID = """
         SELECT id, title, preview_image_url, partners_image_url, description, event_date, location, url_to_platform
         FROM EVENTS
