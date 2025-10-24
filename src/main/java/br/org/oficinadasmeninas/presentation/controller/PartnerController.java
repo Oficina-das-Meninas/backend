@@ -5,6 +5,7 @@ import br.org.oficinadasmeninas.domain.partner.dto.CreatePartnerDto;
 import br.org.oficinadasmeninas.domain.partner.dto.UpdatePartnerDto;
 import br.org.oficinadasmeninas.infra.partner.service.PartnerService;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Positive;
@@ -27,9 +28,10 @@ public class PartnerController {
     }
 
     @GetMapping
-    public PageDTO<Partner> findAll(@RequestParam(defaultValue = "0") @PositiveOrZero int page,
-                                    @RequestParam(defaultValue = "10") @Positive @Max(100) int pageSize ){
-        return partnerService.findAll(page, pageSize);
+    public PageDTO<Partner> findAll(@RequestParam @Nullable String searchTerm,
+                                    @RequestParam(defaultValue = "0") @PositiveOrZero int page,
+                                    @RequestParam(defaultValue = "10") @Positive @Max(100) int pageSize){
+        return partnerService.findAll(searchTerm, page, pageSize);
     }
 
     @GetMapping("/{id}")

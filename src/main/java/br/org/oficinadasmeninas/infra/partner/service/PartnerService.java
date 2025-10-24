@@ -8,6 +8,7 @@ import br.org.oficinadasmeninas.domain.partner.repository.IPartnerRepository;
 import br.org.oficinadasmeninas.domain.partner.service.IPartnerService;
 import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -28,9 +29,10 @@ public class PartnerService implements IPartnerService{
         this.storageService = storageService;
     }
 
-    public PageDTO<Partner> findAll(@RequestParam @PositiveOrZero int page,
+    public PageDTO<Partner> findAll(@RequestParam @Nullable String searchTerm,
+                                    @RequestParam @PositiveOrZero int page,
                                     @RequestParam @Positive @Max(100) int pageSize){
-        return partnerRepository.findAll(page, pageSize);
+        return partnerRepository.findAll(searchTerm, page, pageSize);
     }
 
     public Partner findById(UUID id) {

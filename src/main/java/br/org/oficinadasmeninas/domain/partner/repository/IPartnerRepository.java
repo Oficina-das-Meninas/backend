@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface IPartnerRepository {
-    PageDTO<Partner> findAll(int page, int pageSize);
+    PageDTO<Partner> findAll(String searchTerm, int page, int pageSize);
     Optional<Partner> getById(UUID id);
     UUID create(CreatePartnerDto createPartnerDto, String previewFileName);
     void update(UpdatePartnerDto partnerDto, String previewFileName);

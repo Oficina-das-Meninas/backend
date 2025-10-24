@@ -24,7 +24,7 @@ public interface IPartnerService {
      * @return {@link PageDTO} contendo os registros de {@link Partner} correspondentes à página solicitada;
      * pode estar vazio caso não existam parceiros na faixa especificada
      */
-    PageDTO<Partner> findAll(int page, int pageSize);
+    PageDTO<Partner> findAll(String searchTerm, int page, int pageSize);
 
     /**
      * Recupera um parceiro específico a partir do seu identificador.
