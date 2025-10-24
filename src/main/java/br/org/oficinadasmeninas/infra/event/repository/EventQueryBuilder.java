@@ -7,7 +7,6 @@ public class EventQueryBuilder {
         WHERE (
                 (unaccent(title) ILIKE COALESCE('%' || unaccent(?) || '%', title))
                 OR (unaccent(location) ILIKE COALESCE('%' || unaccent(?) || '%', location))
-          )
           AND description ILIKE COALESCE('%' || ? || '%', description)
           AND event_date BETWEEN COALESCE(?, event_date)
           AND COALESCE(?, event_date)

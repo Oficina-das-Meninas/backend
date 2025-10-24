@@ -11,7 +11,7 @@ public class PartnerQueryBuilder {
     public static final String GET_PARTNERS = """
         SELECT id, preview_image_url, name
         FROM partners
-        WHERE name ILIKE COALESCE('%' || ? || '%', name)
+        WHERE unaccent(name) ILIKE COALESCE('%' || unaccent(?) || '%', name)
             AND active
         ORDER BY name
         LIMIT ? OFFSET ?
