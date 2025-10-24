@@ -5,9 +5,8 @@ public class EventQueryBuilder {
         SELECT count(*)
         FROM EVENTS
         WHERE (
-                (title ILIKE COALESCE('%' || ? || '%', title))
-                OR (location ILIKE COALESCE('%' || ? || '%', location))
-          )
+                (unaccent(title) ILIKE COALESCE('%' || unaccent(?) || '%', title))
+                OR (unaccent(location) ILIKE COALESCE('%' || unaccent(?) || '%', location))
           AND description ILIKE COALESCE('%' || ? || '%', description)
           AND event_date BETWEEN COALESCE(?, event_date)
           AND COALESCE(?, event_date)
@@ -25,8 +24,8 @@ public class EventQueryBuilder {
         SELECT id, title, preview_image_url, partners_image_url, description, event_date, location,  url_to_platform
         FROM EVENTS
         WHERE (
-                (title ILIKE COALESCE('%' || ? || '%', title))
-                OR (location ILIKE COALESCE('%' || ? || '%', location))
+                (unaccent(title) ILIKE COALESCE('%' || unaccent(?) || '%', title))
+                OR (unaccent(location) ILIKE COALESCE('%' || unaccent(?) || '%', location))
           )
           AND description ILIKE COALESCE('%' || ? || '%', description)
           AND event_date BETWEEN COALESCE(?, event_date)
