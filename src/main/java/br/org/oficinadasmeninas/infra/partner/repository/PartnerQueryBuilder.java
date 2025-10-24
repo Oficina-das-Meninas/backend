@@ -4,7 +4,7 @@ public class PartnerQueryBuilder {
     public static final String SELECT_COUNT = """
         SELECT count(*)
         FROM partners
-        WHERE name ILIKE COALESCE('%' || ? || '%', name)
+        WHERE unaccent(name) ILIKE COALESCE('%' || unaccent(?) || '%', name)
             AND active
     """;
 
