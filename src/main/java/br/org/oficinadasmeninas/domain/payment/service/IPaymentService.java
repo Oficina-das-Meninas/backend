@@ -6,6 +6,7 @@ import java.util.UUID;
 import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
 import br.org.oficinadasmeninas.domain.payment.dto.CreatePaymentDto;
 import br.org.oficinadasmeninas.domain.payment.dto.PaymentDto;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.PaymentsMethodEnum;
 
 public interface IPaymentService {
 	
@@ -13,8 +14,10 @@ public interface IPaymentService {
 	
 	List<PaymentDto> getPaymentsByDonation(UUID donationId);
 
-	PaymentDto createPayment(CreatePaymentDto payment);
+	PaymentDto create(CreatePaymentDto payment);
 	
 	void updatePaymentStatus(UUID id, PaymentStatusEnum status);
-	
+
+    void updatePaymentMethod(UUID id, PaymentsMethodEnum status);
+
 }

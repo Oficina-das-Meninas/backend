@@ -9,6 +9,7 @@ public final class Messages {
     public static final String CATEGORY_UPDATED_SUCCESSFULLY = "Categoria atualizada com sucesso.";
 
     public static final String DOCUMENT_DELETED_SUCCESSFULLY = "Documento deletado com sucesso.";
+    public static final String COLLABORATOR_UPDATED_SUCCESSFULLY = "Colaborador atualizado com sucesso.";
     public static final String COLLABORATOR_DELETED_SUCCESSFULLY = "Colaborador deletado com sucesso.";
     public static final String CATEGORY_DELETED_SUCCESSFULLY = "Categoria deletada com sucesso.";
 

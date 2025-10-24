@@ -1,6 +1,6 @@
-package br.org.oficinadasmeninas.infra.ObjectStorage;
+package br.org.oficinadasmeninas.infra.objectstorage;
 
-import br.org.oficinadasmeninas.domain.objectStorage.IObjectStorage;
+import br.org.oficinadasmeninas.domain.objectstorage.IObjectStorage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

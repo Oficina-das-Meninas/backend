@@ -10,5 +10,4 @@ public record RequestCreateCheckoutDto(String reference_id,
         String redirect_url,
         List<String> notification_urls,
         List<String> payment_notification_urls) {
-
 }

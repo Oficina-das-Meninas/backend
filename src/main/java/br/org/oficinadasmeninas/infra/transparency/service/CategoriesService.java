@@ -1,5 +1,13 @@
 package br.org.oficinadasmeninas.infra.transparency.service;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
 import br.org.oficinadasmeninas.domain.transparency.Category;
@@ -21,151 +29,127 @@ import br.org.oficinadasmeninas.domain.transparency.repository.IDocumentsReposit
 import br.org.oficinadasmeninas.domain.transparency.service.ICategoriesService;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class CategoriesService implements ICategoriesService {
 
-    private final ICategoriesRepository categoriesRepository;
-    private final IDocumentsRepository documentsRepository;
-    private final ICollaboratorsRepository collaboratorsRepository;
+	private final ICategoriesRepository categoriesRepository;
+	private final IDocumentsRepository documentsRepository;
+	private final ICollaboratorsRepository collaboratorsRepository;
 
-    @Autowired
-    public CategoriesService(ICategoriesRepository categoriesRepository, IDocumentsRepository documentsRepository, ICollaboratorsRepository collaboratorsRepository) {
-        this.categoriesRepository = categoriesRepository;
-        this.documentsRepository = documentsRepository;
-        this.collaboratorsRepository = collaboratorsRepository;
-    }
+	public CategoriesService(ICategoriesRepository categoriesRepository, IDocumentsRepository documentsRepository,
+			ICollaboratorsRepository collaboratorsRepository) {
+		this.categoriesRepository = categoriesRepository;
+		this.documentsRepository = documentsRepository;
+		this.collaboratorsRepository = collaboratorsRepository;
+	}
 
-    @Override
-    public UUID insertCategory(CreateCategoryRequestDto request) {
+	@Override
+	public UUID insertCategory(CreateCategoryRequestDto request) {
 
-        var entity = categoriesRepository.insert(CategoryMapper.toEntity(request));
+		var entity = categoriesRepository.insertCategory(CategoryMapper.toEntity(request));
 
-        return entity.getId();
-    }
+		return entity.getId();
+	}
 
-    @Override
-    public UUID updateCategory(UUID id, UpdateCategoryDto request) {
+	@Override
+	public UUID updateCategory(UUID id, UpdateCategoryDto request) {
 
-        var existing = categoriesRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada: " + id));
-
-        existing.setName(request.name());
-        existing.setPriority(request.priority());
-
-        var updated = categoriesRepository.update(existing);
-
-        return updated.getId();
-    }
-
-    @Override
-    public UUID deleteCategory(UUID id) {
-        checkCategoryExists(id);
-        checkCategoryLinks(id);
-
-        categoriesRepository.delete(id);
-
-        return id;
-    }
-
-    @Override
-    public ResponseCategoryDto getCategoryById(UUID id) {
-
-        var category = categoriesRepository.findById(id)
+        var existing = categoriesRepository.findCategoryById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.CATEGORY_NOT_FOUND));
 
-        return CategoryMapper.toDto(category);
-    }
+		existing.setName(request.name());
+		existing.setPriority(request.priority());
 
-    @Override
-    public List<ResponseCategoryDto> getAllCategories() {
+		var updated = categoriesRepository.updateCategory(existing);
 
-        return categoriesRepository.findAll()
-                .stream()
-                .map(CategoryMapper::toDto)
-                .toList();
-    }
+		return updated.getId();
+	}
 
-    @Override
-    public GetCategoriesResponseDto getAllCategoriesWithDocuments() {
+	@Override
+	public UUID deleteCategory(UUID id) {
+		checkCategoryExists(id);
+		checkCategoryLinks(id);
 
-        var categories = categoriesRepository.findAll();
-        var documents = documentsRepository.findAll();
-        var collaborators = collaboratorsRepository.findAll();
+		categoriesRepository.deleteCategory(id);
 
-        return new GetCategoriesResponseDto(mapCategoriesToDto(categories, documents, collaborators));
-    }
+		return id;
+	}
 
-    private void checkCategoryExists(UUID id) {
-        if (!categoriesRepository.existsById(id)) {
-            throw new NotFoundException(Messages.CATEGORY_NOT_FOUND);
-        }
-    }
+	@Override
+	public ResponseCategoryDto getCategoryById(UUID id) {
 
-    private void checkCategoryLinks(UUID id) {
-        int docs = documentsRepository.countByCategoryId(id);
-        int collabs = collaboratorsRepository.countByCategoryId(id);
+		var category = categoriesRepository.findCategoryById(id)
+				.orElseThrow(() -> new NotFoundException(Messages.CATEGORY_NOT_FOUND));
 
-        if (docs > 0 || collabs > 0) {
-            throw new ValidationException(buildLinkMessage(docs, collabs));
-        }
-    }
+		return CategoryMapper.toDto(category);
+	}
 
-    private List<CategoryResponseDto> mapCategoriesToDto(List<Category> categories, List<Document> documents, List<Collaborator> collaborators) {
+	@Override
+	public List<ResponseCategoryDto> getAllCategories() {
 
-        var documentsByCategory = documents.stream()
-                .collect(Collectors.groupingBy(d -> d.getCategory().getId()));
+		return categoriesRepository.findAllCategories().stream().map(CategoryMapper::toDto).toList();
+	}
 
-        var collaboratorsByCategory = collaborators.stream()
-                .collect(Collectors.groupingBy(c -> c.getCategory().getId()));
+	@Override
+	public GetCategoriesResponseDto getAllCategoriesWithDocuments() {
 
-        return categories
-                .stream()
-                .map(cat -> new CategoryResponseDto(
-                        cat.getId(),
-                        cat.getName(),
-                        cat.getImage(),
-                        cat.getPriority(),
-                        Optional.ofNullable(documentsByCategory.get(cat.getId()))
-                                .map(this::MapDocumentsToDto),
-                        Optional.ofNullable(collaboratorsByCategory.get(cat.getId()))
-                                .map(this::MapCollaboratorsToDto)
-                ))
-                .sorted(Comparator.comparing(CategoryResponseDto::priority))
-                .toList();
-    }
+		var categories = categoriesRepository.findAllCategories();
+		var documents = documentsRepository.findAllDocuments();
+		var collaborators = collaboratorsRepository.findAllCollaborators();
 
-    private List<DocumentResponseDto> MapDocumentsToDto(List<Document> documents) {
-        return documents.stream()
-                .map(DocumentMapper::toDto)
-                .sorted(Comparator.comparing(DocumentResponseDto::effectiveDate).reversed())
-                .toList();
-    }
+		return new GetCategoriesResponseDto(mapCategoriesToDto(categories, documents, collaborators));
+	}
 
-    private List<CollaboratorResponseDto> MapCollaboratorsToDto(List<Collaborator> collaborators) {
-        return collaborators.stream()
-                .map(CollaboratorMapper::toDto)
-                .sorted(Comparator.comparing(CollaboratorResponseDto::priority))
-                .toList();
-    }
+	private void checkCategoryExists(UUID id) {
+		if (!categoriesRepository.existsCategoryById(id)) {
+			throw new NotFoundException(Messages.CATEGORY_NOT_FOUND);
+		}
+	}
 
-    private String buildLinkMessage(int docs, int collabs) {
-        var msg = new StringBuilder("Não é possível excluir a categoria porque existem vínculos:");
+	private void checkCategoryLinks(UUID id) {
+		int docs = documentsRepository.countDocumentsByCategoryId(id);
+		int collabs = collaboratorsRepository.countCollaboratorsByCategoryId(id);
 
-        if (docs > 0)
-            msg.append(" ").append(docs).append(" documento(s)");
+		if (docs > 0 || collabs > 0) {
+			throw new ValidationException(buildLinkMessage(docs, collabs));
+		}
+	}
 
-        if (collabs > 0)
-            msg.append(docs > 0 ? " e " : " ").append(collabs).append(" colaborador(es)");
+	private List<CategoryResponseDto> mapCategoriesToDto(List<Category> categories, List<Document> documents,
+			List<Collaborator> collaborators) {
 
-        return msg.toString();
-    }
+		var documentsByCategory = documents.stream().collect(Collectors.groupingBy(d -> d.getCategory().getId()));
+
+		var collaboratorsByCategory = collaborators.stream()
+				.collect(Collectors.groupingBy(c -> c.getCategory().getId()));
+
+		return categories.stream()
+				.map(cat -> new CategoryResponseDto(cat.getId(), cat.getName(), cat.getImage(), cat.getPriority(),
+						Optional.ofNullable(documentsByCategory.get(cat.getId())).map(this::MapDocumentsToDto),
+						Optional.ofNullable(collaboratorsByCategory.get(cat.getId())).map(this::MapCollaboratorsToDto)))
+				.sorted(Comparator.comparing(CategoryResponseDto::priority)).toList();
+	}
+
+	private List<DocumentResponseDto> MapDocumentsToDto(List<Document> documents) {
+		return documents.stream().map(DocumentMapper::toDto)
+				.sorted(Comparator.comparing(DocumentResponseDto::effectiveDate).reversed()).toList();
+	}
+
+	private List<CollaboratorResponseDto> MapCollaboratorsToDto(List<Collaborator> collaborators) {
+		return collaborators.stream().map(CollaboratorMapper::toDto)
+				.sorted(Comparator.comparing(CollaboratorResponseDto::priority)).toList();
+	}
+
+	private String buildLinkMessage(int docs, int collabs) {
+		var msg = new StringBuilder("Não é possível excluir a categoria porque existem vínculos:");
+
+		if (docs > 0)
+			msg.append(" ").append(docs).append(" documento(s)");
+
+		if (collabs > 0)
+			msg.append(docs > 0 ? " e " : " ").append(collabs).append(" colaborador(es)");
+
+		return msg.toString();
+	}
 }

@@ -1,30 +1,34 @@
 package br.org.oficinadasmeninas.presentation.controller;
 
+import java.util.Date;
+import java.util.UUID;
+
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import br.org.oficinadasmeninas.domain.resources.Messages;
-import br.org.oficinadasmeninas.domain.transparency.dto.*;
+import br.org.oficinadasmeninas.domain.transparency.dto.CreateCategoryRequestDto;
+import br.org.oficinadasmeninas.domain.transparency.dto.CreateCollaboratorRequestDto;
+import br.org.oficinadasmeninas.domain.transparency.dto.CreateDocumentRequestDto;
+import br.org.oficinadasmeninas.domain.transparency.dto.UpdateCategoryDto;
+import br.org.oficinadasmeninas.domain.transparency.dto.UpdateCollaboratorDto;
 import br.org.oficinadasmeninas.domain.transparency.service.ICategoriesService;
 import br.org.oficinadasmeninas.domain.transparency.service.ICollaboratorsService;
 import br.org.oficinadasmeninas.domain.transparency.service.IDocumentsService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.Date;
-import java.util.UUID;
 
 @Validated
 @RestController
@@ -35,7 +39,6 @@ public class TransparencyController extends BaseController {
     private final ICollaboratorsService collaboratorsService;
     private final ICategoriesService categoriesService;
 
-    @Autowired
     public TransparencyController(IDocumentsService documentsService, ICollaboratorsService collaboratorsService, ICategoriesService categoriesService) {
         this.documentsService = documentsService;
         this.collaboratorsService = collaboratorsService;
@@ -84,6 +87,19 @@ public class TransparencyController extends BaseController {
         return handle(
             () -> documentsService.deleteDocument(UUID.fromString(documentId)),
             Messages.DOCUMENT_DELETED_SUCCESSFULLY
+        );
+    }
+
+    @PatchMapping("/collaborators/{collaboratorId}")
+    public ResponseEntity<?> updateCollaborator(
+            @PathVariable("collaboratorId") @NotBlank String collaboratorId,
+            @Valid @RequestBody UpdateCollaboratorDto request
+    ) {
+        var id = UUID.fromString(collaboratorId);
+
+        return handle(
+                () -> collaboratorsService.updateCollaborator(id, request),
+                Messages.COLLABORATOR_UPDATED_SUCCESSFULLY
         );
     }
 

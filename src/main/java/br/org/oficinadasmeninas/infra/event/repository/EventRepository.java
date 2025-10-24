@@ -28,11 +28,6 @@ public class EventRepository implements IEventRepository {
 
     @Override
     public PageDTO<Event> getFiltered(GetEventDto getEventDto) {
-        String rowCountSql = EventQueryBuilder.SELECT_COUNT;
-
-        int total = jdbc.queryForObject(rowCountSql, Integer.class);
-        int totalPages = Math.toIntExact((total / getEventDto.pageSize()) + (total % getEventDto.pageSize() == 0 ? 0 : 1));
-
         List<Event> events = jdbc.query(
                 EventQueryBuilder.GET_FILTERED_EVENTS,
                 this::mapRow,
@@ -42,8 +37,18 @@ public class EventRepository implements IEventRepository {
                 getEventDto.startDate(),
                 getEventDto.endDate(),
                 getEventDto.pageSize(),
-                getEventDto.page()
-        );
+                getEventDto.page() * getEventDto.pageSize());
+
+        int total = jdbc.queryForObject(
+                EventQueryBuilder.SELECT_COUNT,
+                Integer.class,
+                getEventDto.title(),
+                getEventDto.description(),
+                getEventDto.location(),
+                getEventDto.startDate(),
+                getEventDto.endDate());
+
+        int totalPages = Math.toIntExact((total / getEventDto.pageSize()) + (total % getEventDto.pageSize() == 0 ? 0 : 1));
 
         return new PageDTO<>(events, total, totalPages);
     }

@@ -29,8 +29,11 @@ public class PaymentGatewayFacade {
 	@Value("${app.token}")
 	private String token;
 
+    @Value("${app.url}")
+    private String url;
+
 	public PaymentGatewayFacade(WebClient.Builder builder) {
-		this.webClient = builder.baseUrl("https://sandbox.api.pagseguro.com")
+		this.webClient = builder.baseUrl(url)
 				.build();
 	}
 	

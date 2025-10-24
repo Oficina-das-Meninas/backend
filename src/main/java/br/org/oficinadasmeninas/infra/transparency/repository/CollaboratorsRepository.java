@@ -5,6 +5,7 @@ import br.org.oficinadasmeninas.domain.transparency.Collaborator;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateCollaboratorDto;
 import br.org.oficinadasmeninas.domain.transparency.repository.ICategoriesRepository;
 import br.org.oficinadasmeninas.domain.transparency.repository.ICollaboratorsRepository;
+import br.org.oficinadasmeninas.infra.transparency.repository.queries.CategoriesQueryBuilder;
 import br.org.oficinadasmeninas.infra.transparency.repository.queries.CollaboratorsQueryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -30,7 +31,7 @@ public class CollaboratorsRepository implements ICollaboratorsRepository {
     }
 
     @Override
-    public UUID insert(CreateCollaboratorDto request) {
+    public UUID insertCollaborator(CreateCollaboratorDto request) {
         var id = UUID.randomUUID();
 
         jdbc.update(CollaboratorsQueryBuilder.INSERT_COLLABORATOR,
@@ -47,19 +48,29 @@ public class CollaboratorsRepository implements ICollaboratorsRepository {
     }
 
     @Override
-    public void delete(UUID id) {
+    public Collaborator updateCollaborator(Collaborator collaborator) {
+        jdbc.update(
+                CollaboratorsQueryBuilder.UPDATE_COLLABORATOR_PRIORITY,
+                collaborator.getPriority() != null ? collaborator.getPriority() : 0,
+                collaborator.getId()
+        );
+        return collaborator;
+    }
+
+    @Override
+    public void deleteCollaborator(UUID id) {
         jdbc.update(CollaboratorsQueryBuilder.DELETE_COLLABORATOR, id);
     }
 
 
     @Override
-    public int countByCategoryId(UUID id) {
+    public int countCollaboratorsByCategoryId(UUID id) {
         Integer count = jdbc.queryForObject(CollaboratorsQueryBuilder.COUNT_COLLABORATORS_BY_CATEGORY, Integer.class, id);
         return count == null ? 0 : count;
     }
 
     @Override
-    public Optional<Collaborator> findById(UUID id) {
+    public Optional<Collaborator> findCollaboratorById(UUID id) {
         try {
             var collaborator = jdbc.queryForObject(CollaboratorsQueryBuilder.GET_COLLABORATOR_BY_ID, this::mapRowCollaborator, id);
             return Optional.ofNullable(collaborator);
@@ -69,7 +80,7 @@ public class CollaboratorsRepository implements ICollaboratorsRepository {
     }
 
     @Override
-    public List<Collaborator> findAll() {
+    public List<Collaborator> findAllCollaborators() {
         return jdbc.query(CollaboratorsQueryBuilder.GET_ALL_COLLABORATORS, this::mapRowCollaborator);
     }
 
@@ -84,7 +95,7 @@ public class CollaboratorsRepository implements ICollaboratorsRepository {
 
         UUID categoryId = rs.getObject("category_id", UUID.class);
 
-        Category category = categoriesRepository.findById(categoryId)
+        Category category = categoriesRepository.findCategoryById(categoryId)
                 .orElse(null);
         collaborator.setCategory(category);
 
