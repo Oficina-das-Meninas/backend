@@ -31,9 +31,9 @@ public class EventRepository implements IEventRepository {
         List<Event> events = jdbc.query(
                 EventQueryBuilder.GET_FILTERED_EVENTS,
                 this::mapRow,
-                getEventDto.title(),
+                getEventDto.searchTerm(),
+                getEventDto.searchTerm(),
                 getEventDto.description(),
-                getEventDto.location(),
                 getEventDto.startDate(),
                 getEventDto.endDate(),
                 getEventDto.pageSize(),
@@ -42,9 +42,9 @@ public class EventRepository implements IEventRepository {
         int total = jdbc.queryForObject(
                 EventQueryBuilder.SELECT_COUNT,
                 Integer.class,
-                getEventDto.title(),
+                getEventDto.searchTerm(),
+                getEventDto.searchTerm(),
                 getEventDto.description(),
-                getEventDto.location(),
                 getEventDto.startDate(),
                 getEventDto.endDate());
 
