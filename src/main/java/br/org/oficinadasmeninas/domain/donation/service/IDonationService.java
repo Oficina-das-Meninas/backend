@@ -1,11 +1,11 @@
 package br.org.oficinadasmeninas.domain.donation.service;
 
-import java.util.List;
-import java.util.UUID;
-
 import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
 import br.org.oficinadasmeninas.domain.donation.dto.CreateDonationDto;
 import br.org.oficinadasmeninas.domain.donation.dto.DonationDto;
+
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Serviço responsável pelo gerenciamento de doações.
@@ -22,7 +22,7 @@ public interface IDonationService {
      * @return uma lista de {@link DonationDto} representando as doações encontradas;
      * pode ser vazia se não houver registros
      */
-    List<DonationDto> getAllDonations();
+    List<DonationDto> findAll();
 
     /**
      * Recupera os detalhes de uma doação específica com base em seu identificador.
@@ -31,7 +31,7 @@ public interface IDonationService {
      * @return um {@link DonationDto} com os dados da doação, ou {@code null} se não encontrada
      * @throws IllegalArgumentException se {@code id} for {@code null}
      */
-    DonationDto getDonationById(UUID id);
+    DonationDto findById(UUID id);
 
     /**
      * Cria uma nova doação a partir dos dados fornecidos.
@@ -40,7 +40,7 @@ public interface IDonationService {
      * @return um {@link DonationDto} representando a doação criada, incluindo seu identificador gerado
      * @throws IllegalArgumentException se {@code donation} for {@code null} ou contiver dados inválidos
      */
-    DonationDto createDonation(CreateDonationDto donation);
+    DonationDto insert(CreateDonationDto donation);
 
     /**
      * Atualiza o status de uma doação existente.
@@ -50,5 +50,5 @@ public interface IDonationService {
      * @throws IllegalArgumentException se {@code id} ou {@code status} forem {@code null}
      * @throws IllegalStateException se a doação não existir ou não puder ter o status alterado
      */
-    void updateDonationStatus(UUID id, DonationStatusEnum status);
+    void updateStatus(UUID id, DonationStatusEnum status);
 }

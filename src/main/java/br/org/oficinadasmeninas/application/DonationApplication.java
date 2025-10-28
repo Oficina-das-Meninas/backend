@@ -48,7 +48,7 @@ public class DonationApplication {
 
 		CreateDonationDto createDonation = new CreateDonationDto(donationCheckout.donation().value(),
 				donationCheckout.donor().id(), DonationStatusEnum.PENDING);
-		DonationDto donation = donationService.createDonation(createDonation);
+		DonationDto donation = donationService.insert(createDonation);
 
         ResponseCreateCheckoutDto checkout = paymentGatewayService.createCheckout(createPaymentGateway(donation.id().toString(), donationCheckout.donor(), donationCheckout.donation()));
 

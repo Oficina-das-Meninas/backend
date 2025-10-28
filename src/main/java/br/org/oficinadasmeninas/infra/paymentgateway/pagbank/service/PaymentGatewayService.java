@@ -131,7 +131,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
     @Override
     public void updatePaymentStatus(UUID paymentId, PaymentStatusEnum paymentStatus, PaymentMethodEnum paymentMethod, boolean recurring, ResponseWebhookCustomer customer) {
        DonationStatusEnum donationStatusEnum = RequestNotifyPaymentDonationStatusMapper.fromPaymentStatus(paymentStatus);
-       donationService.updateDonationStatus(paymentId, donationStatusEnum);
+       donationService.updateStatus(paymentId, donationStatusEnum);
        paymentService.updateStatus(paymentId, paymentStatus);
        paymentService.updateMethod(paymentId, paymentMethod);
 
@@ -145,7 +145,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
     @Override
     public void updateCheckoutStatus(String checkoutId, UUID paymentId, PaymentStatusEnum paymentStatus) {
         DonationStatusEnum donationStatusEnum = RequestNotifyPaymentDonationStatusMapper.fromPaymentStatus(paymentStatus);
-        donationService.updateDonationStatus(paymentId, donationStatusEnum);
+        donationService.updateStatus(paymentId, donationStatusEnum);
         paymentService.updateStatus(paymentId, paymentStatus);
     }
     private ResponseCreateCheckoutPagbank createPagBankCheckout(RequestCreateCheckoutPagbank checkoutPagbank) {

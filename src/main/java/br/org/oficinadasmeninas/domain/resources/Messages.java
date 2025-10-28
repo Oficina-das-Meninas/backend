@@ -31,4 +31,6 @@ public final class Messages {
     public static final String ADMIN_NOT_FOUND_BY_ID = "Admin não encontrado com id: ";
 
     public static final String ADMIN_NOT_FOUND_BY_EMAIL = "Admin não encontrado com email: ";
+
+    public static final String DONATION_NOT_FOUND = "Doação não encontrada com id: ";
 }
