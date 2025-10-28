@@ -3,7 +3,6 @@ package br.org.oficinadasmeninas.infra.transparency.repository;
 import br.org.oficinadasmeninas.domain.transparency.Category;
 import br.org.oficinadasmeninas.domain.transparency.repository.ICategoriesRepository;
 import br.org.oficinadasmeninas.infra.transparency.repository.queries.CategoriesQueryBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -19,7 +18,6 @@ public class CategoriesRepository implements ICategoriesRepository {
 
     private final JdbcTemplate jdbc;
 
-    @Autowired
     public CategoriesRepository(JdbcTemplate jdbc) {
         this.jdbc = jdbc;
     }

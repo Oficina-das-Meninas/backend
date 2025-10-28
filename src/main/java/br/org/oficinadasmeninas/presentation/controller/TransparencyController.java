@@ -61,7 +61,7 @@ public class TransparencyController extends BaseController {
         var request = new CreateCollaboratorRequestDto(image, name, role, description, categoryId);
 
         return handle(
-                () -> collaboratorsService.uploadCollaborator(request),
+                () -> collaboratorsService.insert(request),
                 Messages.COLLABORATOR_CREATED_SUCCESSFULLY,
                 HttpStatus.CREATED
         );
@@ -85,7 +85,7 @@ public class TransparencyController extends BaseController {
         var id = UUID.fromString(collaboratorId);
 
         return handle(
-                () -> collaboratorsService.updateCollaborator(id, request),
+                () -> collaboratorsService.update(id, request),
                 Messages.COLLABORATOR_UPDATED_SUCCESSFULLY
         );
     }
@@ -97,7 +97,7 @@ public class TransparencyController extends BaseController {
         var id = UUID.fromString(collaboratorId);
 
         return handle(
-                () -> collaboratorsService.deleteCollaborator(id),
+                () -> collaboratorsService.deleteById(id),
                 Messages.COLLABORATOR_DELETED_SUCCESSFULLY
         );
     }
