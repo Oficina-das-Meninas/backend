@@ -7,7 +7,8 @@ import br.org.oficinadasmeninas.domain.event.dto.UpdateEventDto;
 import br.org.oficinadasmeninas.domain.event.repository.IEventRepository;
 import br.org.oficinadasmeninas.domain.event.service.IEventService;
 import br.org.oficinadasmeninas.domain.objectstorage.IObjectStorage;
-import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
+import br.org.oficinadasmeninas.domain.resources.Messages;
+import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,17 +26,8 @@ public class EventService implements IEventService {
         this.storageService = storageService;
     }
 
-    public PageDTO<Event> getFilteredEvents(GetEventDto getEventDto){
-        return eventRepository.findByFilter(getEventDto);
-    }
-
-    public Event findById(UUID id) {
-
-        return eventRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Evento não encontrado: " + id));
-    }
-
-    public Event createEvent(CreateEventDto createEventDto) throws IOException {
+    @Override
+    public Event insert(CreateEventDto createEventDto) throws IOException {
         var previewFileName = uploadMultipartFile(createEventDto.previewImage());
         var partnersFileName = uploadMultipartFile(createEventDto.partnersImage());
 
@@ -53,9 +45,10 @@ public class EventService implements IEventService {
         );
     }
 
-    public Event updateEvent(UUID id, UpdateEventDto updateEventDto) throws Exception {
+    @Override
+    public Event update(UUID id, UpdateEventDto updateEventDto) throws Exception {
         eventRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Evento não encontrado: " + id));
+                .orElseThrow(() -> new NotFoundException(Messages.EVENT_NOT_FOUND + id));
 
         var previewFileName = uploadMultipartFile(updateEventDto.previewImage());
         var partnersFileName = uploadMultipartFile(updateEventDto.partnersImage());
@@ -74,15 +67,28 @@ public class EventService implements IEventService {
         );
     }
 
-    public void deleteEvent(UUID id) {
+    @Override
+    public void deleteById(UUID id) {
         var event = eventRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Evento não encontrado: " + id));
+                .orElseThrow(() -> new NotFoundException(Messages.EVENT_NOT_FOUND + id));
 
         eventRepository.update(
-            UpdateEventDto.forDeletion(event.getId()),
-            event.getPreviewImageUrl(),
-            event.getPartnersImageUrl()
+                UpdateEventDto.forDeletion(event.getId()),
+                event.getPreviewImageUrl(),
+                event.getPartnersImageUrl()
         );
+    }
+
+    @Override
+    public Event findById(UUID id) {
+
+        return eventRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Messages.EVENT_NOT_FOUND + id));
+    }
+
+    @Override
+    public PageDTO<Event> getFilteredEvents(GetEventDto getEventDto){
+        return eventRepository.findByFilter(getEventDto);
     }
 
     private String uploadMultipartFile(MultipartFile file) throws IOException {

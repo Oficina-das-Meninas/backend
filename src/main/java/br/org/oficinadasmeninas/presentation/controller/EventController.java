@@ -52,7 +52,7 @@ public class EventController {
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public Event createEvent(@ModelAttribute @Valid CreateEventDto createEventDto) throws IOException {
-        return eventService.createEvent(createEventDto);
+        return eventService.insert(createEventDto);
     }
 
     @PutMapping("/{id}")
@@ -61,12 +61,12 @@ public class EventController {
             @PathVariable UUID id,
             @ModelAttribute @Valid UpdateEventDto updateEventDto) throws Exception {
 
-        return eventService.updateEvent(id, updateEventDto);
+        return eventService.update(id, updateEventDto);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteEvent(@PathVariable UUID id) throws Exception {
-        eventService.deleteEvent(id);
+        eventService.deleteById(id);
     }
 }

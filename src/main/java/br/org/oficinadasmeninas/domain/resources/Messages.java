@@ -43,4 +43,8 @@ public final class Messages {
     public static final String USER_NOT_FOUND_BY_EMAIL = "Usuário não encontrado com o email: ";
 
     public static final String USER_NOT_FOUND_BY_ID = "Usuário não encontrado com id: ";
+
+    public static final String EVENT_NOT_FOUND = "Evento não encontrado com id: ";
+
+    public static final String USER_NOT_FOUND = "Usuário não encontrado";
 }
