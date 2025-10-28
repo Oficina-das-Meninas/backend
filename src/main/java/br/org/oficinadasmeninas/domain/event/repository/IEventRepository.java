@@ -10,8 +10,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface IEventRepository {
-    PageDTO<Event> getFiltered(GetEventDto getEventDto);
-    Optional<Event> getById(UUID id);
-    UUID create(CreateEventDto createEventDto, String previewFileName, String partnerFileName);
+
+    UUID insert(CreateEventDto createEventDto, String previewFileName, String partnerFileName);
+
     void update(UpdateEventDto eventDto, String previewFileName, String partnersFileName);
+
+    PageDTO<Event> findByFilter(GetEventDto getEventDto);
+
+    Optional<Event> findById(UUID id);
 }
