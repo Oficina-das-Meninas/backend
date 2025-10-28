@@ -43,7 +43,7 @@ public class CategoriesService implements ICategoriesService {
 	}
 
 	@Override
-	public UUID insertCategory(CreateCategoryRequestDto request) {
+	public UUID insert(CreateCategoryRequestDto request) {
 
 		var entity = categoriesRepository.insert(CategoryMapper.toEntity(request));
 
@@ -51,7 +51,7 @@ public class CategoriesService implements ICategoriesService {
 	}
 
 	@Override
-	public UUID updateCategory(UUID id, UpdateCategoryDto request) {
+	public UUID update(UUID id, UpdateCategoryDto request) {
 
         var category = categoriesRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.CATEGORY_NOT_FOUND));
@@ -64,7 +64,7 @@ public class CategoriesService implements ICategoriesService {
 	}
 
 	@Override
-	public UUID deleteCategory(UUID id) {
+	public UUID deleteById(UUID id) {
 		checkCategoryExists(id);
 		checkCategoryLinks(id);
 
@@ -74,7 +74,7 @@ public class CategoriesService implements ICategoriesService {
 	}
 
 	@Override
-	public ResponseCategoryDto getCategoryById(UUID id) {
+	public ResponseCategoryDto findById(UUID id) {
 
 		var category = categoriesRepository.findById(id)
 				.orElseThrow(() -> new NotFoundException(Messages.CATEGORY_NOT_FOUND));
@@ -83,13 +83,13 @@ public class CategoriesService implements ICategoriesService {
 	}
 
 	@Override
-	public List<ResponseCategoryDto> getAllCategories() {
+	public List<ResponseCategoryDto> findAll() {
 
 		return categoriesRepository.findAll().stream().map(CategoryMapper::toDto).toList();
 	}
 
 	@Override
-	public GetCategoriesResponseDto getAllCategoriesWithDocuments() {
+	public GetCategoriesResponseDto findAllWithDocumentsAndCollaborators() {
 
 		var categories = categoriesRepository.findAll();
 		var documents = documentsRepository.findAll();
