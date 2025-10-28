@@ -47,19 +47,24 @@ public class CategoriesRepository implements ICategoriesRepository {
                 category.getPriority() != null ? category.getPriority() : 0,
                 category.getId()
         );
+
         return category;
     }
 
     @Override
-    public void delete(UUID id) {
+    public void deleteById(UUID id) {
         jdbc.update(CategoriesQueryBuilder.DELETE_CATEGORY, id);
     }
 
-
     @Override
     public boolean existsById(UUID id) {
+
         return Boolean.TRUE.equals(
-                jdbc.queryForObject(CategoriesQueryBuilder.EXISTS_CATEGORY_BY_ID, Boolean.class, id)
+                jdbc.queryForObject(
+                        CategoriesQueryBuilder.EXISTS_CATEGORY_BY_ID,
+                        Boolean.class,
+                        id
+                )
         );
     }
 
@@ -67,7 +72,12 @@ public class CategoriesRepository implements ICategoriesRepository {
     public Optional<Category> findById(UUID id) {
 
         try {
-            var category = jdbc.queryForObject(CategoriesQueryBuilder.GET_CATEGORY_BY_ID, this::mapRowCategory, id);
+            var category = jdbc.queryForObject(
+                    CategoriesQueryBuilder.GET_CATEGORY_BY_ID,
+                    this::mapRowCategory,
+                    id
+            );
+
             return Optional.ofNullable(category);
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
@@ -75,7 +85,10 @@ public class CategoriesRepository implements ICategoriesRepository {
     }
 
     public List<Category> findAll() {
-        return jdbc.query(CategoriesQueryBuilder.GET_CATEGORIES_ALL, this::mapRowCategory);
+        return jdbc.query(
+                CategoriesQueryBuilder.GET_CATEGORIES_ALL,
+                this::mapRowCategory
+        );
     }
 
     private Category mapRowCategory(ResultSet rs, int rowNum) throws SQLException {

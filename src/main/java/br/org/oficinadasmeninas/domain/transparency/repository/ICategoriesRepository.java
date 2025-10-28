@@ -12,7 +12,7 @@ public interface ICategoriesRepository {
 
     Category update(Category category);
 
-    void delete(UUID id);
+    void deleteById(UUID id);
 
     boolean existsById(UUID id);
 
