@@ -38,7 +38,7 @@ public class DonationApplication {
 
 	public DonationCheckoutDto createDonationCheckout(CreateDonationCheckoutDto donationCheckout) {
         if (donationCheckout.donation().isRecurring()){
-            Optional<SponsorDto> sponsor = this.sponsorService.getActiveSponsorByUserId(donationCheckout.donor().id());
+            Optional<SponsorDto> sponsor = this.sponsorService.findActiveByUserId(donationCheckout.donor().id());
 
             if (sponsor.isPresent()) {
                 throw new ActiveSubscriptionAlreadyExistsException("Usuário já possui assinatura ativa");
@@ -71,7 +71,7 @@ public class DonationApplication {
     private UUID createSponsor(CreateDonationCheckoutDto donationCheckout) {
         var donor = donationCheckout.donor();
         var donation = donationCheckout.donation();
-       return sponsorService.createSponsor(new SponsorDto(
+       return sponsorService.insert(new SponsorDto(
                 donation.value(),
                 LocalDateTime.now().getDayOfMonth(),
                 donor.id(),

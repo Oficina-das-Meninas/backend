@@ -1,21 +1,27 @@
 package br.org.oficinadasmeninas.domain.sponsor.service;
 
+import br.org.oficinadasmeninas.domain.sponsor.dto.SponsorDto;
+import br.org.oficinadasmeninas.domain.sponsor.dto.UpdateSponsorDto;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.stereotype.Repository;
-
-import br.org.oficinadasmeninas.domain.sponsor.dto.SponsorDto;
-import br.org.oficinadasmeninas.domain.sponsor.dto.UpdateSponsorDto;
-
 @Repository
 public interface ISponsorService {
-    Optional<SponsorDto> getSponsorbyId(UUID id);
-    List<SponsorDto> getSponsorByUserId(UUID id);
-    Optional<SponsorDto> getActiveSponsorByUserId(UUID id);
-    Optional<SponsorDto> getBySubscriptionId(UUID subscriptionId);
-    UUID createSponsor(SponsorDto sponsor);
-    void updateSponsor(UpdateSponsorDto sponsor);
-    void activeSponsorByUserId(UUID userId);
+
+    UUID insert(SponsorDto sponsor);
+
+    void update(UpdateSponsorDto sponsor);
+
+    void activateByUserId(UUID userId);
+
+    Optional<SponsorDto> findById(UUID id);
+
+    List<SponsorDto> findByUserId(UUID id);
+
+    Optional<SponsorDto> findActiveByUserId(UUID id);
+
+    Optional<SponsorDto> findBySubscriptionId(UUID subscriptionId);
 }

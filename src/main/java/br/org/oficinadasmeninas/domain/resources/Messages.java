@@ -35,4 +35,6 @@ public final class Messages {
     public static final String DONATION_NOT_FOUND = "Doação não encontrada com id: ";
 
     public static final String PARTNER_NOT_FOUND = "Patrocinador não encontrado com id: ";
+
+    public static final String SPONSOR_NOT_FOUND = "Patrocinador não encontrado com id: ";
 }

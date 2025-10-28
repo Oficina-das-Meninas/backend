@@ -138,7 +138,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
        if (recurring) {
          UserDto userDto = userService.getUserByDocument(customer.tax_id());
-         sponsorService.activeSponsorByUserId(userDto.getId());
+         sponsorService.activateByUserId(userDto.getId());
        }
     }
 

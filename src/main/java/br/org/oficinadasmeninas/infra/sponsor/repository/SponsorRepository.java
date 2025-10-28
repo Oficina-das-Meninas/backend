@@ -1,19 +1,17 @@
 package br.org.oficinadasmeninas.infra.sponsor.repository;
 
+import br.org.oficinadasmeninas.domain.sponsor.Sponsor;
+import br.org.oficinadasmeninas.domain.sponsor.repository.ISponsorRepository;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
-
-import br.org.oficinadasmeninas.domain.sponsor.Sponsor;
-import br.org.oficinadasmeninas.domain.sponsor.dto.UpdateSponsorDto;
-import br.org.oficinadasmeninas.domain.sponsor.repository.ISponsorRepository;
 
 @Repository
 public class SponsorRepository implements ISponsorRepository {
@@ -23,65 +21,14 @@ public class SponsorRepository implements ISponsorRepository {
         this.jdbc = jdbc;
     }
 
-    @Override
-    public List<Sponsor> findAllSponsors() {
-        return List.of();
-    }
 
     @Override
-    public Optional<Sponsor> findById(UUID id) {
-        String sql = "SELECT id, monthlyAmount, billingDay, userId, sponsorSince, sponsorUntil, isActive, subscriptionId FROM sponsors WHERE id = ?";
-
-        try {
-            var sponsor = jdbc.queryForObject(sql, this::mapRowSponsor);
-            return Optional.ofNullable(sponsor);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
-    }
-
-    @Override
-    public Optional<Sponsor> findBySubscriptionId(UUID subscriptionId) {
-        String sql = "SELECT id, monthlyAmount, billingDay, userId, sponsorSince, sponsorUntil, isActive, subscriptionId FROM sponsors WHERE subscriptionId = ?";
-
-        try {
-            var sponsor = jdbc.queryForObject(sql, this::mapRowSponsor, subscriptionId.toString());
-            return Optional.ofNullable(sponsor);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
-    }
-
-    @Override
-    public List<Sponsor> findByUserId(UUID id) {
-        String sql = """
-        SELECT id, monthlyAmount, billingDay, userId, sponsorSince, sponsorUntil, isActive, subscriptionId
-        FROM sponsors
-        WHERE userId = ?
-        """;
-
-        return jdbc.query(sql, this::mapRowSponsor, id);
-    }
-
-    @Override
-    public Optional<Sponsor> findActiveByUserId(UUID id) {
-        String sql = "SELECT id, monthlyAmount, billingDay, userId, sponsorSince, sponsorUntil, isActive, subscriptionId FROM sponsors WHERE userId = ? AND isActive = true";
-
-        try {
-            var sponsor = jdbc.queryForObject(sql, this::mapRowSponsor, id);
-            return Optional.ofNullable(sponsor);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
-    }
-
-    @Override
-    public UUID createSponsor(Sponsor sponsor) {
+    public Sponsor insert(Sponsor sponsor) {
         UUID id = UUID.randomUUID();
-        String sql = "INSERT INTO sponsors (id, monthlyAmount, billingDay, userId, sponsorSince, sponsorUntil, isActive, subscriptionId) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        sponsor.setId(id);
 
-        jdbc.update(sql,
+        jdbc.update(
+                SponsorQueryBuilder.INSERT_SPONSOR,
                 id,
                 sponsor.getMonthlyAmount(),
                 sponsor.getBillingDay(),
@@ -91,42 +38,98 @@ public class SponsorRepository implements ISponsorRepository {
                 sponsor.getIsActive(),
                 sponsor.getSubscriptionId()
         );
-        return id;
+
+        return sponsor;
     }
 
     @Override
-    public void updateSponsor(UpdateSponsorDto sponsor) {
-        String sql = "UPDATE sponsors SET sponsorUntil = ?, isActive = ?, subscriptionId = ? " +
-                "WHERE id = ?";
+    public Sponsor update(Sponsor sponsor) {
+        jdbc.update(
+                SponsorQueryBuilder.UPDATE_SPONSOR,
+                sponsor.getSponsorUntil(),
+                sponsor.getIsActive(),
+                sponsor.getSubscriptionId(),
+                sponsor.getId()
+        );
 
-        jdbc.update(sql,
-           sponsor.sponsorUntil(),
-           sponsor.isActive(),
-           sponsor.subscriptionId(),
-           sponsor.id()
+        return sponsor;
+    }
+
+    @Override
+    public void activateByUserId(UUID userId) {
+        jdbc.update(SponsorQueryBuilder.ACTIVATE_SPONSOR_BY_USER_ID, true, userId);
+    }
+
+    @Override
+    public void suspendById(UUID id) {
+        jdbc.update(
+                SponsorQueryBuilder.SUSPEND_SPONSOR_BY_ID,
+                LocalDateTime.now(),
+                false,
+                id
         );
     }
 
     @Override
-    public void suspendSponsor(UUID id) {
-        String sql = "UPDATE sponsors SET sponsorUntil = ?, isActive = ? " +
-                "WHERE id = ?";
+    public List<Sponsor> findAll() {
+        return List.of();
+    }
 
-        jdbc.update(sql,
-          LocalDateTime.now(),
-          false,
-          id
+
+    @Override
+    public Optional<Sponsor> findById(UUID id) {
+
+        try {
+            var sponsor = jdbc.queryForObject(
+                    SponsorQueryBuilder.GET_SPONSOR_BY_ID,
+                    this::mapRowSponsor,
+                    id
+            );
+
+            return Optional.ofNullable(sponsor);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public List<Sponsor> findByUserId(UUID id) {
+
+        return jdbc.query(
+                SponsorQueryBuilder.GET_SPONSOR_BY_USER_ID,
+                this::mapRowSponsor,
+                id
         );
     }
 
     @Override
-    public void activeSponsorByuserId(UUID userId) {
-        String sql = "UPDATE sponsors SET isActive = ? WHERE id = (SELECT lastId FROM (SELECT id AS lastId FROM sponsors WHERE userId = ? ORDER BY id DESC LIMIT 1) AS sub)";
+    public Optional<Sponsor> findActiveByUserId(UUID userId) {
+        try {
+            var sponsor = jdbc.queryForObject(
+                    SponsorQueryBuilder.GET_ACTIVE_SPONSOR_BY_USER_ID,
+                    this::mapRowSponsor,
+                    userId
+            );
 
-        jdbc.update(sql,
-                true,
-                userId
-        );
+            return Optional.ofNullable(sponsor);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<Sponsor> findBySubscriptionId(UUID subscriptionId) {
+        try {
+            var sponsor = jdbc.queryForObject(
+                    SponsorQueryBuilder.GET_SPONSOR_BY_SUBSCRIPTION_ID,
+                    this::mapRowSponsor,
+                    subscriptionId.toString()
+            );
+
+            return Optional.ofNullable(sponsor);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     private Sponsor mapRowSponsor(ResultSet rs, int rowNum) throws SQLException {
