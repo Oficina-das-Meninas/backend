@@ -32,7 +32,7 @@ public class AdminController {
 
 	@PostMapping
 	public ResponseEntity<AdminDto> createAdmin(@Valid @RequestBody CreateAdminDto request) {
-		UUID id = adminService.createAdmin(request);
+		UUID id = adminService.create(request);
 
 		AdminDto adminDto = new AdminDto();
 		adminDto.setId(id);
@@ -46,21 +46,21 @@ public class AdminController {
 
 	@GetMapping
 	public ResponseEntity<List<AdminDto>> getAllAdmin() {
-		List<AdminDto> dto = adminService.getAllAdmin();
+		List<AdminDto> dto = adminService.findAll();
 
 		return ResponseEntity.ok(dto);
 	}
 
 	@GetMapping("/{id}")
 	public ResponseEntity<AdminDto> getAdminById(@PathVariable UUID id) {
-		AdminDto dto = adminService.getAdminById(id);
+		AdminDto dto = adminService.findById(id);
 
 		return ResponseEntity.ok(dto);
 	}
 
 	@PutMapping("/{id}")
 	public ResponseEntity<Void> updateAdmin(@PathVariable UUID id, @Valid @RequestBody UpdateAdminDto request) {
-		adminService.updateAdmin(id, request);
+		adminService.update(id, request);
 
 		return ResponseEntity.noContent().build();
 	}

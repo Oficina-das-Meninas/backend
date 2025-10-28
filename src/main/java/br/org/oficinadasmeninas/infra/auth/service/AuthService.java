@@ -45,7 +45,7 @@ public class AuthService {
 			return createUserDetailsCustom(user, loginUserDTO.getPassword());
 		}
 
-		AdminDto admin = adminService.getAdminByEmail(loginUserDTO.getEmail());
+		AdminDto admin = adminService.findByEmail(loginUserDTO.getEmail());
 
 		if (admin != null) {
 			return createUserDetailsCustom(admin, loginUserDTO.getPassword());
