@@ -19,4 +19,6 @@ public final class Messages {
 
 
     public static final String OBJECT_STORAGE_ERROR = "Ocorreu um erro ao executar o Bucket.";
+
+    public static final String PAYMENT_NOT_FOUND = "Pagamento não encontrado com id: ";
 }
