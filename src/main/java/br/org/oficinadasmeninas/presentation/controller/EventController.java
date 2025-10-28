@@ -32,15 +32,14 @@ public class EventController {
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public PageDTO<Event> getFilteredEvents(@RequestParam(defaultValue = "0") @PositiveOrZero int page,
-                                  @RequestParam(defaultValue = "10") @Positive @Max(100) int pageSize,
-                                  @RequestParam @Nullable String title,
-                                  @RequestParam @Nullable String description,
-                                  @RequestParam @Nullable String location,
-                                  @RequestParam @Nullable LocalDate startDate,
-                                  @RequestParam @Nullable LocalDate endDate
+                                            @RequestParam(defaultValue = "10") @Positive @Max(100) int pageSize,
+                                            @RequestParam @Nullable String searchTerm,
+                                            @RequestParam @Nullable String description,
+                                            @RequestParam @Nullable LocalDate startDate,
+                                            @RequestParam @Nullable LocalDate endDate
     ) {
         return eventService.getFilteredEvents(
-                GetEventDto.FromRequestParams(page, pageSize, title, description, location, startDate, endDate)
+                GetEventDto.FromRequestParams(page, pageSize, searchTerm, description, startDate, endDate)
         );
     }
 
