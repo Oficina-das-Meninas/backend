@@ -1,11 +1,9 @@
 package br.org.oficinadasmeninas.presentation.handler;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 import br.org.oficinadasmeninas.domain.Response;
 import br.org.oficinadasmeninas.infra.exceptions.ObjectStorageException;
+import br.org.oficinadasmeninas.infra.shared.exception.DocumentAlreadyExistsException;
+import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 import org.springframework.http.HttpStatus;
@@ -15,9 +13,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
-import br.org.oficinadasmeninas.infra.shared.exception.DocumentAlreadyExistsException;
-import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -38,14 +36,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleObjectStorageException(ObjectStorageException ex) {
 
         return buildResponse(ex.getMessage(), HttpStatus.SERVICE_UNAVAILABLE);
-    }
-
-
-
-
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<String> handleEntityNotFound(EntityNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)

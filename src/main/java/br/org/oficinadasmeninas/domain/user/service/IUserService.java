@@ -1,11 +1,11 @@
 package br.org.oficinadasmeninas.domain.user.service;
 
-import java.util.List;
-import java.util.UUID;
-
 import br.org.oficinadasmeninas.domain.user.dto.CreateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UpdateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
+
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Interface para operações relacionadas à gestão de usuários.
@@ -15,11 +15,28 @@ import br.org.oficinadasmeninas.domain.user.dto.UserDto;
 public interface IUserService {
 
     /**
+     * Cria e insere um novo usuário no sistema.
+     *
+     * @param user objeto contendo os dados necessários para criação
+     * @return objeto representando o usuário criado
+     */
+    UserDto insert(CreateUserDto user);
+
+    /**
+     * Atualiza os dados de um usuário existente.
+     *
+     * @param id   identificador único do usuário a ser atualizado
+     * @param user objeto contendo os novos dados do usuário
+     */
+    void update(UUID id, UpdateUserDto user);
+
+    /**
      * Retorna todos os usuários cadastrados no sistema.
      *
      * @return lista contendo todos os usuários
      */
-    List<UserDto> getAllUsers();
+    List<UserDto> findAll();
+
 
     /**
      * Busca um usuário pelo seu identificador único.
@@ -28,7 +45,7 @@ public interface IUserService {
      * @return objeto contendo os dados do usuário encontrado,
      *         ou {@code null} se não existir
      */
-    UserDto getUserById(UUID id);
+    UserDto findByUserId(UUID id);
 
     /**
      * Busca um usuário pelo endereço de e-mail.
@@ -37,7 +54,7 @@ public interface IUserService {
      * @return objeto contendo os dados do usuário encontrado,
      *         ou {@code null} se não existir
      */
-    UserDto getUserByEmail(String email);
+    UserDto findByEmail(String email);
 
     /**
      * Busca um usuário pelo documento.
@@ -46,22 +63,5 @@ public interface IUserService {
      * @return objeto contendo os dados do usuário encontrado,
      *         ou {@code null} se não existir
      */
-    UserDto getUserByDocument(String document);
-
-    /**
-     * Cria e insere um novo usuário no sistema.
-     *
-     * @param user objeto contendo os dados necessários para criação
-     * @return objeto representando o usuário criado
-     */
-    UserDto createUser(CreateUserDto user);
-
-    /**
-     * Atualiza os dados de um usuário existente.
-     *
-     * @param id   identificador único do usuário a ser atualizado
-     * @param user objeto contendo os novos dados do usuário
-     */
-    void updateUser(UUID id, UpdateUserDto user);
-
+    UserDto findByDocument(String document);
 }

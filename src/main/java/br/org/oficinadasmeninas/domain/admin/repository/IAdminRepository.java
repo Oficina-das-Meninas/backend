@@ -1,21 +1,20 @@
 package br.org.oficinadasmeninas.domain.admin.repository;
 
+import br.org.oficinadasmeninas.domain.admin.Admin;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import br.org.oficinadasmeninas.domain.admin.Admin;
-
 public interface IAdminRepository {
-	
-	List<Admin> findAll();
 
-	Optional<Admin> findById(UUID id);
+    Admin create(Admin admin);
 
-	Optional<Admin> findByEmail(String email);
+    Admin update(Admin admin);
 
-	UUID create(Admin admin);
+    List<Admin> findAll();
 
-	void update(Admin admin);
+    Optional<Admin> findById(UUID id);
 
+    Optional<Admin> findByEmail(String email);
 }

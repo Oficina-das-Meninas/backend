@@ -1,7 +1,7 @@
 package br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto;
 
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.PaymentsMethodEnum;
+ import br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum;
 
 public record ResponseWebhookPaymentMethod(
-        PaymentsMethodEnum type
+        PaymentMethodEnum type
 ) {}

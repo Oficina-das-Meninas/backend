@@ -14,7 +14,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,8 +26,9 @@ public class EventRepository implements IEventRepository {
     }
 
     @Override
-    public PageDTO<Event> getFiltered(GetEventDto getEventDto) {
-        List<Event> events = jdbc.query(
+    public PageDTO<Event> findByFilter(GetEventDto getEventDto) {
+
+        var events = jdbc.query(
                 EventQueryBuilder.GET_FILTERED_EVENTS,
                 this::mapRow,
                 getEventDto.searchTerm(),
@@ -37,9 +37,10 @@ public class EventRepository implements IEventRepository {
                 getEventDto.startDate(),
                 getEventDto.endDate(),
                 getEventDto.pageSize(),
-                getEventDto.page() * getEventDto.pageSize());
+                getEventDto.page() * getEventDto.pageSize()
+        );
 
-        int total = jdbc.queryForObject(
+        var total = jdbc.queryForObject(
                 EventQueryBuilder.SELECT_COUNT,
                 Integer.class,
                 getEventDto.searchTerm(),
@@ -48,36 +49,35 @@ public class EventRepository implements IEventRepository {
                 getEventDto.startDate(),
                 getEventDto.endDate());
 
+        if(total == null) total = 0;
+
         int totalPages = Math.toIntExact((total / getEventDto.pageSize()) + (total % getEventDto.pageSize() == 0 ? 0 : 1));
 
         return new PageDTO<>(events, total, totalPages);
     }
 
     @Override
-    public Optional<Event> getById(UUID id) {
-        try
-        {
+    public Optional<Event> findById(UUID id) {
+        try {
             var event = jdbc.queryForObject(EventQueryBuilder.GET_EVENT_BY_ID, this::mapRow, id);
-            return Optional.of(event);
-        }
-        catch (EmptyResultDataAccessException e)
-        {
+            return Optional.ofNullable(event);
+        } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
     }
 
-    public UUID create(CreateEventDto createEventDto, String previewFileName, String partnersFileName) {
+    public UUID insert(CreateEventDto createEventDto, String previewFileName, String partnersFileName) {
         var id = UUID.randomUUID();
 
         jdbc.update(EventQueryBuilder.CREATE_EVENT,
-            id,
-            createEventDto.title(),
-            previewFileName,
-            partnersFileName,
-            createEventDto.description(),
-            Timestamp.valueOf(createEventDto.eventDate()),
-            createEventDto.location(),
-            createEventDto.urlToPlatform());
+                id,
+                createEventDto.title(),
+                previewFileName,
+                partnersFileName,
+                createEventDto.description(),
+                Timestamp.valueOf(createEventDto.eventDate()),
+                createEventDto.location(),
+                createEventDto.urlToPlatform());
 
         return id;
     }

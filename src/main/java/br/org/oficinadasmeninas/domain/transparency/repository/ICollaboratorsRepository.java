@@ -1,8 +1,6 @@
 package br.org.oficinadasmeninas.domain.transparency.repository;
 
-import br.org.oficinadasmeninas.domain.transparency.Category;
 import br.org.oficinadasmeninas.domain.transparency.Collaborator;
-import br.org.oficinadasmeninas.domain.transparency.dto.CreateCollaboratorDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -10,15 +8,15 @@ import java.util.UUID;
 
 public interface ICollaboratorsRepository {
 
-    UUID insertCollaborator(CreateCollaboratorDto request);
+    Collaborator insert(Collaborator collaborator);
 
-    Collaborator updateCollaborator(Collaborator collaborator);
+    Collaborator update(Collaborator collaborator);
 
-    void deleteCollaborator(UUID id);
+    void deleteById(UUID id);
 
-    int countCollaboratorsByCategoryId(UUID id);
+    List<Collaborator> findAll();
 
-    Optional<Collaborator> findCollaboratorById(UUID id);
+    Optional<Collaborator> findById(UUID id);
 
-    List<Collaborator> findAllCollaborators();
+    int countByCategoryId(UUID categoryId);
 }

@@ -1,12 +1,16 @@
 package br.org.oficinadasmeninas.domain.user.repository;
 
+import br.org.oficinadasmeninas.domain.user.User;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import br.org.oficinadasmeninas.domain.user.User;
-
 public interface IUserRepository {
+
+    User insert(User user);
+
+    User update(User user);
 
 	List<User> findAll();
 
@@ -19,9 +23,4 @@ public interface IUserRepository {
 	boolean existsByEmail(String email);
 
 	boolean existsByDocument(String document);
-
-	UUID create(User user);
-
-	void update(User user);
-
 }

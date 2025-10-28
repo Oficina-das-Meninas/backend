@@ -19,7 +19,7 @@ import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.ResponseCreat
 import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
 import br.org.oficinadasmeninas.domain.sponsor.service.ISponsorService;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.PaymentsMethodEnum;
+ import br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutConfig;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutPagbank;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutRecurrenceInterval;
@@ -106,7 +106,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
                 1,
                 List.of(notificationUrls),
                 List.of(paymentNotificationUrls),
-                List.of(PaymentsMethodEnum.CREDIT_CARD),
+                List.of(PaymentMethodEnum.CREDIT_CARD),
                 "https://dev.apollomusic.com.br/logo_preenchimento_branco.png",
                 12,
                 new RequestCreateCheckoutRecurrenceInterval(
@@ -129,24 +129,24 @@ public class PaymentGatewayService implements IPaymentGatewayService {
     }
 
     @Override
-    public void updatePaymentStatus(UUID paymentId, PaymentStatusEnum paymentStatus, PaymentsMethodEnum paymentMethod, boolean recurring, ResponseWebhookCustomer customer) {
+    public void updatePaymentStatus(UUID paymentId, PaymentStatusEnum paymentStatus, PaymentMethodEnum paymentMethod, boolean recurring, ResponseWebhookCustomer customer) {
        DonationStatusEnum donationStatusEnum = RequestNotifyPaymentDonationStatusMapper.fromPaymentStatus(paymentStatus);
-       donationService.updateDonationStatus(paymentId, donationStatusEnum);
-       paymentService.updatePaymentStatus(paymentId, paymentStatus);
-       paymentService.updatePaymentMethod(paymentId, paymentMethod);
+       donationService.updateStatus(paymentId, donationStatusEnum);
+       paymentService.updateStatus(paymentId, paymentStatus);
+       paymentService.updateMethod(paymentId, paymentMethod);
 
 
        if (recurring) {
-         UserDto userDto = userService.getUserByDocument(customer.tax_id());
-         sponsorService.activeSponsorByUserId(userDto.getId());
+         UserDto userDto = userService.findByDocument(customer.tax_id());
+         sponsorService.activateByUserId(userDto.getId());
        }
     }
 
     @Override
     public void updateCheckoutStatus(String checkoutId, UUID paymentId, PaymentStatusEnum paymentStatus) {
         DonationStatusEnum donationStatusEnum = RequestNotifyPaymentDonationStatusMapper.fromPaymentStatus(paymentStatus);
-        donationService.updateDonationStatus(paymentId, donationStatusEnum);
-        paymentService.updatePaymentStatus(paymentId, paymentStatus);
+        donationService.updateStatus(paymentId, donationStatusEnum);
+        paymentService.updateStatus(paymentId, paymentStatus);
     }
     private ResponseCreateCheckoutPagbank createPagBankCheckout(RequestCreateCheckoutPagbank checkoutPagbank) {
         try {

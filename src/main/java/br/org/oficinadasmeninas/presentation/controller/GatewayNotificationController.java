@@ -47,7 +47,7 @@ public class GatewayNotificationController {
     	paymentGatewayService.updatePaymentStatus(request.reference_id(), charge.status(), charge.payment_method().type(), recurring, customer);
 
         if (charge.status() == PaymentStatusEnum.PAID){
-            PaymentDto payment = paymentService.getPaymentsByDonation(request.reference_id()).getLast();
+            PaymentDto payment = paymentService.findByDonationId(request.reference_id()).getLast();
             paymentGatewayService.cancelCheckout(payment.checkoutId());
         }
     }
