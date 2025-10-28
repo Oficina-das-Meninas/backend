@@ -32,7 +32,7 @@ public class UserController {
 
 	@PostMapping
 	public ResponseEntity<UserDto> createUser(@Valid @RequestBody CreateUserDto request) {
-		UserDto userDto = userService.createUser(request);
+		UserDto userDto = userService.insert(request);
 
 		return ResponseEntity
 				.created(ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(userDto.getId()).toUri())
@@ -41,21 +41,21 @@ public class UserController {
 	
 	@GetMapping
 	public ResponseEntity<List<UserDto>> getAllUsers() {
-		List<UserDto> dto = userService.getAllUsers();
+		List<UserDto> dto = userService.findAll();
 
 		return ResponseEntity.ok(dto);
 	}
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<UserDto> getUserById(@PathVariable UUID id) {
-		UserDto dto = userService.getUserById(id);
+		UserDto dto = userService.findByUserId(id);
 
 		return ResponseEntity.ok(dto);
 	}
 	
 	@PutMapping("/{id}")
 	public ResponseEntity<Void> updateUser(@PathVariable UUID id, @Valid @RequestBody UpdateUserDto request) {
-		userService.updateUser(id, request);
+		userService.update(id, request);
 
 		return ResponseEntity.noContent().build();
 	}

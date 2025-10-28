@@ -15,4 +15,6 @@ public class UserQueryBuilder {
     public static final String EXISTS_USER_BY_EMAIL = "SELECT COUNT(*) FROM users WHERE email = ?";
 
     public static final String EXISTS_USER_BY_DOCUMENT = "SELECT COUNT(*) FROM users WHERE document = ?";
+
+    public static final String FIND_USER_BY_DOCUMENT = "SELECT id, name, email, password, phone, document FROM users WHERE document = ?";
 }

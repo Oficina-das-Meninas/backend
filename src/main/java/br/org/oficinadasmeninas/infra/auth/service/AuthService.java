@@ -31,7 +31,7 @@ public class AuthService {
 	}
 
 	public UserDto createUserAccount(CreateUserDto user) {
-		UserDto newUser = userService.createUser(user);
+		UserDto newUser = userService.insert(user);
 		return newUser;
 	}
 
@@ -39,7 +39,7 @@ public class AuthService {
 		authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(loginUserDTO.getEmail(), loginUserDTO.getPassword()));
 
-		UserDto user = userService.getUserByEmail(loginUserDTO.getEmail());
+		UserDto user = userService.findByEmail(loginUserDTO.getEmail());
 
 		if (user != null) {
 			return createUserDetailsCustom(user, loginUserDTO.getPassword());

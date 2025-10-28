@@ -37,4 +37,10 @@ public final class Messages {
     public static final String PARTNER_NOT_FOUND = "Patrocinador não encontrado com id: ";
 
     public static final String SPONSOR_NOT_FOUND = "Patrocinador não encontrado com id: ";
+
+    public static final String USER_NOT_FOUND_BY_DOCUMENT = "Usuário não encontrado com documento: ";
+
+    public static final String USER_NOT_FOUND_BY_EMAIL = "Usuário não encontrado com o email: ";
+
+    public static final String USER_NOT_FOUND_BY_ID = "Usuário não encontrado com id: ";
 }
