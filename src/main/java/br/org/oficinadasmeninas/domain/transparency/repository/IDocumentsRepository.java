@@ -1,7 +1,6 @@
 package br.org.oficinadasmeninas.domain.transparency.repository;
 
 import br.org.oficinadasmeninas.domain.transparency.Document;
-import br.org.oficinadasmeninas.domain.transparency.dto.CreateDocumentDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,13 +8,13 @@ import java.util.UUID;
 
 public interface IDocumentsRepository {
 
-    UUID insert(CreateDocumentDto request);
+    Document insert(Document document);
 
-    void delete(UUID id);
+    void deleteById(UUID id);
 
-    int countByCategoryId(UUID id);
+    List<Document> findAll();
 
     Optional<Document> findById(UUID id);
 
-    List<Document> findAll();
+    int countByCategoryId(UUID categoryId);
 }

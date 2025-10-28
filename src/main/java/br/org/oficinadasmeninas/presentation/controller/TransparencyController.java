@@ -56,7 +56,7 @@ public class TransparencyController extends BaseController {
         var request = new CreateDocumentRequestDto(file, title, effectiveDate, categoryId);
 
         return handle(
-            () -> documentsService.uploadDocument(request),
+            () -> documentsService.create(request),
             Messages.DOCUMENT_CREATED_SUCCESSFULLY,
             HttpStatus.CREATED
         );
@@ -85,7 +85,7 @@ public class TransparencyController extends BaseController {
             @PathVariable("documentId") @NotBlank String documentId
     ) {
         return handle(
-            () -> documentsService.deleteDocument(UUID.fromString(documentId)),
+            () -> documentsService.deleteById(UUID.fromString(documentId)),
             Messages.DOCUMENT_DELETED_SUCCESSFULLY
         );
     }

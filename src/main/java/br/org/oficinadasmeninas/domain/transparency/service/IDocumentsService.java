@@ -20,7 +20,7 @@ public interface IDocumentsService {
      * @return o identificador único ({@link UUID}) do documento criado
      * @throws IllegalArgumentException se {@code request} for {@code null} ou contiver dados inválidos
      */
-    UUID uploadDocument(CreateDocumentRequestDto request);
+    UUID create(CreateDocumentRequestDto request);
 
     /**
      * Remove um documento existente identificado pelo {@code id}.
@@ -30,5 +30,5 @@ public interface IDocumentsService {
      * @throws IllegalArgumentException se {@code id} for {@code null}
      * @throws IllegalStateException se o documento não existir
      */
-    UUID deleteDocument(UUID id);
+    UUID deleteById(UUID id);
 }
