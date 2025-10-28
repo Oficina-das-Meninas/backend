@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutCustomerDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDonationDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDto;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.PaymentsMethodEnum;
+ import br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutConfig;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutCustomer;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutCustomerPhone;
@@ -75,7 +75,7 @@ public class RequestCreateCheckoutPagbankMapper {
 
         return new RequestCreateCheckoutCustomerPhone(country, area, number);
     }
-    private List<RequestCreateCheckoutPaymentMethod> toPaymentMethods(List<PaymentsMethodEnum> methods){
+    private List<RequestCreateCheckoutPaymentMethod> toPaymentMethods(List<PaymentMethodEnum> methods){
         return methods.stream()
                 .map(RequestCreateCheckoutPaymentMethod::new)
                 .collect(Collectors.toList());

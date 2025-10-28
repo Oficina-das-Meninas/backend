@@ -7,8 +7,6 @@ import br.org.oficinadasmeninas.domain.paymentgateway.PaymentGatewayEnum;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.*;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
-import br.org.oficinadasmeninas.domain.sponsor.Sponsor;
-import br.org.oficinadasmeninas.domain.sponsor.dto.CreateSponsorDto;
 import br.org.oficinadasmeninas.domain.sponsor.dto.SponsorDto;
 import br.org.oficinadasmeninas.domain.sponsor.service.ISponsorService;
 import br.org.oficinadasmeninas.infra.shared.exception.ActiveSubscriptionAlreadyExistsException;
@@ -57,7 +55,7 @@ public class DonationApplication {
         PaymentGatewayEnum paymentGatewayEnum = PaymentGatewayEnum.PAGBANK;
 
 		CreatePaymentDto createPayment = new CreatePaymentDto(donation.id(), paymentGatewayEnum, checkout.checkoutId(), null, PaymentStatusEnum.WAITING);
-		paymentService.create(createPayment);
+		paymentService.insert(createPayment);
 
 		return new DonationCheckoutDto(checkout.link());
 	}
