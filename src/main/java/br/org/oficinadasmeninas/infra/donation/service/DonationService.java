@@ -1,18 +1,20 @@
 package br.org.oficinadasmeninas.infra.donation.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
-
-import org.springframework.stereotype.Service;
-
 import br.org.oficinadasmeninas.domain.donation.Donation;
 import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
 import br.org.oficinadasmeninas.domain.donation.dto.CreateDonationDto;
 import br.org.oficinadasmeninas.domain.donation.dto.DonationDto;
+import br.org.oficinadasmeninas.domain.donation.dto.DonationWithDonorDto;
+import br.org.oficinadasmeninas.domain.donation.dto.GetDonationDto;
 import br.org.oficinadasmeninas.domain.donation.repository.IDonationRepository;
 import br.org.oficinadasmeninas.domain.donation.service.IDonationService;
 import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
+import br.org.oficinadasmeninas.presentation.shared.PageDTO;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class DonationService implements IDonationService {
@@ -29,6 +31,10 @@ public class DonationService implements IDonationService {
 		return donationRepository.findAll().stream().map(donation -> new DonationDto(donation.getId(),
 				donation.getValue(), donation.getDonationAt(), donation.getUserId(), donation.getStatus())).toList();
 	}
+
+    public PageDTO<DonationWithDonorDto> getFilteredDonations(GetDonationDto getDonationDto){
+        return donationRepository.getFiltered(getDonationDto);
+    }
 
 	@Override
 	public DonationDto getDonationById(UUID id) {
