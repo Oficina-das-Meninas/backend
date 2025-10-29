@@ -32,6 +32,47 @@ public class AdminService implements IAdminService {
     }
 
     @Override
+    public UUID insert(CreateAdminDto request) {
+
+        var admin = new Admin();
+        admin.setName(request.getName());
+        admin.setEmail(request.getEmail());
+        admin.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        try {
+            adminRepository.insert(admin);
+            return admin.getId();
+        } catch (DataIntegrityViolationException e) {
+            throw new EmailAlreadyExistsException();
+        }
+    }
+
+    @Override
+    public UUID update(UUID adminId, UpdateAdminDto admin) {
+        var existingAdmin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new NotFoundException(Messages.ADMIN_NOT_FOUND_BY_ID + adminId));
+
+        if (admin.getName() != null && !admin.getName().isBlank() && !existingAdmin.getName().equals(admin.getName())) {
+            existingAdmin.setName(admin.getName());
+        }
+
+        if (admin.getEmail() != null && !existingAdmin.getEmail().equals(admin.getEmail())) {
+            existingAdmin.setEmail(admin.getEmail());
+        }
+
+        if (admin.getPassword() != null && !admin.getPassword().isBlank()) {
+            existingAdmin.setPassword(passwordEncoder.encode(admin.getPassword()));
+        }
+
+        try {
+            adminRepository.update(existingAdmin);
+            return existingAdmin.getId();
+        } catch (DataIntegrityViolationException e) {
+            throw new EmailAlreadyExistsException();
+        }
+    }
+
+    @Override
     public List<AdminDto> findAll() {
 
         return adminRepository
@@ -56,44 +97,5 @@ public class AdminService implements IAdminService {
                 .orElseThrow(() -> new NotFoundException(Messages.ADMIN_NOT_FOUND_BY_EMAIL + email));
 
         return toDto(admin);
-    }
-
-    @Override
-    public UUID create(CreateAdminDto request) {
-
-        var admin = new Admin();
-        admin.setName(request.getName());
-        admin.setEmail(request.getEmail());
-        admin.setPassword(passwordEncoder.encode(request.getPassword()));
-
-        try {
-            return adminRepository.create(admin).getId();
-        } catch (DataIntegrityViolationException e) {
-            throw new EmailAlreadyExistsException();
-        }
-    }
-
-    @Override
-    public void update(UUID adminId, UpdateAdminDto admin) {
-        var existingAdmin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new NotFoundException(Messages.ADMIN_NOT_FOUND_BY_ID + adminId));
-
-        if (admin.getName() != null && !admin.getName().isBlank() && !existingAdmin.getName().equals(admin.getName())) {
-            existingAdmin.setName(admin.getName());
-        }
-
-        if (admin.getEmail() != null && !existingAdmin.getEmail().equals(admin.getEmail())) {
-            existingAdmin.setEmail(admin.getEmail());
-        }
-
-        if (admin.getPassword() != null && !admin.getPassword().isBlank()) {
-            existingAdmin.setPassword(passwordEncoder.encode(admin.getPassword()));
-        }
-
-        try {
-            adminRepository.update(existingAdmin);
-        } catch (DataIntegrityViolationException e) {
-            throw new EmailAlreadyExistsException();
-        }
     }
 }
