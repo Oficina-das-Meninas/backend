@@ -1,15 +1,5 @@
 package br.org.oficinadasmeninas.presentation.controller;
 
-import java.io.FileWriter;
-import java.io.IOException;
-
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
 import br.org.oficinadasmeninas.domain.payment.dto.CheckoutNotificationDto;
 import br.org.oficinadasmeninas.domain.payment.dto.PaymentDto;
@@ -18,9 +8,17 @@ import br.org.oficinadasmeninas.domain.paymentgateway.dto.PaymentChargesDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
 import br.org.oficinadasmeninas.infra.payment.service.PaymentService;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseWebhookCustomer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/nofitication")
+@RequestMapping("/api/nofitications")
 public class GatewayNotificationController {
 
 	private final IPaymentGatewayService paymentGatewayService;
