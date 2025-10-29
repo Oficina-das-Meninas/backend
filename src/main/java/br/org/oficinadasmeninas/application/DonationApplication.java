@@ -52,7 +52,7 @@ public class DonationApplication {
             Optional<SponsorDto> sponsor = this.sponsorService.findActiveByUserId(donationCheckout.donor().id());
 
             if (sponsor.isPresent()) {
-                throw new ActiveSubscriptionAlreadyExistsException("Usuário já possui assinatura ativa");
+                throw new ActiveSubscriptionAlreadyExistsException();
             }
             this.createSponsor(donationCheckout);
         }
