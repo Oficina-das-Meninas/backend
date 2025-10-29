@@ -9,7 +9,9 @@ import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreate
 import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
 import br.org.oficinadasmeninas.domain.sponsor.dto.SponsorDto;
 import br.org.oficinadasmeninas.domain.sponsor.service.ISponsorService;
+import br.org.oficinadasmeninas.infra.recaptcha.CaptchaService;
 import br.org.oficinadasmeninas.infra.shared.exception.ActiveSubscriptionAlreadyExistsException;
+import br.org.oficinadasmeninas.infra.shared.exception.InvalidCaptchaException;
 import org.springframework.stereotype.Service;
 
 import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
@@ -27,16 +29,23 @@ public class DonationApplication {
 	private final IPaymentService paymentService;
 	private final IPaymentGatewayService paymentGatewayService;
     private final ISponsorService sponsorService;
+    private final CaptchaService captchaService;
 
 	public DonationApplication(IDonationService donationService, IPaymentService paymentService,
-                               IPaymentGatewayService paymentGatewayService, ISponsorService sponsorService) {
+                               IPaymentGatewayService paymentGatewayService, ISponsorService sponsorService, CaptchaService captchaService) {
 		this.donationService = donationService;
 		this.paymentService = paymentService;
         this.paymentGatewayService = paymentGatewayService;
         this.sponsorService = sponsorService;
+        this.captchaService = captchaService;
 	}
 
 	public DonationCheckoutDto createDonationCheckout(CreateDonationCheckoutDto donationCheckout) {
+
+        if(!this.captchaService.isCaptchaValid(donationCheckout.captchaToken())) {
+            throw new InvalidCaptchaException();
+        }
+
         if (donationCheckout.donation().isRecurring()){
             Optional<SponsorDto> sponsor = this.sponsorService.findActiveByUserId(donationCheckout.donor().id());
 

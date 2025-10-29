@@ -4,5 +4,5 @@ import br.org.oficinadasmeninas.presentation.shared.notations.ValidDonationCheck
 import jakarta.validation.Valid;
 
 @ValidDonationCheckout
-public record CreateDonationCheckoutDto(@Valid DonorInfoDto donor, @Valid DonationItemDto donation) {
+public record CreateDonationCheckoutDto(@Valid DonorInfoDto donor, @Valid DonationItemDto donation, String captchaToken) {
 }
