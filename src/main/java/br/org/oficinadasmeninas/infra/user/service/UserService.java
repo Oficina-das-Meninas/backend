@@ -53,9 +53,9 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void update(UUID id, UpdateUserDto user) {
+    public UUID update(UUID id, UpdateUserDto user) {
         User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Usuário não encontrado com id: " + id));
+                .orElseThrow(() -> new NotFoundException(Messages.USER_NOT_FOUND_BY_ID + id));
 
         if (user.getName() != null && !user.getName().isBlank()) {
             existingUser.setName(user.getName());
@@ -80,10 +80,10 @@ public class UserService implements IUserService {
 
         try {
             userRepository.update(existingUser);
+            return existingUser.getId();
         } catch (DataIntegrityViolationException e) {
             throw new EmailAlreadyExistsException();
         }
-
     }
 
     @Override

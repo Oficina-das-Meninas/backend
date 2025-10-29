@@ -7,6 +7,7 @@ import br.org.oficinadasmeninas.domain.partner.dto.UpdatePartnerDto;
 import br.org.oficinadasmeninas.domain.partner.repository.IPartnerRepository;
 import br.org.oficinadasmeninas.domain.partner.service.IPartnerService;
 import br.org.oficinadasmeninas.domain.resources.Messages;
+import br.org.oficinadasmeninas.infra.exceptions.ObjectStorageException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,51 @@ public class PartnerService implements IPartnerService {
         this.storageService = storageService;
     }
 
+    public UUID insert(CreatePartnerDto request) {
+
+        try {
+            var previewFileName = uploadMultipartFile(request.previewImage());
+
+            var partner = new Partner();
+            partner.setPreviewImageUrl(previewFileName);
+            partner.setName(request.name());
+
+            partnerRepository.insert(partner);
+            return partner.getId();
+
+        } catch (IOException e) {
+            throw new ObjectStorageException(e);
+        }
+    }
+
+    public UUID update(UUID id, UpdatePartnerDto request) {
+
+        var partner = partnerRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Messages.PARTNER_NOT_FOUND + id));
+
+        try {
+            var previewFileName = uploadMultipartFile(request.previewImage());
+
+            partner.setName(request.name());
+            partner.setPreviewImageUrl(previewFileName);
+
+            partnerRepository.update(partner, request.isActive());
+            return partner.getId();
+
+        } catch (IOException e) {
+            throw new ObjectStorageException(e);
+        }
+    }
+
+    public UUID deleteById(UUID id) {
+        var partner = partnerRepository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundException(Messages.PARTNER_NOT_FOUND + id));
+
+        partnerRepository.update(partner, false);
+        return partner.getId();
+    }
+
     public PageDTO<Partner> findAll(String searchTerm, int page, int pageSize) {
 
         return partnerRepository.findByFilter(searchTerm, page, pageSize);
@@ -34,38 +80,6 @@ public class PartnerService implements IPartnerService {
 
         return partnerRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.PARTNER_NOT_FOUND + id));
-    }
-
-    public Partner createPartner(CreatePartnerDto request) throws IOException {
-        var previewFileName = uploadMultipartFile(request.previewImage());
-
-        var partner = new Partner();
-        partner.setPreviewImageUrl(previewFileName);
-        partner.setName(request.name());
-
-        partnerRepository.insert(partner);
-        return partner;
-    }
-
-    public Partner updatePartner(UUID id, UpdatePartnerDto request) throws Exception {
-        var partner = partnerRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(Messages.PARTNER_NOT_FOUND + id));
-
-        var previewFileName = uploadMultipartFile(request.previewImage());
-
-        partner.setName(request.name());
-        partner.setPreviewImageUrl(previewFileName);
-
-        partnerRepository.update(partner, request.isActive());
-        return partner;
-    }
-
-    public void deletePartner(UUID id) {
-        var partner = partnerRepository
-                .findById(id)
-                .orElseThrow(() -> new NotFoundException(Messages.PARTNER_NOT_FOUND + id));
-
-        partnerRepository.update(partner, false);
     }
 
     private String uploadMultipartFile(MultipartFile file) throws IOException {

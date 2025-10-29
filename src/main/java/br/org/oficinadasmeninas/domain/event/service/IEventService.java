@@ -6,12 +6,11 @@ import br.org.oficinadasmeninas.domain.event.dto.GetEventDto;
 import br.org.oficinadasmeninas.domain.event.dto.UpdateEventDto;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 
-import java.io.IOException;
 import java.util.UUID;
 
 /**
  * Interface para operações relacionadas à gestão de eventos.
- *
+ * <p>
  * Define contratos para criação, consulta, atualização e exclusão de eventos.
  */
 public interface IEventService {
@@ -21,19 +20,17 @@ public interface IEventService {
      *
      * @param eventDto objeto contendo os dados necessários para criação do evento
      * @return evento criado com seus respectivos identificadores e metadados
-     * @throws IOException em caso de erro de leitura/gravação de dados (ex: upload de arquivos relacionados)
      */
-    Event insert(CreateEventDto eventDto) throws IOException;
+    UUID insert(CreateEventDto eventDto);
 
     /**
      * Atualiza os dados de um evento existente.
      *
-     * @param id              identificador único do evento a ser atualizado
-     * @param updateEventDto  objeto contendo os novos dados do evento
+     * @param id             identificador único do evento a ser atualizado
+     * @param updateEventDto objeto contendo os novos dados do evento
      * @return evento atualizado
-     * @throws Exception em caso de erro de validação, inexistência do evento ou falha durante a atualização
      */
-    Event update(UUID id, UpdateEventDto updateEventDto) throws Exception;
+    UUID update(UUID id, UpdateEventDto updateEventDto);
 
     /**
      * Exclui permanentemente um evento pelo seu identificador.
@@ -43,18 +40,16 @@ public interface IEventService {
      * </p>
      *
      * @param id identificador único do evento
-     * @throws Exception em caso de inexistência do evento ou falha durante a exclusão
      */
-    void deleteById(UUID id) throws Exception;
+    UUID deleteById(UUID id);
 
     /**
      * Busca um evento pelo seu identificador único.
      *
      * @param id identificador único do evento
      * @return evento encontrado
-     * @throws Exception caso o evento não seja encontrado ou ocorra algum erro inesperado
      */
-    Event findById(UUID id) throws Exception;
+    Event findById(UUID id);
 
     /**
      * Retorna eventos filtrados conforme os critérios de pesquisa.
@@ -62,5 +57,5 @@ public interface IEventService {
      * @param getEventDto objeto contendo critérios de filtragem e paginação
      * @return página de eventos filtrados conforme os critérios informados
      */
-    PageDTO<Event> getFilteredEvents(GetEventDto getEventDto);
+    PageDTO<Event> findByFilter(GetEventDto getEventDto);
 }

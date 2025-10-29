@@ -47,4 +47,26 @@ public final class Messages {
     public static final String EVENT_NOT_FOUND = "Evento não encontrado com id: ";
 
     public static final String USER_NOT_FOUND = "Usuário não encontrado";
+
+    public static final String PARTNER_CREATED_SUCCESSFULLY = "Patrocinador criado com sucesso.";
+
+    public static final String PARTNER_UPDATED_SUCCESSFULLY = "Patrocinador atualizado com sucesso.";
+
+    public static final String PARTNER_DELETED_SUCCESSFULLY = "Patrocinador deletado com sucesso.";
+
+    public static final String DONATION_CREATED_SUCCESSFULLY = "Doação criada com sucesso.";
+
+    public static final String EVENT_CREATED_SUCCESSFULLY = "Evento criado com sucesso.";
+
+    public static final String EVENT_UPDATED_SUCCESSFULLY = "Evento atualizado com sucesso.";
+
+    public static final String EVENT_DELETED_SUCCESSFULLY = "Evento deletado com sucesso.";
+
+    public static final String USER_CREATED_SUCCESSFULLY = "Usuário criado com sucesso.";
+
+    public static final String USER_UPDATED_SUCCESSFULLY = "Usuário atualizado com sucesso.";
+
+    public static final String ADMIN_CREATED_SUCCESSFULLY = "Administrador criado com sucesso.";
+
+    public static final String ADMIN_UPDATED_SUCCESSFULLY = "Administrador atualizado com sucesso.";
 }

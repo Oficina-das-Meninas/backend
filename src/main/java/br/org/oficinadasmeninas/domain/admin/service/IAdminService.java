@@ -15,6 +15,22 @@ import java.util.UUID;
 public interface IAdminService {
 
     /**
+     * Cria e insere um novo administrador no sistema.
+     *
+     * @param admin objeto contendo os dados necessários para criação
+     * @return identificador único do administrador criado
+     */
+    UUID insert(CreateAdminDto admin);
+
+    /**
+     * Atualiza os dados de um administrador existente.
+     *
+     * @param id    identificador único do administrador a ser atualizado
+     * @param admin objeto contendo os novos dados do administrador
+     */
+    UUID update(UUID id, UpdateAdminDto admin);
+
+    /**
      * Retorna todos os administradores cadastrados no sistema.
      *
      * @return lista contendo todos os administradores
@@ -38,21 +54,4 @@ public interface IAdminService {
      * ou {@code null} se não existir
      */
     AdminDto findByEmail(String email);
-
-    /**
-     * Cria e insere um novo administrador no sistema.
-     *
-     * @param admin objeto contendo os dados necessários para criação
-     * @return identificador único do administrador criado
-     */
-    UUID create(CreateAdminDto admin);
-
-    /**
-     * Atualiza os dados de um administrador existente.
-     *
-     * @param id    identificador único do administrador a ser atualizado
-     * @param admin objeto contendo os novos dados do administrador
-     */
-    void update(UUID id, UpdateAdminDto admin);
-
 }

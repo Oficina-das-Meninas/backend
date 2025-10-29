@@ -1,9 +1,7 @@
 package br.org.oficinadasmeninas.infra.event.repository;
 
 import br.org.oficinadasmeninas.domain.event.Event;
-import br.org.oficinadasmeninas.domain.event.dto.CreateEventDto;
 import br.org.oficinadasmeninas.domain.event.dto.GetEventDto;
-import br.org.oficinadasmeninas.domain.event.dto.UpdateEventDto;
 import br.org.oficinadasmeninas.domain.event.repository.IEventRepository;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -49,7 +47,7 @@ public class EventRepository implements IEventRepository {
                 getEventDto.startDate(),
                 getEventDto.endDate());
 
-        if(total == null) total = 0;
+        if (total == null) total = 0;
 
         int totalPages = Math.toIntExact((total / getEventDto.pageSize()) + (total % getEventDto.pageSize() == 0 ? 0 : 1));
 
@@ -66,34 +64,41 @@ public class EventRepository implements IEventRepository {
         }
     }
 
-    public UUID insert(CreateEventDto createEventDto, String previewFileName, String partnersFileName) {
+    public Event insert(Event event) {
         var id = UUID.randomUUID();
+        event.setId(id);
 
-        jdbc.update(EventQueryBuilder.CREATE_EVENT,
-                id,
-                createEventDto.title(),
-                previewFileName,
-                partnersFileName,
-                createEventDto.description(),
-                Timestamp.valueOf(createEventDto.eventDate()),
-                createEventDto.location(),
-                createEventDto.urlToPlatform());
+        jdbc.update(
+                EventQueryBuilder.CREATE_EVENT,
+                event.getId(),
+                event.getTitle(),
+                event.getPreviewImageUrl(),
+                event.getPartnersImageUrl(),
+                event.getDescription(),
+                Timestamp.valueOf(event.getEventDate()),
+                event.getLocation(),
+                event.getUrlToPlatform()
+        );
 
-        return id;
+        return event;
     }
 
     @Override
-    public void update(UpdateEventDto updateEventDto, String previewFileName, String partnersFileName) {
+    public Event update(Event event, boolean isActive) {
+
         jdbc.update(EventQueryBuilder.UPDATE_EVENT,
-                updateEventDto.title(),
-                previewFileName,
-                partnersFileName,
-                updateEventDto.description(),
-                Timestamp.valueOf(updateEventDto.eventDate()),
-                updateEventDto.location(),
-                updateEventDto.urlToPlatform(),
-                updateEventDto.isActive() == null || updateEventDto.isActive(),
-                updateEventDto.id());
+                event.getTitle(),
+                event.getPreviewImageUrl(),
+                event.getPartnersImageUrl(),
+                event.getDescription(),
+                Timestamp.valueOf(event.getEventDate()),
+                event.getLocation(),
+                event.getUrlToPlatform(),
+                isActive,
+                event.getId()
+        );
+
+        return event;
     }
 
     private Event mapRow(ResultSet rs, int rowNum) throws SQLException {

@@ -28,7 +28,7 @@ public interface IUserService {
      * @param id   identificador único do usuário a ser atualizado
      * @param user objeto contendo os novos dados do usuário
      */
-    void update(UUID id, UpdateUserDto user);
+    UUID update(UUID id, UpdateUserDto user);
 
     /**
      * Retorna todos os usuários cadastrados no sistema.
