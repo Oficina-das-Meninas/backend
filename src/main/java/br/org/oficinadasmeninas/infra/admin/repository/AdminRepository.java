@@ -22,7 +22,7 @@ public class AdminRepository implements IAdminRepository {
     }
 
     @Override
-    public Admin create(Admin admin) {
+    public Admin insert(Admin admin) {
 
         var id = UUID.randomUUID();
         admin.setId(id);

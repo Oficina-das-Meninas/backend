@@ -8,6 +8,7 @@ import br.org.oficinadasmeninas.domain.event.repository.IEventRepository;
 import br.org.oficinadasmeninas.domain.event.service.IEventService;
 import br.org.oficinadasmeninas.domain.objectstorage.IObjectStorage;
 import br.org.oficinadasmeninas.domain.resources.Messages;
+import br.org.oficinadasmeninas.infra.exceptions.ObjectStorageException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.UUID;
+
+import static br.org.oficinadasmeninas.domain.event.mapper.EventMapper.toEntity;
 
 @Service
 public class EventService implements IEventService {
@@ -27,56 +30,66 @@ public class EventService implements IEventService {
     }
 
     @Override
-    public Event insert(CreateEventDto createEventDto) throws IOException {
-        var previewFileName = uploadMultipartFile(createEventDto.previewImage());
-        var partnersFileName = uploadMultipartFile(createEventDto.partnersImage());
+    public UUID insert(CreateEventDto request) {
 
-        var createdEventId = eventRepository.insert(createEventDto, previewFileName, partnersFileName);
+        try {
+            var previewFileName = uploadMultipartFile(request.previewImage());
+            var partnersFileName = uploadMultipartFile(request.partnersImage());
 
-        return new Event(
-                createdEventId,
-                createEventDto.title(),
-                previewFileName,
-                partnersFileName,
-                createEventDto.description(),
-                createEventDto.eventDate(),
-                createEventDto.location(),
-                createEventDto.urlToPlatform()
-        );
+            var event = toEntity(request);
+            event.setPreviewImageUrl(previewFileName);
+            event.setPartnersImageUrl(partnersFileName);
+
+            eventRepository.insert(event);
+            return event.getId();
+
+        } catch (IOException e) {
+            throw new ObjectStorageException(e);
+        }
     }
 
     @Override
-    public Event update(UUID id, UpdateEventDto updateEventDto) throws Exception {
-        eventRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(Messages.EVENT_NOT_FOUND + id));
+    public UUID update(UUID id, UpdateEventDto request) {
 
-        var previewFileName = uploadMultipartFile(updateEventDto.previewImage());
-        var partnersFileName = uploadMultipartFile(updateEventDto.partnersImage());
-
-        eventRepository.update(updateEventDto, previewFileName, partnersFileName);
-
-        return new Event(
-                id,
-                updateEventDto.title(),
-                previewFileName,
-                partnersFileName,
-                updateEventDto.description(),
-                updateEventDto.eventDate(),
-                updateEventDto.location(),
-                updateEventDto.urlToPlatform()
-        );
-    }
-
-    @Override
-    public void deleteById(UUID id) {
         var event = eventRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.EVENT_NOT_FOUND + id));
 
-        eventRepository.update(
-                UpdateEventDto.forDeletion(event.getId()),
-                event.getPreviewImageUrl(),
-                event.getPartnersImageUrl()
-        );
+        try {
+            var previewFileName = uploadMultipartFile(request.previewImage());
+            var partnersFileName = uploadMultipartFile(request.partnersImage());
+
+            event.setTitle(request.title());
+            event.setDescription(request.description());
+            event.setEventDate(request.eventDate());
+            event.setLocation(request.location());
+            event.setUrlToPlatform(request.urlToPlatform());
+            event.setPreviewImageUrl(previewFileName);
+            event.setPartnersImageUrl(partnersFileName);
+
+            eventRepository.update(event, request.isActive());
+
+            return event.getId();
+
+        } catch (IOException e) {
+            throw new ObjectStorageException(e);
+        }
+    }
+
+    @Override
+    public UUID deleteById(UUID id) {
+        var event = eventRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Messages.EVENT_NOT_FOUND + id));
+
+        event.setTitle(null);
+        event.setDescription(null);
+        event.setEventDate(null);
+        event.setLocation(null);
+        event.setUrlToPlatform(null);
+        event.setPreviewImageUrl(null);
+        event.setPartnersImageUrl(null);
+
+        eventRepository.update(event, false);
+        return event.getId();
     }
 
     @Override
@@ -87,7 +100,7 @@ public class EventService implements IEventService {
     }
 
     @Override
-    public PageDTO<Event> getFilteredEvents(GetEventDto getEventDto){
+    public PageDTO<Event> findByFilter(GetEventDto getEventDto) {
         return eventRepository.findByFilter(getEventDto);
     }
 

@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface IAdminRepository {
 
-    Admin create(Admin admin);
+    Admin insert(Admin admin);
 
     Admin update(Admin admin);
 
