@@ -32,6 +32,8 @@ public class Event {
         this.urlToPlatform = urlToPlatform;
     }
 
+    public Event() { }
+
     public UUID getId() { return id; }
 
     public void setId(UUID id) { this.id = id; }
