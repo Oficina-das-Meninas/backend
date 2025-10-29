@@ -10,10 +10,13 @@ import java.util.Map;
 @Service
 public class CaptchaService {
 
-    @Value("${google.recaptcha.secret}")
+	@Value("${google.recaptcha.secret}")
     private String recaptchaSecret;
 
     private static final String VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify";
+    
+
+    public CaptchaService() {}
 
     public boolean isCaptchaValid(String captchaToken) {
         if (captchaToken == null || captchaToken.isBlank()) {
