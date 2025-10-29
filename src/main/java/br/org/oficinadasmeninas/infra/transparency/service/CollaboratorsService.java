@@ -10,7 +10,9 @@ import br.org.oficinadasmeninas.domain.transparency.repository.ICollaboratorsRep
 import br.org.oficinadasmeninas.domain.transparency.service.ICollaboratorsService;
 import br.org.oficinadasmeninas.infra.exceptions.ObjectStorageException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
+import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -34,6 +36,9 @@ public class CollaboratorsService implements ICollaboratorsService {
         var category = categoriesRepository
                 .findById(UUID.fromString(request.categoryId()))
                 .orElseThrow(() -> new NotFoundException(Messages.CATEGORY_NOT_FOUND));
+
+        validateImageFileType(request.file());
+
         try {
             var imageLink = objectStorage.uploadTransparencyFile(request.file(), true);
 
@@ -75,6 +80,24 @@ public class CollaboratorsService implements ICollaboratorsService {
             return collaborator.getId();
         } catch (IOException e) {
             throw new ObjectStorageException(e);
+        }
+    }
+
+    private void validateImageFileType(MultipartFile file) {
+        String contentType = file.getContentType();
+
+        if (contentType == null) {
+            throw new ValidationException(Messages.FILE_NOT_IDENTIFIED);
+        }
+
+        boolean isValid = switch (contentType) {
+            case "image/jpeg",
+                 "image/png" -> true;
+            default -> false;
+        };
+
+        if (!isValid) {
+            throw new ValidationException(Messages.FILE_NOT_SUPPORTED + contentType);
         }
     }
 }

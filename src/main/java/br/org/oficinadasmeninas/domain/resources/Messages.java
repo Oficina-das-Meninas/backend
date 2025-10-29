@@ -47,4 +47,8 @@ public final class Messages {
     public static final String EVENT_NOT_FOUND = "Evento não encontrado com id: ";
 
     public static final String USER_NOT_FOUND = "Usuário não encontrado";
+
+    public static final String FILE_NOT_SUPPORTED = "Tipo de arquivo não suportado: ";
+
+    public static final String FILE_NOT_IDENTIFIED = "Tipo de arquivo não identificado.";
 }
