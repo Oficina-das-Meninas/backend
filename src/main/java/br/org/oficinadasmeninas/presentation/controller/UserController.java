@@ -1,64 +1,58 @@
 package br.org.oficinadasmeninas.presentation.controller;
 
-import java.util.List;
-import java.util.UUID;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
+import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.user.dto.CreateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UpdateUserDto;
-import br.org.oficinadasmeninas.domain.user.dto.UserDto;
 import br.org.oficinadasmeninas.domain.user.service.IUserService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/user")
-public class UserController {
+@RequestMapping("/api/users")
+public class UserController extends BaseController {
 
-	private final IUserService userService;
+    private final IUserService userService;
 
-	public UserController(IUserService userService) {
-		super();
-		this.userService = userService;
-	}
+    public UserController(IUserService userService) {
+        super();
+        this.userService = userService;
+    }
 
-	@PostMapping
-	public ResponseEntity<UserDto> createUser(@Valid @RequestBody CreateUserDto request) {
-		UserDto userDto = userService.insert(request);
+    @PostMapping
+    public ResponseEntity<?> insert(
+            @Valid @RequestBody CreateUserDto request
+    ) {
+        return handle(
+                () -> userService.insert(request),
+                Messages.USER_CREATED_SUCCESSFULLY,
+                HttpStatus.CREATED
+        );
+    }
 
-		return ResponseEntity
-				.created(ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(userDto.getId()).toUri())
-				.body(userDto);
-	}
-	
-	@GetMapping
-	public ResponseEntity<List<UserDto>> getAllUsers() {
-		List<UserDto> dto = userService.findAll();
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateUserDto request
+    ) {
+        return handle(
+                () -> userService.update(id, request),
+                Messages.USER_UPDATED_SUCCESSFULLY
+        );
+    }
 
-		return ResponseEntity.ok(dto);
-	}
-	
-	@GetMapping("/{id}")
-	public ResponseEntity<UserDto> getUserById(@PathVariable UUID id) {
-		UserDto dto = userService.findByUserId(id);
+    @GetMapping
+    public ResponseEntity<?> findAll() {
+        return handle(userService::findAll);
+    }
 
-		return ResponseEntity.ok(dto);
-	}
-	
-	@PutMapping("/{id}")
-	public ResponseEntity<Void> updateUser(@PathVariable UUID id, @Valid @RequestBody UpdateUserDto request) {
-		userService.update(id, request);
-
-		return ResponseEntity.noContent().build();
-	}
-
-
+    @GetMapping("/{id}")
+    public ResponseEntity<?> findByUserId(
+            @PathVariable UUID id
+    ) {
+        return handle(() -> userService.findByUserId(id));
+    }
 }
