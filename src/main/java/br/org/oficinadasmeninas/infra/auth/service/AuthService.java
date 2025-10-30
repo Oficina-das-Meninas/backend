@@ -31,8 +31,7 @@ public class AuthService {
 	}
 
 	public UserDto createUserAccount(CreateUserDto user) {
-		UserDto newUser = userService.insert(user);
-		return newUser;
+		return userService.insert(user);
 	}
 
 	public UserDetailsCustom authenticate(LoginUserDto loginUserDTO) {

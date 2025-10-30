@@ -1,21 +1,21 @@
 package br.org.oficinadasmeninas.infra.auth;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 public class UserDetailsCustom implements UserDetails {
 
 	private static final long serialVersionUID = 1L;
 	
-	private UUID id;
-	private String email;
-	private String password;
-	private String name;
-	private Boolean isAdmin;
+	private final UUID id;
+	private final String email;
+	private final String password;
+	private final String name;
+	private final Boolean isAdmin;
 
 	public UserDetailsCustom(UUID id, String email, String password, String name, Boolean isAdmin) {
 		super();
