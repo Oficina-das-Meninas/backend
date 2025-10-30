@@ -11,7 +11,6 @@ import br.org.oficinadasmeninas.domain.sponsor.dto.SponsorDto;
 import br.org.oficinadasmeninas.domain.sponsor.service.ISponsorService;
 import br.org.oficinadasmeninas.infra.recaptcha.CaptchaService;
 import br.org.oficinadasmeninas.infra.shared.exception.ActiveSubscriptionAlreadyExistsException;
-import br.org.oficinadasmeninas.infra.shared.exception.InvalidCaptchaException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 
 import org.springframework.stereotype.Service;

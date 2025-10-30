@@ -37,7 +37,7 @@ public class CollaboratorsService implements ICollaboratorsService {
                 .findById(request.categoryId())
                 .orElseThrow(() -> new NotFoundException(Messages.CATEGORY_NOT_FOUND));
 
-        validateImageFileType(request.file());
+        validateImageFileType(request.image());
 
         try {
             var imageLink = objectStorage.uploadTransparencyFile(request.image(), true);
@@ -45,7 +45,6 @@ public class CollaboratorsService implements ICollaboratorsService {
             var collaborator = CollaboratorMapper.toEntity(request);
             collaborator.setImage(imageLink);
             collaborator.setCategory(category);
-            collaborator.setPriority();
 
             collaboratorsRepository.insert(collaborator);
             return collaborator.getId();
