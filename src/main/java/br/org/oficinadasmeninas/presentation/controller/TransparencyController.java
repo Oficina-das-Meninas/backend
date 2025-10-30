@@ -7,14 +7,11 @@ import br.org.oficinadasmeninas.domain.transparency.service.ICollaboratorsServic
 import br.org.oficinadasmeninas.domain.transparency.service.IDocumentsService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Date;
 import java.util.UUID;
 
 @Validated
@@ -34,14 +31,8 @@ public class TransparencyController extends BaseController {
 
     @PostMapping("/documents")
     public ResponseEntity<?> uploadDocument(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("title") @NotBlank String title,
-            @RequestParam("effectiveDate")
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date effectiveDate,
-            @RequestParam("categoryId") @NotBlank String categoryId
+            @Valid @ModelAttribute CreateDocumentRequestDto request
     ) {
-        var request = new CreateDocumentRequestDto(file, title, effectiveDate, categoryId);
-
         return handle(
                 () -> documentsService.create(request),
                 Messages.DOCUMENT_CREATED_SUCCESSFULLY,
@@ -51,15 +42,8 @@ public class TransparencyController extends BaseController {
 
     @PostMapping("/collaborators")
     public ResponseEntity<?> uploadCollaborator(
-            @RequestParam("image") MultipartFile image,
-            @RequestParam("name") @NotBlank String name,
-            @RequestParam("role") String role,
-            @RequestParam("description") String description,
-            @RequestParam("priority") @NotBlank String priority,
-            @RequestParam("categoryId") @NotBlank String categoryId
+            @Valid @ModelAttribute CreateCollaboratorRequestDto request
     ) {
-        var request = new CreateCollaboratorRequestDto(image, name, role, description, categoryId);
-
         return handle(
                 () -> collaboratorsService.insert(request),
                 Messages.COLLABORATOR_CREATED_SUCCESSFULLY,

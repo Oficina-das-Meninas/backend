@@ -19,10 +19,10 @@ public class DocumentsQueryBuilder {
     public static final String GET_DOCUMENT_BY_ID = """
              SELECT id,
                     title,
-                    effective_date, 
-                    category_id, 
-                    preview_link 
-             FROM documents 
+                    effective_date,
+                    category_id,
+                    preview_link
+             FROM documents
              WHERE id = ?
         """;
 
