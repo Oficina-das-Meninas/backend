@@ -29,7 +29,7 @@ public class PartnerQueryBuilder {
     public static final String UPDATE_PARTNER = """
         UPDATE partners SET
             preview_image_url = ?,
-            name = ?,
+            name = ?
         WHERE id = ?
     """;
     
