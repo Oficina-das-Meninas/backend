@@ -48,6 +48,10 @@ public final class Messages {
 
     public static final String USER_NOT_FOUND = "Usuário não encontrado";
 
+    public static final String FILE_NOT_SUPPORTED = "Tipo de arquivo não suportado: ";
+
+    public static final String FILE_NOT_IDENTIFIED = "Tipo de arquivo não identificado.";
+
     public static final String PARTNER_CREATED_SUCCESSFULLY = "Patrocinador criado com sucesso.";
 
     public static final String PARTNER_UPDATED_SUCCESSFULLY = "Patrocinador atualizado com sucesso.";

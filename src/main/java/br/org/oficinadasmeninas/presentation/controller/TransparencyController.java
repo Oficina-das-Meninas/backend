@@ -69,35 +69,31 @@ public class TransparencyController extends BaseController {
 
     @DeleteMapping("/documents/{documentId}")
     public ResponseEntity<?> deleteDocument(
-            @PathVariable("documentId") @NotBlank String documentId
+            @PathVariable("documentId") @NotBlank UUID documentId
     ) {
         return handle(
-                () -> documentsService.deleteById(UUID.fromString(documentId)),
+                () -> documentsService.deleteById(documentId),
                 Messages.DOCUMENT_DELETED_SUCCESSFULLY
         );
     }
 
     @PatchMapping("/collaborators/{collaboratorId}")
     public ResponseEntity<?> updateCollaborator(
-            @PathVariable("collaboratorId") @NotBlank String collaboratorId,
+            @PathVariable("collaboratorId") @NotBlank UUID collaboratorId,
             @Valid @RequestBody UpdateCollaboratorDto request
     ) {
-        var id = UUID.fromString(collaboratorId);
-
         return handle(
-                () -> collaboratorsService.update(id, request),
+                () -> collaboratorsService.update(collaboratorId, request),
                 Messages.COLLABORATOR_UPDATED_SUCCESSFULLY
         );
     }
 
     @DeleteMapping("/collaborators/{collaboratorId}")
     public ResponseEntity<?> deleteCollaborator(
-            @PathVariable("collaboratorId") @NotBlank String collaboratorId
+            @PathVariable("collaboratorId") @NotBlank UUID collaboratorId
     ) {
-        var id = UUID.fromString(collaboratorId);
-
         return handle(
-                () -> collaboratorsService.deleteById(id),
+                () -> collaboratorsService.deleteById(collaboratorId),
                 Messages.COLLABORATOR_DELETED_SUCCESSFULLY
         );
     }
