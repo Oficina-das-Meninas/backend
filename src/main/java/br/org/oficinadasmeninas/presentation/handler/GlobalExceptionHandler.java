@@ -39,11 +39,15 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<String> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        if (UUID.class.equals(ex.getRequiredType())) {
-            return ResponseEntity.badRequest().body("O parâmetro fornecido não é um UUID válido.");
-        }
-        return ResponseEntity.badRequest().body("Parâmetro inválido: " + ex.getMessage());
+    public ResponseEntity<?> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+
+        var type = ex.getRequiredType();
+
+        var message = UUID.class.equals(type)
+                ? "O parâmetro fornecido não é um UUID válido."
+                : "Parâmetro inválido: " + type;
+
+        return buildResponse(message, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(IllegalStateException.class)

@@ -22,6 +22,7 @@ public class CollaboratorMapper {
         collaborator.setName(request.name());
         collaborator.setRole(request.role());
         collaborator.setDescription(request.description());
+        collaborator.setPriority(request.priority());
 
         return collaborator;
     }

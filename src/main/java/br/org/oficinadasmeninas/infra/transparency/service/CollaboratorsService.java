@@ -34,18 +34,18 @@ public class CollaboratorsService implements ICollaboratorsService {
     public UUID insert(CreateCollaboratorRequestDto request) {
 
         var category = categoriesRepository
-                .findById(UUID.fromString(request.categoryId()))
+                .findById(request.categoryId())
                 .orElseThrow(() -> new NotFoundException(Messages.CATEGORY_NOT_FOUND));
 
         validateImageFileType(request.file());
 
         try {
-            var imageLink = objectStorage.uploadTransparencyFile(request.file(), true);
+            var imageLink = objectStorage.uploadTransparencyFile(request.image(), true);
 
             var collaborator = CollaboratorMapper.toEntity(request);
             collaborator.setImage(imageLink);
             collaborator.setCategory(category);
-            collaborator.setPriority(0);
+            collaborator.setPriority();
 
             collaboratorsRepository.insert(collaborator);
             return collaborator.getId();

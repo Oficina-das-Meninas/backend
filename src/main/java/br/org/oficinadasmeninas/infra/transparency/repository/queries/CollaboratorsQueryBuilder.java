@@ -24,14 +24,14 @@ public class CollaboratorsQueryBuilder {
     """;
 
     public static final String GET_COLLABORATOR_BY_ID = """
-             SELECT id, 
-                    preview_image_url, 
-                    category_id, 
-                    name, 
-                    role, 
-                    description, 
-                    priority 
-             FROM collaborators 
+             SELECT id,
+                    preview_image_url,
+                    category_id,
+                    name,
+                    role,
+                    description,
+                    priority
+             FROM collaborators
              WHERE id = ?
             """;
 

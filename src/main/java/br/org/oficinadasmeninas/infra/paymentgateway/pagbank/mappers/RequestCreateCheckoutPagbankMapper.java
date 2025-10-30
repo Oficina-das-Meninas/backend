@@ -1,27 +1,20 @@
 package br.org.oficinadasmeninas.infra.paymentgateway.pagbank.mappers;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Component;
-
+import br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutCustomerDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDonationDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDto;
- import br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutConfig;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutCustomer;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutCustomerPhone;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutItem;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutPagbank;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutPaymentMethod;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutRecurrence;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.*;
 import br.org.oficinadasmeninas.presentation.shared.utils.MoneyConverter;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class RequestCreateCheckoutPagbankMapper {
 
-    public RequestCreateCheckoutPagbank toGateway(RequestCreateCheckoutDto domain, RequestCreateCheckoutConfig config){
+    public RequestCreateCheckoutPagbank toGateway(RequestCreateCheckoutDto domain, RequestCreateCheckoutConfig config) {
         RequestCreateCheckoutCustomerDto oldCustomer = domain.customerDto();
         RequestCreateCheckoutDonationDto oldDonation = domain.donation();
         RequestCreateCheckoutCustomer customer = new RequestCreateCheckoutCustomer(
@@ -39,18 +32,18 @@ public class RequestCreateCheckoutPagbankMapper {
         );
 
 
-       RequestCreateCheckoutRecurrence recurrence = null;
+        RequestCreateCheckoutRecurrence recurrence = null;
 
-       if (domain.signatureDto().isRecurrence()){
-           recurrence = new RequestCreateCheckoutRecurrence(
-                   config.itemName(),
-                   config.interval(),
-                   config.cycles()
-           );
+        if (domain.signatureDto().isRecurrence()) {
+            recurrence = new RequestCreateCheckoutRecurrence(
+                    config.itemName(),
+                    config.interval(),
+                    config.cycles()
+            );
 
-       }
+        }
 
-        RequestCreateCheckoutPagbank pagbank = new RequestCreateCheckoutPagbank(
+        return new RequestCreateCheckoutPagbank(
                 domain.internalId(),
                 config.expirationDate(),
                 customer,
@@ -62,11 +55,9 @@ public class RequestCreateCheckoutPagbankMapper {
                 config.paymentNotificationUrls(),
                 false
         );
-
-        return  pagbank;
     }
 
-    private RequestCreateCheckoutCustomerPhone toCustomerPhone(String phone){
+    private RequestCreateCheckoutCustomerPhone toCustomerPhone(String phone) {
         String digits = phone.replaceAll("\\D", "");
 
         String country = digits.substring(0, 2);
@@ -75,7 +66,8 @@ public class RequestCreateCheckoutPagbankMapper {
 
         return new RequestCreateCheckoutCustomerPhone(country, area, number);
     }
-    private List<RequestCreateCheckoutPaymentMethod> toPaymentMethods(List<PaymentMethodEnum> methods){
+
+    private List<RequestCreateCheckoutPaymentMethod> toPaymentMethods(List<PaymentMethodEnum> methods) {
         return methods.stream()
                 .map(RequestCreateCheckoutPaymentMethod::new)
                 .collect(Collectors.toList());
