@@ -36,4 +36,9 @@ public class PartnerQueryBuilder {
             active = ?
         WHERE id = ?
     """;
+    
+    public static final String DELETE_PARTNER = """
+        DELETE FROM partners
+        WHERE id = ?
+    """;
 }

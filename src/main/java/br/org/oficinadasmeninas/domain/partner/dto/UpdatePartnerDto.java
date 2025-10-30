@@ -14,18 +14,9 @@ public record UpdatePartnerDto(
         @NotNull(message = "O id do patrocinador é obrigatório.")
         UUID id,
 
-        Boolean isActive,
-
         @NotBlank(message = "O nome do patrocinador é obrigatório")
         @Size(max = 500, message = "O nome do patrocinador deve ter no máximo 500 caracteres.")
         String name
 ) {
-        public static UpdatePartnerDto forDeletion(UUID id) {
-                return new UpdatePartnerDto(
-                        null,
-                        id,
-                        false,
-                        null
-                );
-        }
+ 
 }

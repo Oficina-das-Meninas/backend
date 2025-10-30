@@ -11,9 +11,11 @@ public interface IEventRepository {
 
     Event insert(Event event);
 
-    Event update(Event event, boolean isActive);
+    Event update(Event event);
 
     PageDTO<Event> findByFilter(GetEventDto getEventDto);
 
     Optional<Event> findById(UUID id);
+    
+    void deleteById(UUID id);
 }

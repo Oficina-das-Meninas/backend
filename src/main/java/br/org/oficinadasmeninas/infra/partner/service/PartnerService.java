@@ -54,7 +54,7 @@ public class PartnerService implements IPartnerService {
             partner.setName(request.name());
             partner.setPreviewImageUrl(previewFileName);
 
-            partnerRepository.update(partner, request.isActive());
+            partnerRepository.update(partner);
             return partner.getId();
 
         } catch (IOException e) {
@@ -63,12 +63,8 @@ public class PartnerService implements IPartnerService {
     }
 
     public UUID deleteById(UUID id) {
-        var partner = partnerRepository
-                .findById(id)
-                .orElseThrow(() -> new NotFoundException(Messages.PARTNER_NOT_FOUND + id));
-
-        partnerRepository.update(partner, false);
-        return partner.getId();
+    	partnerRepository.deleteById(id);
+        return id;
     }
 
     public PageDTO<Partner> findAll(String searchTerm, int page, int pageSize) {

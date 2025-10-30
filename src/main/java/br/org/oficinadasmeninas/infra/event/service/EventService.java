@@ -66,7 +66,7 @@ public class EventService implements IEventService {
             event.setPreviewImageUrl(previewFileName);
             event.setPartnersImageUrl(partnersFileName);
 
-            eventRepository.update(event, request.isActive());
+            eventRepository.update(event);
 
             return event.getId();
 
@@ -77,19 +77,8 @@ public class EventService implements IEventService {
 
     @Override
     public UUID deleteById(UUID id) {
-        var event = eventRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(Messages.EVENT_NOT_FOUND + id));
-
-        event.setTitle(null);
-        event.setDescription(null);
-        event.setEventDate(null);
-        event.setLocation(null);
-        event.setUrlToPlatform(null);
-        event.setPreviewImageUrl(null);
-        event.setPartnersImageUrl(null);
-
-        eventRepository.update(event, false);
-        return event.getId();
+    	eventRepository.deleteById(id);
+        return id;
     }
 
     @Override

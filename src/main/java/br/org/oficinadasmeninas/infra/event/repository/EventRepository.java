@@ -84,7 +84,7 @@ public class EventRepository implements IEventRepository {
     }
 
     @Override
-    public Event update(Event event, boolean isActive) {
+    public Event update(Event event) {
 
         jdbc.update(EventQueryBuilder.UPDATE_EVENT,
                 event.getTitle(),
@@ -94,13 +94,17 @@ public class EventRepository implements IEventRepository {
                 Timestamp.valueOf(event.getEventDate()),
                 event.getLocation(),
                 event.getUrlToPlatform(),
-                isActive,
                 event.getId()
         );
 
         return event;
     }
 
+	@Override
+	public void deleteById(UUID id) {
+		jdbc.update(EventQueryBuilder.DELETE_EVENT, id);	
+	}
+    
     private Event mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new Event(
                 rs.getObject("id", java.util.UUID.class),
@@ -113,4 +117,5 @@ public class EventRepository implements IEventRepository {
                 rs.getString("url_to_platform")
         );
     }
+
 }

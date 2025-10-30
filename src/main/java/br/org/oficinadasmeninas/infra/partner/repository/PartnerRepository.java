@@ -68,18 +68,23 @@ public class PartnerRepository implements IPartnerRepository {
     }
 
     @Override
-    public Partner update(Partner partner, boolean isActive) {
+    public Partner update(Partner partner) {
 
         jdbc.update(PartnerQueryBuilder.UPDATE_PARTNER,
                 partner.getPreviewImageUrl(),
                 partner.getName(),
-                isActive,
                 partner.getId()
         );
 
         return partner;
     }
 
+
+	@Override
+	public void deleteById(UUID id) {
+		jdbc.update(PartnerQueryBuilder.DELETE_PARTNER, id);
+	}
+    
     private Partner mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new Partner(
                 rs.getObject("id", java.util.UUID.class),
@@ -87,4 +92,5 @@ public class PartnerRepository implements IPartnerRepository {
                 rs.getString("name")
         );
     }
+    
 }

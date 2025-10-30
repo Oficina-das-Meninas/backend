@@ -10,9 +10,11 @@ public interface IPartnerRepository {
 
     Partner insert(Partner partner);
 
-    Partner update(Partner partner, boolean isActive);
+    Partner update(Partner partner);
 
     PageDTO<Partner> findByFilter(String searchTerm, int page, int pageSize);
 
     Optional<Partner> findById(UUID id);
+    
+    void deleteById(UUID id);
 }

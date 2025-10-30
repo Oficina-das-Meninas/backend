@@ -49,8 +49,12 @@ public class EventQueryBuilder {
             description = ?,
             event_date = ?,
             location = ?,
-            url_to_platform = ?,
-            active = ?
+            url_to_platform = ?
         WHERE id = ?
+    """;
+    
+    public static final String DELETE_EVENT = """
+    		DELETE FROM EVENTS 
+			WHERE id = ?
     """;
 }
