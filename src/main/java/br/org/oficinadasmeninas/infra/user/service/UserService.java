@@ -1,13 +1,6 @@
 package br.org.oficinadasmeninas.infra.user.service;
 
-import java.util.List;
-import java.util.UUID;
-
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
+import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.user.User;
 import br.org.oficinadasmeninas.domain.user.dto.CreateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UpdateUserDto;
@@ -16,109 +9,60 @@ import br.org.oficinadasmeninas.domain.user.repository.IUserRepository;
 import br.org.oficinadasmeninas.domain.user.service.IUserService;
 import br.org.oficinadasmeninas.infra.shared.exception.DocumentAlreadyExistsException;
 import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsException;
+import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UserService implements IUserService {
 
-	private final IUserRepository userRepository;
-	private final PasswordEncoder passwordEncoder;
+    private final IUserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-	public UserService(IUserRepository userRepository, PasswordEncoder passwordEncoder) {
-		super();
-		this.userRepository = userRepository;
-		this.passwordEncoder = passwordEncoder;
-	}
-
-	@Override
-	public List<UserDto> getAllUsers() {
-		return userRepository.findAll().stream().map(user -> new UserDto(user.getId(), user.getName(),
-				user.getEmail(), user.getDocument(), user.getPhone())).toList();
-	}
-
-	@Override
-	public UserDto getUserById(UUID id) {
-		UserDto userDto = new UserDto();
-
-		User user = userRepository.findById(id)
-				.orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com id: " + id));
-
-		userDto.setId(user.getId());
-		userDto.setEmail(user.getEmail());
-		userDto.setName(user.getName());
-		userDto.setPhone(user.getPhone());
-		userDto.setDocument(user.getDocument());
-
-		return userDto;
-	}
+    public UserService(IUserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
-    public UserDto getUserByDocument(String document) {
-        UserDto userDto = new UserDto();
+    public UserDto insert(CreateUserDto request) {
+        try {
+            var user = new User();
+            user.setName(request.getName());
+            user.setEmail(request.getEmail());
+            user.setDocument(request.getDocument());
+            user.setPhone(request.getPhone());
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        User user = userRepository.findByDocument(document)
-                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com documento: " + document));
+            userRepository.insert(user);
+            return new UserDto(user);
 
-        userDto.setId(user.getId());
-        userDto.setEmail(user.getEmail());
-        userDto.setName(user.getName());
-        userDto.setPhone(user.getPhone());
-        userDto.setDocument(user.getDocument());
-
-        return userDto;
+        } catch (DataIntegrityViolationException e) {
+            if (userRepository.existsByEmail(request.getEmail())) {
+                throw new EmailAlreadyExistsException();
+            }
+            if (userRepository.existsByDocument(request.getDocument())) {
+                throw new DocumentAlreadyExistsException();
+            }
+            throw e;
+        }
     }
-	
-	@Override
-	public UserDto getUserByEmail(String email) {
-		UserDto userDto = new UserDto();
 
-		User user = userRepository.findByEmail(email)
-				.orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com o email: " + email));
-
-		userDto.setId(user.getId());
-		userDto.setEmail(user.getEmail());
-		userDto.setName(user.getName());
-		userDto.setPhone(user.getPhone());
-		userDto.setDocument(user.getDocument());
-
-		return userDto;
-	}
-
-	@Override
-	public UserDto createUser(CreateUserDto user) {
-		try {
-			User newUser = new User();
-			newUser.setName(user.getName());
-			newUser.setEmail(user.getEmail());
-			newUser.setDocument(user.getDocument());
-			newUser.setPhone(user.getPhone());
-			newUser.setPassword(passwordEncoder.encode(user.getPassword()));
-			
-			UUID userId = userRepository.create(newUser);
-			newUser.setId(userId);
-			
-			return new UserDto(newUser);
-		} catch (DataIntegrityViolationException e) {
-			if (userRepository.existsByEmail(user.getEmail())) {
-		        throw new EmailAlreadyExistsException();
-		    }
-		    if (userRepository.existsByDocument(user.getDocument())) {
-		        throw new DocumentAlreadyExistsException();
-		    }
-		    throw e;
-		}
-	}
-
-	@Override
-	public void updateUser(UUID id, UpdateUserDto user) {
+    @Override
+    public UUID update(UUID id, UpdateUserDto user) {
         User existingUser = userRepository.findById(id)
-				.orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com id: " + id));
+                .orElseThrow(() -> new NotFoundException(Messages.USER_NOT_FOUND_BY_ID + id));
 
         if (user.getName() != null && !user.getName().isBlank()) {
             existingUser.setName(user.getName());
         }
 
         if (user.getEmail() != null && !user.getEmail().isBlank() &&
-            !user.getEmail().equals(existingUser.getEmail())) {
+                !user.getEmail().equals(existingUser.getEmail())) {
             existingUser.setEmail(user.getEmail());
         }
 
@@ -136,10 +80,44 @@ public class UserService implements IUserService {
 
         try {
             userRepository.update(existingUser);
+            return existingUser.getId();
         } catch (DataIntegrityViolationException e) {
-        	throw new EmailAlreadyExistsException();
+            throw new EmailAlreadyExistsException();
         }
+    }
 
-	}
+    @Override
+    public List<UserDto> findAll() {
+        return userRepository
+                .findAll().stream()
+                .map(UserDto::new)
+                .toList();
+    }
 
+    @Override
+    public UserDto findByUserId(UUID id) {
+
+        var user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Messages.USER_NOT_FOUND_BY_ID + id));
+
+        return new UserDto(user);
+    }
+
+    @Override
+    public UserDto findByEmail(String email) {
+
+        var user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException(Messages.USER_NOT_FOUND_BY_EMAIL + email));
+
+        return new UserDto(user);
+    }
+
+    @Override
+    public UserDto findByDocument(String document) {
+
+        var user = userRepository.findByDocument(document)
+                .orElseThrow(() -> new NotFoundException(Messages.USER_NOT_FOUND_BY_DOCUMENT + document));
+
+        return new UserDto(user);
+    }
 }

@@ -24,7 +24,7 @@ public interface ICategoriesService {
      * @return o identificador único ({@link UUID}) da categoria criada
      * @throws IllegalArgumentException se o {@code request} for {@code null} ou contiver dados inválidos
      */
-    UUID insertCategory(CreateCategoryRequestDto request);
+    UUID insert(CreateCategoryRequestDto request);
 
     /**
      * Atualiza uma categoria existente identificada pelo {@code id}.
@@ -35,7 +35,7 @@ public interface ICategoriesService {
      * @throws IllegalArgumentException se {@code id} ou {@code request} forem {@code null}
      * @throws IllegalStateException se a categoria não existir
      */
-    UUID updateCategory(UUID id, UpdateCategoryDto request);
+    UUID update(UUID id, UpdateCategoryDto request);
 
     /**
      * Exclui uma categoria com base no seu identificador.
@@ -45,7 +45,7 @@ public interface ICategoriesService {
      * @throws IllegalArgumentException se {@code id} for {@code null}
      * @throws IllegalStateException se a categoria não existir
      */
-    UUID deleteCategory(UUID id);
+    UUID deleteById(UUID id);
 
     /**
      * Retorna os detalhes de uma categoria específica.
@@ -54,14 +54,14 @@ public interface ICategoriesService {
      * @return um {@link ResponseCategoryDto} contendo as informações da categoria, ou {@code null} se não encontrada
      * @throws IllegalArgumentException se {@code id} for {@code null}
      */
-    ResponseCategoryDto getCategoryById(UUID id);
+    ResponseCategoryDto findById(UUID id);
 
     /**
      * Retorna todas as categorias existentes.
      *
      * @return uma lista de {@link ResponseCategoryDto}; pode ser vazia se não houver categorias cadastradas
      */
-    List<ResponseCategoryDto> getAllCategories();
+    List<ResponseCategoryDto> findAll();
 
     /**
      * Retorna todas as categorias juntamente com seus documentos associados.
@@ -70,7 +70,7 @@ public interface ICategoriesService {
      * como portais públicos ou dashboards administrativos.
      * </p>
      *
-     * @return um {@link GetCategoriesResponseDto} contendo a lista de categorias e seus respectivos documentos
+     * @return um {@link GetCategoriesResponseDto} contendo a lista de categorias e seus respectivos documentos / colaboradores
      */
-    GetCategoriesResponseDto getAllCategoriesWithDocuments();
+    GetCategoriesResponseDto findAllWithDocumentsAndCollaborators();
 }

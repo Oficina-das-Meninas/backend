@@ -1,103 +1,101 @@
 package br.org.oficinadasmeninas.infra.admin.service;
 
-import java.util.List;
-import java.util.UUID;
-
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import br.org.oficinadasmeninas.domain.admin.Admin;
 import br.org.oficinadasmeninas.domain.admin.dto.AdminDto;
 import br.org.oficinadasmeninas.domain.admin.dto.CreateAdminDto;
 import br.org.oficinadasmeninas.domain.admin.dto.UpdateAdminDto;
+import br.org.oficinadasmeninas.domain.admin.mapper.AdminMapper;
 import br.org.oficinadasmeninas.domain.admin.repository.IAdminRepository;
 import br.org.oficinadasmeninas.domain.admin.service.IAdminService;
-import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
+import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsException;
+import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
+
+import static br.org.oficinadasmeninas.domain.admin.mapper.AdminMapper.toDto;
 
 @Service
 public class AdminService implements IAdminService {
 
-	private final IAdminRepository adminRepository;
-	private final PasswordEncoder passwordEncoder;
+    private final IAdminRepository adminRepository;
+    private final PasswordEncoder passwordEncoder;
 
-	public AdminService(IAdminRepository adminRepository, PasswordEncoder passwordEncoder) {
-		super();
-		this.adminRepository = adminRepository;
-		this.passwordEncoder = passwordEncoder;
-	}
+    public AdminService(IAdminRepository adminRepository, PasswordEncoder passwordEncoder) {
+        super();
+        this.adminRepository = adminRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
-	@Override
-	public List<AdminDto> getAllAdmin() {
-		return adminRepository.findAll().stream()
-				.map(admin -> new AdminDto(admin.getId(), admin.getName(), admin.getEmail())).toList();
-	}
+    @Override
+    public UUID insert(CreateAdminDto request) {
 
-	@Override
-	public AdminDto getAdminById(UUID id) {
-		AdminDto adminDto = new AdminDto();
+        var admin = new Admin();
+        admin.setName(request.getName());
+        admin.setEmail(request.getEmail());
+        admin.setPassword(passwordEncoder.encode(request.getPassword()));
 
-		Admin admin = adminRepository.findById(id)
-				.orElseThrow(() -> new EntityNotFoundException("Admin não encontrado com id: " + id));
+        try {
+            adminRepository.insert(admin);
+            return admin.getId();
+        } catch (DataIntegrityViolationException e) {
+            throw new EmailAlreadyExistsException();
+        }
+    }
 
-		adminDto.setId(admin.getId());
-		adminDto.setEmail(admin.getEmail());
-		adminDto.setName(admin.getName());
+    @Override
+    public UUID update(UUID adminId, UpdateAdminDto admin) {
+        var existingAdmin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new NotFoundException(Messages.ADMIN_NOT_FOUND_BY_ID + adminId));
 
-		return adminDto;
-	}
-	
-	@Override
-	public AdminDto getAdminByEmail(String email) {
-		AdminDto adminDto = new AdminDto();
+        if (admin.getName() != null && !admin.getName().isBlank() && !existingAdmin.getName().equals(admin.getName())) {
+            existingAdmin.setName(admin.getName());
+        }
 
-		Admin admin = adminRepository.findByEmail(email)
-				.orElseThrow(() -> new EntityNotFoundException("Admin não encontrado com o email: " + email));
+        if (admin.getEmail() != null && !existingAdmin.getEmail().equals(admin.getEmail())) {
+            existingAdmin.setEmail(admin.getEmail());
+        }
 
-		adminDto.setId(admin.getId());
-		adminDto.setEmail(admin.getEmail());
-		adminDto.setName(admin.getName());
+        if (admin.getPassword() != null && !admin.getPassword().isBlank()) {
+            existingAdmin.setPassword(passwordEncoder.encode(admin.getPassword()));
+        }
 
-		return adminDto;
-	}
+        try {
+            adminRepository.update(existingAdmin);
+            return existingAdmin.getId();
+        } catch (DataIntegrityViolationException e) {
+            throw new EmailAlreadyExistsException();
+        }
+    }
 
-	@Override
-	public UUID createAdmin(CreateAdminDto admin) {
-		Admin newAdmin = new Admin();
-		newAdmin.setName(admin.getName());
-		newAdmin.setEmail(admin.getEmail());
-		newAdmin.setPassword(passwordEncoder.encode(admin.getPassword()));
+    @Override
+    public List<AdminDto> findAll() {
 
-		try {
-			return adminRepository.create(newAdmin);
-		} catch (DataIntegrityViolationException e) {
-			throw new EmailAlreadyExistsException();
-		}
-	}
+        return adminRepository
+                .findAll().stream()
+                .map(AdminMapper::toDto)
+                .toList();
+    }
 
-	@Override
-	public void updateAdmin(UUID adminId, UpdateAdminDto admin) {
-		Admin existingAdmin = adminRepository.findById(adminId)
-				.orElseThrow(() -> new EntityNotFoundException("Admin não encontrado com id: " + adminId));
+    @Override
+    public AdminDto findById(UUID id) {
 
-		if (admin.getName() != null && !admin.getName().isBlank() && !existingAdmin.getName().equals(admin.getName())) {
-			existingAdmin.setName(admin.getName());
-		}
+        var admin = adminRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Messages.ADMIN_NOT_FOUND_BY_ID + id));
 
-		if (admin.getEmail() != null && !existingAdmin.getEmail().equals(admin.getEmail())) {
-			existingAdmin.setEmail(admin.getEmail());
-		}
+        return toDto(admin);
+    }
 
-		if (admin.getPassword() != null && !admin.getPassword().isBlank()) {
-			existingAdmin.setPassword(passwordEncoder.encode(admin.getPassword()));
-		}
+    @Override
+    public AdminDto findByEmail(String email) {
 
-		try {
-			adminRepository.update(existingAdmin);
-		} catch (DataIntegrityViolationException e) {
-			throw new EmailAlreadyExistsException();
-		}
-	}
+        var admin = adminRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException(Messages.ADMIN_NOT_FOUND_BY_EMAIL + email));
 
+        return toDto(admin);
+    }
 }

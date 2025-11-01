@@ -1,68 +1,70 @@
 package br.org.oficinadasmeninas.infra.donation.service;
 
-import br.org.oficinadasmeninas.domain.donation.Donation;
 import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
 import br.org.oficinadasmeninas.domain.donation.dto.CreateDonationDto;
 import br.org.oficinadasmeninas.domain.donation.dto.DonationDto;
 import br.org.oficinadasmeninas.domain.donation.dto.DonationWithDonorDto;
 import br.org.oficinadasmeninas.domain.donation.dto.GetDonationDto;
+import br.org.oficinadasmeninas.domain.donation.mapper.DonationMapper;
 import br.org.oficinadasmeninas.domain.donation.repository.IDonationRepository;
 import br.org.oficinadasmeninas.domain.donation.service.IDonationService;
 import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import br.org.oficinadasmeninas.domain.resources.Messages;
+import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
+
+import static br.org.oficinadasmeninas.domain.donation.mapper.DonationMapper.toDto;
+import static br.org.oficinadasmeninas.domain.donation.mapper.DonationMapper.toEntity;
 
 @Service
 public class DonationService implements IDonationService {
 
-	private final IDonationRepository donationRepository;
+    private final IDonationRepository donationRepository;
 
-	public DonationService(IDonationRepository donationRepository) {
-		super();
-		this.donationRepository = donationRepository;
-	}
-
-	@Override
-	public List<DonationDto> getAllDonations() {
-		return donationRepository.findAll().stream().map(donation -> new DonationDto(donation.getId(),
-				donation.getValue(), donation.getDonationAt(), donation.getUserId(), donation.getStatus())).toList();
-	}
-
-    public PageDTO<DonationWithDonorDto> getFilteredDonations(GetDonationDto getDonationDto){
-        return donationRepository.getFiltered(getDonationDto);
+    public DonationService(IDonationRepository donationRepository) {
+        this.donationRepository = donationRepository;
     }
 
-	@Override
-	public DonationDto getDonationById(UUID id) {
-		Donation donation = donationRepository.findById(id)
-				.orElseThrow(() -> new EntityNotFoundException("Doação não encontrada com id: " + id));
+    @Override
+    public List<DonationDto> findAll() {
+        return donationRepository
+                .findAll().stream()
+                .map(DonationMapper::toDto)
+                .toList();
+    }
 
-		return new DonationDto(donation.getId(), donation.getValue(), donation.getDonationAt(), donation.getUserId(),
-				donation.getStatus());
-	}
+    public PageDTO<DonationWithDonorDto> getFilteredDonations(GetDonationDto getDonationDto){
+        return donationRepository.findByFilter(getDonationDto);
+    }
 
-	@Override
-	public DonationDto createDonation(CreateDonationDto donation) {
-		Donation newDonation = new Donation();
-		newDonation.setValue(donation.value());
-		newDonation.setStatus(donation.status());
-		newDonation.setDonationAt(LocalDateTime.now());
-		newDonation.setUserId(donation.userId());
-		
-		UUID id = donationRepository.create(newDonation);
-		
-		return new DonationDto(id, donation.value(), newDonation.getDonationAt(), donation.userId(),
-				donation.status());
-		
-	}
+    @Override
+    public DonationDto findById(UUID id) {
+        var donation = donationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Messages.DONATION_NOT_FOUND + id));
 
-	@Override
-	public void updateDonationStatus(UUID id, DonationStatusEnum status) {
-		donationRepository.updateStatus(id, status);
-	}
+        return toDto(donation);
+    }
 
+    @Override
+    public DonationDto insert(CreateDonationDto request) {
+
+        var donation = toEntity(request);
+        donationRepository.insert(donation);
+
+        return toDto(donation);
+    }
+
+    @Override
+    public void updateStatus(UUID id, DonationStatusEnum status) {
+
+        var donation = donationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Messages.DONATION_NOT_FOUND + id));
+
+        donation.setStatus(status);
+        donationRepository.updateStatus(donation);
+    }
 }

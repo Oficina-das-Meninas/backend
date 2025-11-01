@@ -7,11 +7,12 @@ import br.org.oficinadasmeninas.domain.paymentgateway.PaymentGatewayEnum;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.*;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
-import br.org.oficinadasmeninas.domain.sponsor.Sponsor;
-import br.org.oficinadasmeninas.domain.sponsor.dto.CreateSponsorDto;
 import br.org.oficinadasmeninas.domain.sponsor.dto.SponsorDto;
 import br.org.oficinadasmeninas.domain.sponsor.service.ISponsorService;
+import br.org.oficinadasmeninas.infra.recaptcha.CaptchaService;
 import br.org.oficinadasmeninas.infra.shared.exception.ActiveSubscriptionAlreadyExistsException;
+import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
+
 import org.springframework.stereotype.Service;
 
 import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
@@ -29,35 +30,42 @@ public class DonationApplication {
 	private final IPaymentService paymentService;
 	private final IPaymentGatewayService paymentGatewayService;
     private final ISponsorService sponsorService;
+    private final CaptchaService captchaService;
 
 	public DonationApplication(IDonationService donationService, IPaymentService paymentService,
-                               IPaymentGatewayService paymentGatewayService, ISponsorService sponsorService) {
+                               IPaymentGatewayService paymentGatewayService, ISponsorService sponsorService, CaptchaService captchaService) {
 		this.donationService = donationService;
 		this.paymentService = paymentService;
         this.paymentGatewayService = paymentGatewayService;
         this.sponsorService = sponsorService;
+        this.captchaService = captchaService;
 	}
 
 	public DonationCheckoutDto createDonationCheckout(CreateDonationCheckoutDto donationCheckout) {
+
+        if(!this.captchaService.isCaptchaValid(donationCheckout.captchaToken())) {
+            throw new ValidationException("Token Captcha inválido");
+        }
+
         if (donationCheckout.donation().isRecurring()){
-            Optional<SponsorDto> sponsor = this.sponsorService.getActiveSponsorByUserId(donationCheckout.donor().id());
+            Optional<SponsorDto> sponsor = this.sponsorService.findActiveByUserId(donationCheckout.donor().id());
 
             if (sponsor.isPresent()) {
-                throw new ActiveSubscriptionAlreadyExistsException("Usuário já possui assinatura ativa");
+                throw new ActiveSubscriptionAlreadyExistsException();
             }
             this.createSponsor(donationCheckout);
         }
 
 		CreateDonationDto createDonation = new CreateDonationDto(donationCheckout.donation().value(),
 				donationCheckout.donor().id(), DonationStatusEnum.PENDING);
-		DonationDto donation = donationService.createDonation(createDonation);
+		DonationDto donation = donationService.insert(createDonation);
 
         ResponseCreateCheckoutDto checkout = paymentGatewayService.createCheckout(createPaymentGateway(donation.id().toString(), donationCheckout.donor(), donationCheckout.donation()));
 
         PaymentGatewayEnum paymentGatewayEnum = PaymentGatewayEnum.PAGBANK;
 
 		CreatePaymentDto createPayment = new CreatePaymentDto(donation.id(), paymentGatewayEnum, checkout.checkoutId(), null, PaymentStatusEnum.WAITING);
-		paymentService.create(createPayment);
+		paymentService.insert(createPayment);
 
 		return new DonationCheckoutDto(checkout.link());
 	}
@@ -73,7 +81,7 @@ public class DonationApplication {
     private UUID createSponsor(CreateDonationCheckoutDto donationCheckout) {
         var donor = donationCheckout.donor();
         var donation = donationCheckout.donation();
-       return sponsorService.createSponsor(new SponsorDto(
+       return sponsorService.insert(new SponsorDto(
                 donation.value(),
                 LocalDateTime.now().getDayOfMonth(),
                 donor.id(),

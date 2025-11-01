@@ -1,15 +1,6 @@
 package br.org.oficinadasmeninas.infra.transparency.service;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-
 import br.org.oficinadasmeninas.domain.resources.Messages;
-import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
 import br.org.oficinadasmeninas.domain.transparency.Category;
 import br.org.oficinadasmeninas.domain.transparency.Collaborator;
 import br.org.oficinadasmeninas.domain.transparency.Document;
@@ -29,6 +20,13 @@ import br.org.oficinadasmeninas.domain.transparency.repository.IDocumentsReposit
 import br.org.oficinadasmeninas.domain.transparency.service.ICategoriesService;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
+import org.springframework.stereotype.Service;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoriesService implements ICategoriesService {
@@ -45,71 +43,70 @@ public class CategoriesService implements ICategoriesService {
 	}
 
 	@Override
-	public UUID insertCategory(CreateCategoryRequestDto request) {
+	public UUID insert(CreateCategoryRequestDto request) {
 
-		var entity = categoriesRepository.insertCategory(CategoryMapper.toEntity(request));
+		var entity = categoriesRepository.insert(CategoryMapper.toEntity(request));
 
 		return entity.getId();
 	}
 
 	@Override
-	public UUID updateCategory(UUID id, UpdateCategoryDto request) {
+	public UUID update(UUID id, UpdateCategoryDto request) {
 
-        var existing = categoriesRepository.findCategoryById(id)
+        var category = categoriesRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.CATEGORY_NOT_FOUND));
 
-		existing.setName(request.name());
-		existing.setPriority(request.priority());
+		category.setName(request.name());
+		category.setPriority(request.priority());
 
-		var updated = categoriesRepository.updateCategory(existing);
-
-		return updated.getId();
+		categoriesRepository.update(category);
+		return category.getId();
 	}
 
 	@Override
-	public UUID deleteCategory(UUID id) {
+	public UUID deleteById(UUID id) {
 		checkCategoryExists(id);
 		checkCategoryLinks(id);
 
-		categoriesRepository.deleteCategory(id);
+		categoriesRepository.deleteById(id);
 
 		return id;
 	}
 
 	@Override
-	public ResponseCategoryDto getCategoryById(UUID id) {
+	public ResponseCategoryDto findById(UUID id) {
 
-		var category = categoriesRepository.findCategoryById(id)
+		var category = categoriesRepository.findById(id)
 				.orElseThrow(() -> new NotFoundException(Messages.CATEGORY_NOT_FOUND));
 
 		return CategoryMapper.toDto(category);
 	}
 
 	@Override
-	public List<ResponseCategoryDto> getAllCategories() {
+	public List<ResponseCategoryDto> findAll() {
 
-		return categoriesRepository.findAllCategories().stream().map(CategoryMapper::toDto).toList();
+		return categoriesRepository.findAll().stream().map(CategoryMapper::toDto).toList();
 	}
 
 	@Override
-	public GetCategoriesResponseDto getAllCategoriesWithDocuments() {
+	public GetCategoriesResponseDto findAllWithDocumentsAndCollaborators() {
 
-		var categories = categoriesRepository.findAllCategories();
-		var documents = documentsRepository.findAllDocuments();
-		var collaborators = collaboratorsRepository.findAllCollaborators();
+		var categories = categoriesRepository.findAll();
+		var documents = documentsRepository.findAll();
+		var collaborators = collaboratorsRepository.findAll();
 
 		return new GetCategoriesResponseDto(mapCategoriesToDto(categories, documents, collaborators));
 	}
 
 	private void checkCategoryExists(UUID id) {
-		if (!categoriesRepository.existsCategoryById(id)) {
+		if (!categoriesRepository.existsById(id)) {
 			throw new NotFoundException(Messages.CATEGORY_NOT_FOUND);
 		}
 	}
 
 	private void checkCategoryLinks(UUID id) {
-		int docs = documentsRepository.countDocumentsByCategoryId(id);
-		int collabs = collaboratorsRepository.countCollaboratorsByCategoryId(id);
+		int docs = documentsRepository.countByCategoryId(id);
+		int collabs = collaboratorsRepository.countByCategoryId(id);
 
 		if (docs > 0 || collabs > 0) {
 			throw new ValidationException(buildLinkMessage(docs, collabs));

@@ -1,9 +1,7 @@
 package br.org.oficinadasmeninas.infra.event.repository;
 
 import br.org.oficinadasmeninas.domain.event.Event;
-import br.org.oficinadasmeninas.domain.event.dto.CreateEventDto;
 import br.org.oficinadasmeninas.domain.event.dto.GetEventDto;
-import br.org.oficinadasmeninas.domain.event.dto.UpdateEventDto;
 import br.org.oficinadasmeninas.domain.event.repository.IEventRepository;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -14,7 +12,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,8 +24,9 @@ public class EventRepository implements IEventRepository {
     }
 
     @Override
-    public PageDTO<Event> getFiltered(GetEventDto getEventDto) {
-        List<Event> events = jdbc.query(
+    public PageDTO<Event> findByFilter(GetEventDto getEventDto) {
+
+        var events = jdbc.query(
                 EventQueryBuilder.GET_FILTERED_EVENTS,
                 this::mapRow,
                 getEventDto.searchTerm(),
@@ -37,9 +35,10 @@ public class EventRepository implements IEventRepository {
                 getEventDto.startDate(),
                 getEventDto.endDate(),
                 getEventDto.pageSize(),
-                getEventDto.page() * getEventDto.pageSize());
+                getEventDto.page() * getEventDto.pageSize()
+        );
 
-        int total = jdbc.queryForObject(
+        var total = jdbc.queryForObject(
                 EventQueryBuilder.SELECT_COUNT,
                 Integer.class,
                 getEventDto.searchTerm(),
@@ -48,54 +47,64 @@ public class EventRepository implements IEventRepository {
                 getEventDto.startDate(),
                 getEventDto.endDate());
 
+        if (total == null) total = 0;
+
         int totalPages = Math.toIntExact((total / getEventDto.pageSize()) + (total % getEventDto.pageSize() == 0 ? 0 : 1));
 
         return new PageDTO<>(events, total, totalPages);
     }
 
     @Override
-    public Optional<Event> getById(UUID id) {
-        try
-        {
+    public Optional<Event> findById(UUID id) {
+        try {
             var event = jdbc.queryForObject(EventQueryBuilder.GET_EVENT_BY_ID, this::mapRow, id);
-            return Optional.of(event);
-        }
-        catch (EmptyResultDataAccessException e)
-        {
+            return Optional.ofNullable(event);
+        } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
     }
 
-    public UUID create(CreateEventDto createEventDto, String previewFileName, String partnersFileName) {
+    public Event insert(Event event) {
         var id = UUID.randomUUID();
+        event.setId(id);
 
-        jdbc.update(EventQueryBuilder.CREATE_EVENT,
-            id,
-            createEventDto.title(),
-            previewFileName,
-            partnersFileName,
-            createEventDto.description(),
-            Timestamp.valueOf(createEventDto.eventDate()),
-            createEventDto.location(),
-            createEventDto.urlToPlatform());
+        jdbc.update(
+                EventQueryBuilder.CREATE_EVENT,
+                event.getId(),
+                event.getTitle(),
+                event.getPreviewImageUrl(),
+                event.getPartnersImageUrl(),
+                event.getDescription(),
+                Timestamp.valueOf(event.getEventDate()),
+                event.getLocation(),
+                event.getUrlToPlatform()
+        );
 
-        return id;
+        return event;
     }
 
     @Override
-    public void update(UpdateEventDto updateEventDto, String previewFileName, String partnersFileName) {
+    public Event update(Event event) {
+
         jdbc.update(EventQueryBuilder.UPDATE_EVENT,
-                updateEventDto.title(),
-                previewFileName,
-                partnersFileName,
-                updateEventDto.description(),
-                Timestamp.valueOf(updateEventDto.eventDate()),
-                updateEventDto.location(),
-                updateEventDto.urlToPlatform(),
-                updateEventDto.isActive() == null || updateEventDto.isActive(),
-                updateEventDto.id());
+                event.getTitle(),
+                event.getPreviewImageUrl(),
+                event.getPartnersImageUrl(),
+                event.getDescription(),
+                Timestamp.valueOf(event.getEventDate()),
+                event.getLocation(),
+                event.getUrlToPlatform(),
+                event.getId()
+        );
+
+        return event;
     }
 
+	@Override
+	public void deleteById(UUID id) {
+		jdbc.update(EventQueryBuilder.DELETE_EVENT, id);	
+	}
+    
     private Event mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new Event(
                 rs.getObject("id", java.util.UUID.class),
@@ -108,4 +117,5 @@ public class EventRepository implements IEventRepository {
                 rs.getString("url_to_platform")
         );
     }
+
 }

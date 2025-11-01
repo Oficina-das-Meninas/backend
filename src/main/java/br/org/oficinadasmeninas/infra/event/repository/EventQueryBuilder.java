@@ -11,14 +11,12 @@ public class EventQueryBuilder {
           AND description ILIKE COALESCE('%' || ? || '%', description)
           AND event_date BETWEEN COALESCE(?, event_date)
           AND COALESCE(?, event_date)
-          AND active
     """;
 
     public static final String GET_EVENT_BY_ID = """
         SELECT id, title, preview_image_url, partners_image_url, description, event_date, location, url_to_platform
         FROM EVENTS
         WHERE id = ?
-          AND active
     """;
 
     public static final String GET_FILTERED_EVENTS = """
@@ -31,7 +29,6 @@ public class EventQueryBuilder {
           AND description ILIKE COALESCE('%' || ? || '%', description)
           AND event_date BETWEEN COALESCE(?, event_date)
                          AND COALESCE(?, event_date)
-          AND active
         ORDER BY event_date DESC
         LIMIT ? OFFSET ?;
     """;
@@ -49,8 +46,12 @@ public class EventQueryBuilder {
             description = ?,
             event_date = ?,
             location = ?,
-            url_to_platform = ?,
-            active = ?
+            url_to_platform = ?
         WHERE id = ?
+    """;
+    
+    public static final String DELETE_EVENT = """
+    		DELETE FROM EVENTS 
+			WHERE id = ?
     """;
 }

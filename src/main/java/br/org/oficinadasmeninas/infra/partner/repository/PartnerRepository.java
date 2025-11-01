@@ -1,8 +1,6 @@
 package br.org.oficinadasmeninas.infra.partner.repository;
 
 import br.org.oficinadasmeninas.domain.partner.Partner;
-import br.org.oficinadasmeninas.domain.partner.dto.CreatePartnerDto;
-import br.org.oficinadasmeninas.domain.partner.dto.UpdatePartnerDto;
 import br.org.oficinadasmeninas.domain.partner.repository.IPartnerRepository;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -24,7 +22,7 @@ public class PartnerRepository implements IPartnerRepository {
     }
 
     @Override
-    public PageDTO<Partner> findAll(String searchTerm, int page, int pageSize) {
+    public PageDTO<Partner> findByFilter(String searchTerm, int page, int pageSize) {
         List<Partner> partners = jdbc.query(
                 PartnerQueryBuilder.GET_PARTNERS,
                 this::mapRow,
@@ -33,11 +31,13 @@ public class PartnerRepository implements IPartnerRepository {
                 page * pageSize
         );
 
-        long total = jdbc.queryForObject(
+        var total = jdbc.queryForObject(
                 PartnerQueryBuilder.SELECT_COUNT,
                 Integer.class,
                 searchTerm
         );
+
+        if (total == null) total = 0;
 
         int totalPages = Math.toIntExact((total / pageSize) + (total % pageSize == 0 ? 0 : 1));
 
@@ -45,38 +45,46 @@ public class PartnerRepository implements IPartnerRepository {
     }
 
     @Override
-    public Optional<Partner> getById(UUID id) {
-        try
-        {
+    public Optional<Partner> findById(UUID id) {
+        try {
             var partner = jdbc.queryForObject(PartnerQueryBuilder.GET_PARTNER_BY_ID, this::mapRow, id);
-            return Optional.of(partner);
-        }
-        catch (EmptyResultDataAccessException e)
-        {
+            return Optional.ofNullable(partner);
+        } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
     }
 
-    public UUID create(CreatePartnerDto createPartnerDto, String previewFileName) {
+    public Partner insert(Partner partner) {
         var id = UUID.randomUUID();
+        partner.setId(id);
 
         jdbc.update(PartnerQueryBuilder.CREATE_PARTNER,
-                id,
-                previewFileName,
-                createPartnerDto.name());
+                partner.getId(),
+                partner.getPreviewImageUrl(),
+                partner.getName()
+        );
 
-        return id;
+        return partner;
     }
 
     @Override
-    public void update(UpdatePartnerDto updatePartnerDto, String previewFileName) {
+    public Partner update(Partner partner) {
+
         jdbc.update(PartnerQueryBuilder.UPDATE_PARTNER,
-                previewFileName,
-                updatePartnerDto.name(),
-                updatePartnerDto.isActive() == null || updatePartnerDto.isActive(),
-                updatePartnerDto.id());
+                partner.getPreviewImageUrl(),
+                partner.getName(),
+                partner.getId()
+        );
+
+        return partner;
     }
 
+
+	@Override
+	public void deleteById(UUID id) {
+		jdbc.update(PartnerQueryBuilder.DELETE_PARTNER, id);
+	}
+    
     private Partner mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new Partner(
                 rs.getObject("id", java.util.UUID.class),
@@ -84,4 +92,5 @@ public class PartnerRepository implements IPartnerRepository {
                 rs.getString("name")
         );
     }
+    
 }

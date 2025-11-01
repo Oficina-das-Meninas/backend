@@ -6,21 +6,18 @@ import br.org.oficinadasmeninas.domain.partner.dto.CreatePartnerDto;
 import br.org.oficinadasmeninas.domain.partner.dto.UpdatePartnerDto;
 import br.org.oficinadasmeninas.domain.partner.repository.IPartnerRepository;
 import br.org.oficinadasmeninas.domain.partner.service.IPartnerService;
-import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
+import br.org.oficinadasmeninas.domain.resources.Messages;
+import br.org.oficinadasmeninas.infra.exceptions.ObjectStorageException;
+import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
-import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.UUID;
 
 @Service
-public class PartnerService implements IPartnerService{
+public class PartnerService implements IPartnerService {
     private final IPartnerRepository partnerRepository;
     private final IObjectStorage storageService;
 
@@ -29,53 +26,56 @@ public class PartnerService implements IPartnerService{
         this.storageService = storageService;
     }
 
-    public PageDTO<Partner> findAll(@RequestParam @Nullable String searchTerm,
-                                    @RequestParam @PositiveOrZero int page,
-                                    @RequestParam @Positive @Max(100) int pageSize){
-        return partnerRepository.findAll(searchTerm, page, pageSize);
+    public UUID insert(CreatePartnerDto request) {
+
+        try {
+            var previewFileName = uploadMultipartFile(request.previewImage());
+
+            var partner = new Partner();
+            partner.setPreviewImageUrl(previewFileName);
+            partner.setName(request.name());
+
+            partnerRepository.insert(partner);
+            return partner.getId();
+
+        } catch (IOException e) {
+            throw new ObjectStorageException(e);
+        }
+    }
+
+    public UUID update(UUID id, UpdatePartnerDto request) {
+
+        var partner = partnerRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Messages.PARTNER_NOT_FOUND + id));
+
+        try {
+            var previewFileName = uploadMultipartFile(request.previewImage());
+
+            partner.setName(request.name());
+            partner.setPreviewImageUrl(previewFileName);
+
+            partnerRepository.update(partner);
+            return partner.getId();
+
+        } catch (IOException e) {
+            throw new ObjectStorageException(e);
+        }
+    }
+
+    public UUID deleteById(UUID id) {
+    	partnerRepository.deleteById(id);
+        return id;
+    }
+
+    public PageDTO<Partner> findAll(String searchTerm, int page, int pageSize) {
+
+        return partnerRepository.findByFilter(searchTerm, page, pageSize);
     }
 
     public Partner findById(UUID id) {
 
-        return partnerRepository.getById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Patrocinador não encontrado: " + id));
-    }
-
-    public Partner createPartner(CreatePartnerDto createPartnerDto) throws IOException {
-        var previewFileName = uploadMultipartFile(createPartnerDto.previewImage());
-
-        var createdPartnerId = partnerRepository.create(createPartnerDto, previewFileName);
-
-        return new Partner(
-                createdPartnerId,
-                previewFileName,
-                createPartnerDto.name()
-        );
-    }
-
-    public Partner updatePartner(UUID id, UpdatePartnerDto updatePartnerDto) throws Exception {
-        partnerRepository.getById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Patrocinador não encontrado: " + id));
-
-        var previewFileName = uploadMultipartFile(updatePartnerDto.previewImage());
-
-        partnerRepository.update(updatePartnerDto, previewFileName);
-
-        return new Partner(
-                id,
-                previewFileName,
-                updatePartnerDto.name()
-        );
-    }
-
-    public void deletePartner(UUID id) {
-        var partner = partnerRepository.getById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Patrocinador não encontrado: " + id));
-
-        partnerRepository.update(
-                UpdatePartnerDto.forDeletion(partner.getId()),
-                partner.getPreviewImageUrl()
-        );
+        return partnerRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Messages.PARTNER_NOT_FOUND + id));
     }
 
     private String uploadMultipartFile(MultipartFile file) throws IOException {

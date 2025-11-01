@@ -1,68 +1,66 @@
 package br.org.oficinadasmeninas.presentation.controller;
 
-import java.util.List;
-import java.util.UUID;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import br.org.oficinadasmeninas.domain.admin.dto.AdminDto;
 import br.org.oficinadasmeninas.domain.admin.dto.CreateAdminDto;
 import br.org.oficinadasmeninas.domain.admin.dto.UpdateAdminDto;
 import br.org.oficinadasmeninas.domain.admin.service.IAdminService;
+import br.org.oficinadasmeninas.domain.resources.Messages;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/admin")
-public class AdminController {
+@RequestMapping("/api/admins")
+public class AdminController extends BaseController {
 
-	private final IAdminService adminService;
+    private final IAdminService adminService;
 
-	public AdminController(IAdminService adminService) {
-		super();
-		this.adminService = adminService;
-	}
+    public AdminController(IAdminService adminService) {
+        this.adminService = adminService;
+    }
 
-	@PostMapping
-	public ResponseEntity<AdminDto> createAdmin(@Valid @RequestBody CreateAdminDto request) {
-		UUID id = adminService.createAdmin(request);
+    @PostMapping
+    public ResponseEntity<?> createAdmin(
+            @Valid @RequestBody CreateAdminDto request
+    ) {
+        return handle(
+                () -> {
+                    var id = adminService.insert(request);
 
-		AdminDto adminDto = new AdminDto();
-		adminDto.setId(id);
-		adminDto.setEmail(request.getEmail());
-		adminDto.setName(request.getName());
+                    var response = new AdminDto();
+                    response.setId(id);
+                    response.setEmail(request.getEmail());
+                    response.setName(request.getName());
 
-		return ResponseEntity
-				.created(ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(id).toUri())
-				.body(adminDto);
-	}
+                    return response;
+                },
+                Messages.ADMIN_CREATED_SUCCESSFULLY,
+                HttpStatus.CREATED
+        );
+    }
 
-	@GetMapping
-	public ResponseEntity<List<AdminDto>> getAllAdmin() {
-		List<AdminDto> dto = adminService.getAllAdmin();
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateAdmin(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateAdminDto request
+    ) {
+        return handle(
+                () -> adminService.update(id, request),
+                Messages.ADMIN_UPDATED_SUCCESSFULLY
+        );
+    }
 
-		return ResponseEntity.ok(dto);
-	}
+    @GetMapping
+    public ResponseEntity<?> getAllAdmin() {
+        return handle(adminService::findAll);
+    }
 
-	@GetMapping("/{id}")
-	public ResponseEntity<AdminDto> getAdminById(@PathVariable UUID id) {
-		AdminDto dto = adminService.getAdminById(id);
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getAdminById(@PathVariable UUID id) {
 
-		return ResponseEntity.ok(dto);
-	}
-
-	@PutMapping("/{id}")
-	public ResponseEntity<Void> updateAdmin(@PathVariable UUID id, @Valid @RequestBody UpdateAdminDto request) {
-		adminService.updateAdmin(id, request);
-
-		return ResponseEntity.noContent().build();
-	}
-
+        return handle(() -> adminService.findById(id));
+    }
 }

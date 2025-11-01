@@ -14,8 +14,6 @@ public record UpdateEventDto(
 
         MultipartFile partnersImage,
 
-        Boolean isActive,
-
         @NotNull(message = "O id do evento é obrigatório.")
         UUID id,
 
@@ -35,17 +33,4 @@ public record UpdateEventDto(
         @NotBlank(message = "A url para a plataforma do evento é obrigatória")
         String urlToPlatform
 ) {
-        public static UpdateEventDto forDeletion(UUID id) {
-                return new UpdateEventDto(
-                        null,
-                        null,
-                        false,
-                        id,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null
-                );
-        }
 }

@@ -20,18 +20,48 @@ import java.util.UUID;
 @Repository
 public class DonationRepository implements IDonationRepository {
 
-	private final JdbcTemplate jdbc;
+    private final JdbcTemplate jdbc;
 
-	public DonationRepository(JdbcTemplate jdbc) {
-		this.jdbc = jdbc;
-	}
+    public DonationRepository(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
+    }
 
-	@Override
-	public List<Donation> findAll() {
-		return jdbc.query(DonationQueryBuilder.SELECT_ALL_DONATIONS, this::mapRowDonation);
-	}
+    @Override
+    public Donation insert(Donation donation) {
 
-    public PageDTO<DonationWithDonorDto> getFiltered(GetDonationDto getDonationDto) {
+        var id = donation.getId() != null ? donation.getId() : UUID.randomUUID();
+        donation.setId(id);
+
+        jdbc.update(
+                DonationQueryBuilder.INSERT_DONATION,
+                id,
+                donation.getValue(),
+                donation.getDonationAt(),
+                donation.getUserId(),
+                donation.getStatus().name()
+        );
+
+        return donation;
+    }
+
+    @Override
+    public Donation updateStatus(Donation donation) {
+
+        jdbc.update(
+                DonationQueryBuilder.UPDATE_DONATION_STATUS,
+                donation.getStatus().name(),
+                donation.getId()
+        );
+
+        return donation;
+    }
+
+    @Override
+    public List<Donation> findAll() {
+        return jdbc.query(DonationQueryBuilder.SELECT_ALL_DONATIONS, this::mapRowDonation);
+    }
+
+    public PageDTO<DonationWithDonorDto> findByFilter(GetDonationDto getDonationDto) {
         String donationStatus = getDonationDto.status() != null ? getDonationDto.status().name() : null;
         String donationType = getDonationDto.donationType();
         String donorName = getDonationDto.donorName();
@@ -48,7 +78,7 @@ public class DonationRepository implements IDonationRepository {
                 getDonationDto.page() * getDonationDto.pageSize()
         );
 
-        int total = jdbc.queryForObject(
+        var total = jdbc.queryForObject(
                 DonationQueryBuilder.SELECT_COUNT,
                 Integer.class,
                 donorName, donorName,
@@ -64,27 +94,19 @@ public class DonationRepository implements IDonationRepository {
     }
 
     @Override
-	public Optional<Donation> findById(UUID id) {
-		try {
-			Donation donation = jdbc.queryForObject(DonationQueryBuilder.SELECT_DONATION_BY_ID, this::mapRowDonation, id);
-			return Optional.ofNullable(donation);
-		} catch (EmptyResultDataAccessException e) {
-			return Optional.empty();
-		}
-	}
+    public Optional<Donation> findById(UUID id) {
+        try {
+            var donation = jdbc.queryForObject(
+                    DonationQueryBuilder.SELECT_DONATION_BY_ID,
+                    this::mapRowDonation,
+                    id
+            );
 
-	@Override
-	public UUID create(Donation donation) {
-		UUID id = donation.getId() != null ? donation.getId() : UUID.randomUUID();
-		jdbc.update(DonationQueryBuilder.INSERT_DONATION, id, donation.getValue(), donation.getDonationAt(),
-				donation.getUserId(), donation.getStatus().name());
-		return id;
-	}
-
-	@Override
-	public void updateStatus(UUID id, DonationStatusEnum status) {
-		jdbc.update(DonationQueryBuilder.UPDATE_DONATION_STATUS, status.name(), id);
-	}
+            return Optional.ofNullable(donation);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
 
 	private Donation mapRowDonation(ResultSet rs, int rowNum) throws SQLException {
 		Donation donation = new Donation();

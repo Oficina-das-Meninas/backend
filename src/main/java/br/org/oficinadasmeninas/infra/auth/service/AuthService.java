@@ -1,17 +1,17 @@
 package br.org.oficinadasmeninas.infra.auth.service;
 
-import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.stereotype.Service;
-
 import br.org.oficinadasmeninas.domain.admin.dto.AdminDto;
 import br.org.oficinadasmeninas.domain.admin.service.IAdminService;
+import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.user.dto.CreateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
 import br.org.oficinadasmeninas.domain.user.service.IUserService;
 import br.org.oficinadasmeninas.infra.auth.UserDetailsCustom;
 import br.org.oficinadasmeninas.infra.auth.dto.LoginUserDto;
+import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
@@ -31,27 +31,26 @@ public class AuthService {
 	}
 
 	public UserDto createUserAccount(CreateUserDto user) {
-		UserDto newUser = userService.createUser(user);
-		return newUser;
+		return userService.insert(user);
 	}
 
 	public UserDetailsCustom authenticate(LoginUserDto loginUserDTO) {
 		authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(loginUserDTO.getEmail(), loginUserDTO.getPassword()));
 
-		UserDto user = userService.getUserByEmail(loginUserDTO.getEmail());
+		UserDto user = userService.findByEmail(loginUserDTO.getEmail());
 
 		if (user != null) {
 			return createUserDetailsCustom(user, loginUserDTO.getPassword());
 		}
 
-		AdminDto admin = adminService.getAdminByEmail(loginUserDTO.getEmail());
+		AdminDto admin = adminService.findByEmail(loginUserDTO.getEmail());
 
 		if (admin != null) {
 			return createUserDetailsCustom(admin, loginUserDTO.getPassword());
 		}
 
-		throw new EntityNotFoundException("Usuário não encontrado");
+		throw new NotFoundException(Messages.USER_NOT_FOUND);
 	}
 
 	private UserDetailsCustom createUserDetailsCustom(UserDto user, String password) {
@@ -61,5 +60,4 @@ public class AuthService {
 	private UserDetailsCustom createUserDetailsCustom(AdminDto admin, String password) {
 		return new UserDetailsCustom(admin.getId(), admin.getEmail(), password, admin.getName(), IS_ADMIN);
 	}
-	
 }

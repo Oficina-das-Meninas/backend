@@ -1,29 +1,28 @@
 package br.org.oficinadasmeninas.domain.sponsor.repository;
 
+import br.org.oficinadasmeninas.domain.sponsor.Sponsor;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import br.org.oficinadasmeninas.domain.sponsor.Sponsor;
-import br.org.oficinadasmeninas.domain.sponsor.dto.UpdateSponsorDto;
-
 public interface ISponsorRepository {
-	List<Sponsor> findAllSponsors();
 
-	Optional<Sponsor> findById(UUID id);
+    Sponsor insert(Sponsor sponsor);
 
-	Optional<Sponsor> findBySubscriptionId(UUID subscriptionId);
+    Sponsor update(Sponsor sponsor);
 
-	List<Sponsor> findByUserId(UUID id);
+    void activateByUserId(UUID userId);
 
-    Optional<Sponsor> findActiveByUserId(UUID id);
+    void suspendById(UUID id);
 
-	UUID createSponsor(Sponsor sponsor);
+    List<Sponsor> findAll();
 
-	void updateSponsor(UpdateSponsorDto sponsor);
-	
-	void suspendSponsor(UUID id);
+    Optional<Sponsor> findById(UUID id);
 
-    void activeSponsorByuserId(UUID userId);
+    List<Sponsor> findByUserId(UUID id);
 
+    Optional<Sponsor> findActiveByUserId(UUID userId);
+
+    Optional<Sponsor> findBySubscriptionId(UUID subscriptionId);
 }

@@ -1,12 +1,10 @@
 package br.org.oficinadasmeninas.domain.payment.repository;
 
+import br.org.oficinadasmeninas.domain.payment.Payment;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import br.org.oficinadasmeninas.domain.payment.Payment;
-import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.PaymentsMethodEnum;
 
 /**
  * Repositório responsável pelas operações de persistência de pagamentos.
@@ -39,26 +37,21 @@ public interface IPaymentRepository {
      * Persiste um novo pagamento e retorna o identificador gerado.
      *
      * @param payment entidade {@link Payment} a ser criada; não deve ser {@code null}
-     * @return {@link UUID} gerado para o pagamento criado
-     * @throws IllegalArgumentException se {@code payment} for {@code null}
+     * @return {@link Payment} Objeto Payment com ID gerado
      */
-    UUID create(Payment payment);
+    Payment insert(Payment payment);
 
     /**
      * Atualiza o status de um pagamento existente.
      *
-     * @param id identificador {@link UUID} do pagamento a ser atualizado; não deve ser {@code null}
-     * @param status novo {@link PaymentStatusEnum} a ser aplicado; não deve ser {@code null}
-     * @throws IllegalArgumentException se {@code id} ou {@code status} forem {@code null}
+     * @param payment Entidade {@link Payment} a ser atualiza o status;
      */
-    void updatePaymentStatus(UUID id, PaymentStatusEnum status);
+    Payment updateStatus(Payment payment);
 
     /**
      * Atualiza o metodo de um pagamento existente.
      *
-     * @param id identificador {@link UUID} do pagamento a ser atualizado; não deve ser {@code null}
-     * @param status novo {@link PaymentsMethodEnum} a ser aplicado; não deve ser {@code null}
-     * @throws IllegalArgumentException se {@code id} ou {@code status} forem {@code null}
+     * @param payment Entidade {@link Payment} a ser atualiza o metodo de pagamento;
      */
-    void updatePaymentMethod(UUID id, PaymentsMethodEnum status);
+    Payment updateMethod(Payment payment);
 }

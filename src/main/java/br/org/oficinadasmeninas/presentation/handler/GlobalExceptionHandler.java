@@ -1,11 +1,9 @@
 package br.org.oficinadasmeninas.presentation.handler;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 import br.org.oficinadasmeninas.domain.Response;
 import br.org.oficinadasmeninas.infra.exceptions.ObjectStorageException;
+import br.org.oficinadasmeninas.infra.shared.exception.DocumentAlreadyExistsException;
+import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 import org.springframework.http.HttpStatus;
@@ -15,9 +13,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
-import br.org.oficinadasmeninas.infra.shared.exception.DocumentAlreadyExistsException;
-import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -40,20 +38,16 @@ public class GlobalExceptionHandler {
         return buildResponse(ex.getMessage(), HttpStatus.SERVICE_UNAVAILABLE);
     }
 
-
-
-
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<String> handleEntityNotFound(EntityNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-    }
-
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<String> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        if (UUID.class.equals(ex.getRequiredType())) {
-            return ResponseEntity.badRequest().body("O parâmetro fornecido não é um UUID válido.");
-        }
-        return ResponseEntity.badRequest().body("Parâmetro inválido: " + ex.getMessage());
+    public ResponseEntity<?> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+
+        var type = ex.getRequiredType();
+
+        var message = UUID.class.equals(type)
+                ? "O parâmetro fornecido não é um UUID válido."
+                : "Parâmetro inválido: " + type;
+
+        return buildResponse(message, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(IllegalStateException.class)

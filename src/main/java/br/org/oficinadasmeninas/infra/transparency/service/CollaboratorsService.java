@@ -2,17 +2,17 @@ package br.org.oficinadasmeninas.infra.transparency.service;
 
 import br.org.oficinadasmeninas.domain.objectstorage.IObjectStorage;
 import br.org.oficinadasmeninas.domain.resources.Messages;
-import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
-import br.org.oficinadasmeninas.domain.transparency.dto.CreateCollaboratorDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.CreateCollaboratorRequestDto;
 import br.org.oficinadasmeninas.domain.transparency.dto.UpdateCollaboratorDto;
+import br.org.oficinadasmeninas.domain.transparency.mapper.CollaboratorMapper;
 import br.org.oficinadasmeninas.domain.transparency.repository.ICategoriesRepository;
 import br.org.oficinadasmeninas.domain.transparency.repository.ICollaboratorsRepository;
 import br.org.oficinadasmeninas.domain.transparency.service.ICollaboratorsService;
 import br.org.oficinadasmeninas.infra.exceptions.ObjectStorageException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -20,11 +20,10 @@ import java.util.UUID;
 @Service
 public class CollaboratorsService implements ICollaboratorsService {
 
-    private final ICategoriesRepository  categoriesRepository;
-    private final ICollaboratorsRepository   collaboratorsRepository;
+    private final ICategoriesRepository categoriesRepository;
+    private final ICollaboratorsRepository collaboratorsRepository;
     private final IObjectStorage objectStorage;
 
-    @Autowired
     public CollaboratorsService(ICategoriesRepository categoriesRepository, ICollaboratorsRepository collaboratorsRepository, IObjectStorage objectStorage) {
         this.categoriesRepository = categoriesRepository;
         this.collaboratorsRepository = collaboratorsRepository;
@@ -32,20 +31,23 @@ public class CollaboratorsService implements ICollaboratorsService {
     }
 
     @Override
-    public UUID uploadCollaborator(CreateCollaboratorRequestDto request) {
+    public UUID insert(CreateCollaboratorRequestDto request) {
 
         var category = categoriesRepository
-                .findCategoryById(UUID.fromString(request.categoryId()))
+                .findById(request.categoryId())
                 .orElseThrow(() -> new NotFoundException(Messages.CATEGORY_NOT_FOUND));
+
+        validateImageFileType(request.image());
+
         try {
-            var imageLink = objectStorage.uploadTransparencyFile(request.file(), true);
+            var imageLink = objectStorage.uploadTransparencyFile(request.image(), true);
 
-            /*TODO: USAR MAPPER*/
-            var dto = new CreateCollaboratorDto(imageLink, category.getId(), request.name(), request.role(), request.description(), 0);
+            var collaborator = CollaboratorMapper.toEntity(request);
+            collaborator.setImage(imageLink);
+            collaborator.setCategory(category);
 
-            var id = collaboratorsRepository.insertCollaborator(dto);
-
-            return id;
+            collaboratorsRepository.insert(collaborator);
+            return collaborator.getId();
 
         } catch (IOException e) {
             throw new ObjectStorageException(e);
@@ -53,14 +55,25 @@ public class CollaboratorsService implements ICollaboratorsService {
     }
 
     @Override
-    public UUID deleteCollaborator(UUID id) {
+    public UUID update(UUID id, UpdateCollaboratorDto request) {
+        var collaborator = collaboratorsRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Messages.COLLABORATOR_NOT_FOUND));
+
+        collaborator.setPriority(request.priority());
+
+        collaboratorsRepository.update(collaborator);
+        return collaborator.getId();
+    }
+
+    @Override
+    public UUID deleteById(UUID id) {
 
         var collaborator = collaboratorsRepository
-                .findCollaboratorById(id)
+                .findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.COLLABORATOR_NOT_FOUND));
 
         try {
-            collaboratorsRepository.deleteCollaborator(collaborator.getId());
+            collaboratorsRepository.deleteById(collaborator.getId());
             objectStorage.deleteTransparencyFile(collaborator.getImage());
 
             return collaborator.getId();
@@ -69,15 +82,21 @@ public class CollaboratorsService implements ICollaboratorsService {
         }
     }
 
-    @Override
-    public UUID updateCollaborator(UUID id, UpdateCollaboratorDto request) {
-        var existing = collaboratorsRepository.findCollaboratorById(id)
-                .orElseThrow(() -> new NotFoundException(Messages.COLLABORATOR_NOT_FOUND));
+    private void validateImageFileType(MultipartFile file) {
+        String contentType = file.getContentType();
 
-        existing.setPriority(request.priority());
+        if (contentType == null) {
+            throw new ValidationException(Messages.FILE_NOT_IDENTIFIED);
+        }
 
-        var updated = collaboratorsRepository.updateCollaborator(existing);
+        boolean isValid = switch (contentType) {
+            case "image/jpeg",
+                 "image/png" -> true;
+            default -> false;
+        };
 
-        return updated.getId();
+        if (!isValid) {
+            throw new ValidationException(Messages.FILE_NOT_SUPPORTED + contentType);
+        }
     }
 }
