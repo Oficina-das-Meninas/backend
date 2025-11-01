@@ -8,14 +8,13 @@ import br.org.oficinadasmeninas.domain.donation.dto.GetDonationDto;
 import br.org.oficinadasmeninas.domain.donation.mapper.DonationMapper;
 import br.org.oficinadasmeninas.domain.donation.repository.IDonationRepository;
 import br.org.oficinadasmeninas.domain.donation.service.IDonationService;
-import br.org.oficinadasmeninas.domain.shared.exception.EntityNotFoundException;
+import br.org.oficinadasmeninas.domain.resources.Messages;
+import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
-import br.org.oficinadasmeninas.domain.resources.Messages;
-import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 
 import static br.org.oficinadasmeninas.domain.donation.mapper.DonationMapper.toDto;
 import static br.org.oficinadasmeninas.domain.donation.mapper.DonationMapper.toEntity;
