@@ -38,7 +38,7 @@ public class DonationController extends BaseController {
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    public PageDTO<DonationWithDonorDto> findByFilter(@RequestParam(defaultValue = "0") @PositiveOrZero int page,
+    public ResponseEntity<?> findByFilter(@RequestParam(defaultValue = "0") @PositiveOrZero int page,
                                                       @RequestParam(defaultValue = "10") @Positive @Max(100) int pageSize,
                                                       @RequestParam @Nullable String donationType,
                                                       @RequestParam @Nullable String status,
@@ -48,9 +48,9 @@ public class DonationController extends BaseController {
     ) {
         DonationStatusEnum donationStatus = status != null ? DonationStatusEnum.valueOf(status) : null;
 
-        return donationService.getFilteredDonations(
+        return handle(() -> donationService.getFilteredDonations(
                 GetDonationDto.FromRequestParams(page, pageSize, donationType, donationStatus, searchTerm, startDate, endDate)
-        );
+        ));
     }
 
     @PostMapping
