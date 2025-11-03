@@ -3,10 +3,8 @@ package br.org.oficinadasmeninas.presentation.controller;
 import br.org.oficinadasmeninas.application.DonationApplication;
 import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
 import br.org.oficinadasmeninas.domain.donation.dto.CreateDonationCheckoutDto;
-import br.org.oficinadasmeninas.domain.donation.dto.DonationWithDonorDto;
 import br.org.oficinadasmeninas.domain.donation.dto.GetDonationDto;
 import br.org.oficinadasmeninas.infra.donation.service.DonationService;
-import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -48,7 +46,7 @@ public class DonationController extends BaseController {
     ) {
         DonationStatusEnum donationStatus = status != null ? DonationStatusEnum.valueOf(status) : null;
 
-        return handle(() -> donationService.getFilteredDonations(
+        return handle(() -> donationService.findByFilter(
                 GetDonationDto.FromRequestParams(page, pageSize, donationType, donationStatus, searchTerm, startDate, endDate)
         ));
     }

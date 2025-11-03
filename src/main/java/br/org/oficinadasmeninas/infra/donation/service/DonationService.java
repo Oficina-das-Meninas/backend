@@ -36,7 +36,7 @@ public class DonationService implements IDonationService {
                 .toList();
     }
 
-    public PageDTO<DonationWithDonorDto> getFilteredDonations(GetDonationDto getDonationDto){
+    public PageDTO<DonationWithDonorDto> findByFilter(GetDonationDto getDonationDto){
         return donationRepository.findByFilter(getDonationDto);
     }
 
