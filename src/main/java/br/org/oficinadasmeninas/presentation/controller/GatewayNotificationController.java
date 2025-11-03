@@ -6,6 +6,8 @@ import br.org.oficinadasmeninas.domain.payment.dto.PaymentDto;
 import br.org.oficinadasmeninas.domain.payment.dto.PaymentNotificationDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.PaymentChargesDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
+import br.org.oficinadasmeninas.infra.logspagbank.dto.CreateLogPagbank;
+import br.org.oficinadasmeninas.infra.logspagbank.service.LogPagbankService;
 import br.org.oficinadasmeninas.infra.payment.service.PaymentService;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseWebhookCustomer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/nofitications")
@@ -24,11 +27,13 @@ public class GatewayNotificationController {
 	private final IPaymentGatewayService paymentGatewayService;
     private final ObjectMapper mapper = new ObjectMapper();
     private final PaymentService paymentService;
+    private final LogPagbankService logService;
 
-    public GatewayNotificationController(IPaymentGatewayService paymentGatewayService, PaymentService paymentService) {
+    public GatewayNotificationController(IPaymentGatewayService paymentGatewayService, PaymentService paymentService, LogPagbankService logService) {
 		super();
         this.paymentGatewayService = paymentGatewayService;
         this.paymentService = paymentService;
+        this.logService = logService;
     }
 	
 	@PostMapping("/checkout")
@@ -51,9 +56,10 @@ public class GatewayNotificationController {
     }
 
     private void saveLog(Object object) throws IOException {
-        try (FileWriter writer = new FileWriter("webhook.json", true)) {
-            writer.write(mapper.writeValueAsString(object));
-            writer.write(System.lineSeparator());
-        }
+    	logService.createLogPagbank(new CreateLogPagbank(
+    				"WEBHOOK NOTIFY BODY",
+    				LocalDateTime.now(),
+    				object
+    			));
     }
 }
