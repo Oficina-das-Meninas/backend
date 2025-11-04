@@ -104,6 +104,8 @@ public class DonationRepository implements IDonationRepository {
                 donationType, donationType
         );
 
+        if (total == null) total = 0;
+
         int totalPages = Math.toIntExact((total / getDonationDto.pageSize()) + (total % getDonationDto.pageSize() == 0 ? 0 : 1));
 
         return new PageDTO<>(donations, total, totalPages);
