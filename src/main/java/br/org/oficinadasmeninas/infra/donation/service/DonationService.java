@@ -3,11 +3,14 @@ package br.org.oficinadasmeninas.infra.donation.service;
 import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
 import br.org.oficinadasmeninas.domain.donation.dto.CreateDonationDto;
 import br.org.oficinadasmeninas.domain.donation.dto.DonationDto;
+import br.org.oficinadasmeninas.domain.donation.dto.DonationWithDonorDto;
+import br.org.oficinadasmeninas.domain.donation.dto.GetDonationDto;
 import br.org.oficinadasmeninas.domain.donation.mapper.DonationMapper;
 import br.org.oficinadasmeninas.domain.donation.repository.IDonationRepository;
 import br.org.oficinadasmeninas.domain.donation.service.IDonationService;
 import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
+import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,6 +34,10 @@ public class DonationService implements IDonationService {
                 .findAll().stream()
                 .map(DonationMapper::toDto)
                 .toList();
+    }
+
+    public PageDTO<DonationWithDonorDto> findByFilter(GetDonationDto getDonationDto){
+        return donationRepository.findByFilter(getDonationDto);
     }
 
     @Override

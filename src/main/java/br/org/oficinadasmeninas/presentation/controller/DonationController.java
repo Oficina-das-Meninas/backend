@@ -1,10 +1,21 @@
 package br.org.oficinadasmeninas.presentation.controller;
 
 import br.org.oficinadasmeninas.application.DonationApplication;
+import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
 import br.org.oficinadasmeninas.domain.donation.dto.CreateDonationCheckoutDto;
-import br.org.oficinadasmeninas.domain.resources.Messages;
+import br.org.oficinadasmeninas.domain.donation.dto.GetDonationDto;
+import br.org.oficinadasmeninas.infra.donation.service.DonationService;
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+
+import br.org.oficinadasmeninas.domain.resources.Messages;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,10 +26,33 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/donations")
 public class DonationController extends BaseController {
 
-    private final DonationApplication donationApplication;
+	private final DonationApplication donationApplication;
+    private final DonationService donationService;
 
-    public DonationController(DonationApplication donationApplication) {
-        this.donationApplication = donationApplication;
+    public DonationController(DonationApplication donationApplication, DonationService donationService) {
+		this.donationApplication = donationApplication;
+        this.donationService = donationService;
+    }
+
+    @GetMapping()
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> findByFilter(@RequestParam(defaultValue = "0") @PositiveOrZero int page,
+                                          @RequestParam(defaultValue = "10") @Positive @Max(100) int pageSize,
+                                          @RequestParam @Nullable String donationType,
+                                          @RequestParam @Nullable String status,
+                                          @RequestParam @Nullable String searchTerm,
+                                          @RequestParam @Nullable LocalDate startDate,
+                                          @RequestParam @Nullable LocalDate endDate,
+                                          @RequestParam(defaultValue = "donationAt") String sortField,
+                                          @RequestParam(defaultValue = "desc") String sortDirection
+    ) {
+        DonationStatusEnum donationStatus = status != null ? DonationStatusEnum.valueOf(status) : null;
+
+        return handle(() -> donationService.findByFilter(
+                GetDonationDto.FromRequestParams(page, pageSize, donationType,
+                                                 donationStatus, searchTerm, startDate,
+                                                 endDate,   sortField, sortDirection)
+        ));
     }
 
     @PostMapping

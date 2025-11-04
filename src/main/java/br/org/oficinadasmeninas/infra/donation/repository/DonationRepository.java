@@ -2,7 +2,10 @@ package br.org.oficinadasmeninas.infra.donation.repository;
 
 import br.org.oficinadasmeninas.domain.donation.Donation;
 import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
+import br.org.oficinadasmeninas.domain.donation.dto.DonationWithDonorDto;
+import br.org.oficinadasmeninas.domain.donation.dto.GetDonationDto;
 import br.org.oficinadasmeninas.domain.donation.repository.IDonationRepository;
+import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -13,6 +16,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static br.org.oficinadasmeninas.infra.donation.repository.DonationQueryBuilder.ALLOWED_SORT_FIELDS;
 
 @Repository
 public class DonationRepository implements IDonationRepository {
@@ -58,6 +63,54 @@ public class DonationRepository implements IDonationRepository {
         return jdbc.query(DonationQueryBuilder.SELECT_ALL_DONATIONS, this::mapRowDonation);
     }
 
+    private String buildOrderByClause(String sortField, String sortDirection) {
+        String field = ALLOWED_SORT_FIELDS.getOrDefault(sortField, "d.donation_at");
+        String direction = "desc".equalsIgnoreCase(sortDirection) ? "DESC" : "ASC";
+        return field + " " + direction + ", d.id ASC";
+    }
+
+    public PageDTO<DonationWithDonorDto> findByFilter(GetDonationDto getDonationDto) {
+        String donationStatus = getDonationDto.status() != null ? getDonationDto.status().name() : null;
+        String donationType = getDonationDto.donationType();
+        String donorName = getDonationDto.donorName();
+
+        String orderBy = buildOrderByClause(
+                getDonationDto.sortField(),
+                getDonationDto.sortDirection()
+        );
+
+        String query = DonationQueryBuilder.GET_FILTERED_DONATIONS
+                .replace("%ORDER_BY%", "ORDER BY " + orderBy);
+
+        List<DonationWithDonorDto> donations = jdbc.query(
+                query,
+                this::mapRowDonationWithDonor,
+                donorName, donorName,
+                getDonationDto.startDate(), getDonationDto.startDate(),
+                getDonationDto.endDate(), getDonationDto.endDate(),
+                donationStatus, donationStatus,
+                donationType, donationType,
+                getDonationDto.pageSize(),
+                getDonationDto.page() * getDonationDto.pageSize()
+        );
+
+        var total = jdbc.queryForObject(
+                DonationQueryBuilder.SELECT_COUNT,
+                Integer.class,
+                donorName, donorName,
+                getDonationDto.startDate(), getDonationDto.startDate(),
+                getDonationDto.endDate(), getDonationDto.endDate(),
+                donationStatus, donationStatus,
+                donationType, donationType
+        );
+
+        if (total == null) total = 0;
+
+        int totalPages = Math.toIntExact((total / getDonationDto.pageSize()) + (total % getDonationDto.pageSize() == 0 ? 0 : 1));
+
+        return new PageDTO<>(donations, total, totalPages);
+    }
+
     @Override
     public Optional<Donation> findById(UUID id) {
         try {
@@ -73,13 +126,28 @@ public class DonationRepository implements IDonationRepository {
         }
     }
 
-    private Donation mapRowDonation(ResultSet rs, int rowNum) throws SQLException {
-        var donation = new Donation();
-        donation.setId(rs.getObject("id", UUID.class));
-        donation.setValue(rs.getLong("value"));
-        donation.setDonationAt(rs.getObject("donation_at", LocalDateTime.class));
-        donation.setUserId(rs.getObject("user_id", UUID.class));
-        donation.setStatus(DonationStatusEnum.valueOf(rs.getString("status")));
-        return donation;
-    }
+	private Donation mapRowDonation(ResultSet rs, int rowNum) throws SQLException {
+		Donation donation = new Donation();
+		donation.setId(rs.getObject("id", UUID.class));
+		donation.setValue(rs.getLong("value"));
+		donation.setDonationAt(rs.getObject("donation_at", LocalDateTime.class));
+		donation.setUserId(rs.getObject("user_id", UUID.class));
+		donation.setStatus(DonationStatusEnum.valueOf(rs.getString("status")));
+		return donation;
+	}
+
+	private DonationWithDonorDto mapRowDonationWithDonor(ResultSet rs, int rowNum) throws SQLException {
+        String userIdString = rs.getString("user_id");
+		return new DonationWithDonorDto(
+				UUID.fromString(rs.getString("id")),
+				rs.getBigDecimal("value"),
+				rs.getTimestamp("donation_at").toLocalDateTime(),
+                userIdString != null ? UUID.fromString(userIdString) : null,
+                rs.getString("donation_type"),
+                DonationStatusEnum.valueOf(rs.getString("status").toUpperCase()),
+                rs.getString("sponsor_status"),
+				rs.getString("donor_name")
+		);
+	}
+
 }
