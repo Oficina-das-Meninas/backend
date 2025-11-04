@@ -1,6 +1,8 @@
 
 package br.org.oficinadasmeninas.infra.donation.repository;
 
+import java.util.Map;
+
 public class DonationQueryBuilder {
 
     public static final String SELECT_COUNT = """
@@ -49,6 +51,14 @@ public class DonationQueryBuilder {
 			    WHERE id = ?
 			""";
 
+    public static final Map<String, String> ALLOWED_SORT_FIELDS = Map.of(
+            "donorName", "u.name",
+            "value", "d.value",
+            "donationAt", "d.donation_at",
+            "status", "d.status",
+            "donationType", "(CASE WHEN EXISTS (SELECT 1 FROM sponsors s WHERE s.userid = d.user_id) THEN 'RECURRING' ELSE 'ONE_TIME' END)",
+            "sponsorStatus", "(CASE WHEN EXISTS (SELECT 1 FROM sponsors s WHERE s.userid = d.user_id AND s.isactive = TRUE) THEN 'ACTIVE' WHEN EXISTS (SELECT 1 FROM sponsors s WHERE s.userid = d.user_id AND s.isactive = FALSE) THEN 'INACTIVE' ELSE null END)"
+    );
 
     public static final String GET_FILTERED_DONATIONS = """
             SELECT d.id
@@ -86,7 +96,7 @@ public class DonationQueryBuilder {
                    ) THEN 'RECURRING'
                    ELSE 'ONE_TIME'
                    END) = ?)
-            ORDER BY d.donation_at DESC
+            %ORDER_BY%
             LIMIT ? OFFSET ?;
     """;
 }

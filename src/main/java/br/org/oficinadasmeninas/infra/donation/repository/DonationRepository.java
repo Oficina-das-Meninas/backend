@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static br.org.oficinadasmeninas.infra.donation.repository.DonationQueryBuilder.ALLOWED_SORT_FIELDS;
+
 @Repository
 public class DonationRepository implements IDonationRepository {
 
@@ -61,13 +63,27 @@ public class DonationRepository implements IDonationRepository {
         return jdbc.query(DonationQueryBuilder.SELECT_ALL_DONATIONS, this::mapRowDonation);
     }
 
+    private String buildOrderByClause(String sortField, String sortDirection) {
+        String field = ALLOWED_SORT_FIELDS.getOrDefault(sortField, "d.donation_at");
+        String direction = "desc".equalsIgnoreCase(sortDirection) ? "DESC" : "ASC";
+        return field + " " + direction + ", d.id ASC";
+    }
+
     public PageDTO<DonationWithDonorDto> findByFilter(GetDonationDto getDonationDto) {
         String donationStatus = getDonationDto.status() != null ? getDonationDto.status().name() : null;
         String donationType = getDonationDto.donationType();
         String donorName = getDonationDto.donorName();
 
+        String orderBy = buildOrderByClause(
+                getDonationDto.sortField(),
+                getDonationDto.sortDirection()
+        );
+
+        String query = DonationQueryBuilder.GET_FILTERED_DONATIONS
+                .replace("%ORDER_BY%", "ORDER BY " + orderBy);
+
         List<DonationWithDonorDto> donations = jdbc.query(
-                DonationQueryBuilder.GET_FILTERED_DONATIONS,
+                query,
                 this::mapRowDonationWithDonor,
                 donorName, donorName,
                 getDonationDto.startDate(), getDonationDto.startDate(),

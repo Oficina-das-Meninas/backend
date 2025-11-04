@@ -12,7 +12,9 @@ public record GetDonationDto(
     DonationStatusEnum status,
     String donorName,
     LocalDateTime startDate,
-    LocalDateTime endDate
+    LocalDateTime endDate,
+    String sortField,
+    String sortDirection
 ) {
     public static GetDonationDto FromRequestParams(
             int page,
@@ -21,7 +23,9 @@ public record GetDonationDto(
             DonationStatusEnum status,
             String donorName,
             LocalDate startDate,
-            LocalDate endDate
+            LocalDate endDate,
+            String sortField,
+            String sortDirection
     ) {
         return new GetDonationDto(
                 page,
@@ -30,7 +34,9 @@ public record GetDonationDto(
                 status,
                 donorName,
                 startDate != null ? startDate.atStartOfDay() : null,
-                endDate != null ? endDate.atTime(23, 59, 59) : null
+                endDate != null ? endDate.atTime(23, 59, 59) : null,
+                sortField,
+                sortDirection
         );
     }
 }
