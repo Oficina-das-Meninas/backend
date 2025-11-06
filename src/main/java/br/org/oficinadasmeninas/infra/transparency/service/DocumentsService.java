@@ -32,7 +32,7 @@ public class DocumentsService implements IDocumentsService {
     public UUID create(CreateDocumentRequestDto request) {
 
         var category = categoriesRepository
-                .findById(UUID.fromString(request.categoryId()))
+                .findById(request.categoryId())
                 .orElseThrow(() -> new NotFoundException(Messages.CATEGORY_NOT_FOUND));
 
         try {

@@ -5,11 +5,12 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
+import java.util.UUID;
 
 public record CreateDocumentRequestDto(
         MultipartFile file,
         @NotBlank String title,
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date effectiveDate,
-        String categoryId
+        UUID categoryId
 ) {
 }

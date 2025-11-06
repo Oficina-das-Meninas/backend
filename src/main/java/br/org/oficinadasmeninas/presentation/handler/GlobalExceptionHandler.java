@@ -8,14 +8,17 @@ import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -23,7 +26,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<?> handleNotFoundException(NotFoundException ex) {
 
-       return buildResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+        return buildResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ValidationException.class)
@@ -56,28 +59,46 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-            errors.put(error.getField(), error.getDefaultMessage())
-        );
+    public ResponseEntity<?> handleValidationErrors(MethodArgumentNotValidException ex) {
 
-        return ResponseEntity.badRequest().body(errors);
+        var bindingResult = ex.getBindingResult();
+
+        var errors = bindingResult
+                .getFieldErrors()
+                .stream()
+                .map(fe -> toErrorMap(fe, bindingResult))
+                .collect(Collectors.toList());
+
+        return buildResponse("Mapeamento inválido: verifique os campos.", HttpStatus.BAD_REQUEST, errors);
     }
-    
+
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<String> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
-    	return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
-    
+
     @ExceptionHandler(DocumentAlreadyExistsException.class)
     public ResponseEntity<String> handleDocumentAlreadyExists(DocumentAlreadyExistsException ex) {
-    	return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 
     private static ResponseEntity<?> buildResponse(String message, HttpStatus status) {
 
         var body = new Response<Void>(message, null);
         return ResponseEntity.status(status).body(body);
+    }
+
+    private static <T> ResponseEntity<Response<T>> buildResponse(String message, HttpStatus status, T data) {
+        var body = new Response<>(message, data);
+        return ResponseEntity.status(status).body(body);
+    }
+
+    private static Map<String, Object> toErrorMap(FieldError fe, Errors errors) {
+
+        return Map.of(
+                "field", fe.getField(),
+                "fieldType", Optional.ofNullable(errors.getFieldType(fe.getField())),
+                "rejectedValue", Optional.ofNullable(fe.getRejectedValue())
+        );
     }
 }
