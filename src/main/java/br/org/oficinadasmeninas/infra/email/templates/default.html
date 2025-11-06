@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Oficina das Meninas</title>
+  <style>
+    body{margin:0;background:#f6f7fb;font-family:Arial,Helvetica,sans-serif;color:#1f2d3d}
+    .container{max-width:640px;margin:0 auto;background:#ffffff}
+    .header{padding:24px 24px 0}
+    .brand{font-size:18px;font-weight:700;color:#4b5bdc;text-decoration:none}
+    .hero{padding:24px}
+    .card{background:#ffffff;border:1px solid #e6e8f0;border-radius:12px;padding:24px}
+    h1{font-size:20px;margin:0 0 12px 0}
+    p{line-height:1.6;margin:0 0 12px 0}
+    .divider{height:1px;background:#e6e8f0;margin:24px 0}
+    .footer{padding:16px 24px 32px;color:#5f6b7a;font-size:12px}
+    .muted{color:#5f6b7a}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <a class="brand" href="https://oficinadasmeninas.org.br" target="_blank" rel="noopener">Oficina das Meninas</a>
+    </div>
+
+    <div class="hero">
+      <div class="card">
+        <h1 th:text="${greeting}">Olá,</h1>
+        <div class="divider"></div>
+        <div th:utext="${contentHtml}">
+          <p>Conteúdo do e-mail.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p class="muted">Este é um e-mail automático. Não responda.</p>
+      <p class="muted">© <span th:text="${year}">2025</span> Oficina das Meninas. Todos os direitos reservados.</p>
+    </div>
+  </div>
+</body>
+</html>
+
