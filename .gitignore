@@ -1,4 +1,6 @@
-/src/main/resources/
+/src/main/resources/*
+!/src/main/resources/templates/
+!/src/main/resources/templates/**
 /.idea/
 /target
 /.classpath

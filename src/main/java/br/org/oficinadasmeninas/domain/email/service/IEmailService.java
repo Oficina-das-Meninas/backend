@@ -14,29 +14,46 @@ public interface IEmailService {
     /**
      * Envia um e-mail em texto simples (conteúdo plano).
      *
-     * @param to endereço de e-mail do destinatário; não deve ser {@code null} nem vazio
+     * @param to      endereço de e-mail do destinatário; não deve ser {@code null} nem vazio
      * @param subject assunto do e-mail; não deve ser {@code null} nem vazio
-     * @param text corpo da mensagem em texto puro; não deve ser {@code null}
+     * @param text    corpo da mensagem em texto puro; não deve ser {@code null}
      */
     void send(String to, String subject, String text);
 
     /**
      * Envia um e-mail em HTML utilizando um template.
      *
-     * @param to endereço de e-mail do destinatário; não deve ser {@code null} nem vazio
-     * @param subject assunto do e-mail; não deve ser {@code null} nem vazio
-     * @param template nome lógico do template a ser processado pelo mecanismo de templates
-     *                 (ex.: {@code "default"}); não deve ser {@code null} nem vazio
+     * @param to        endereço de e-mail do destinatário; não deve ser {@code null} nem vazio
+     * @param subject   assunto do e-mail; não deve ser {@code null} nem vazio
+     * @param template  nome lógico do template a ser processado pelo mecanismo de templates
+     *                  (ex.: {@code "default"} ou {@code "email/default"}); não deve ser {@code null} nem vazio
      * @param variables mapa de variáveis disponibilizadas ao template (pode ser {@code null})
      */
     void sendHtml(String to, String subject, String template, Map<String, Object> variables);
 
     /**
-     * Envia um e-mail utilizando o template padrão (nome lógico {@code "default"}).
+     * Envia um e-mail utilizando o template padrão do projeto.
      * <p>
-     * O template padrão deve estar acessível no classpath conforme configuração do mecanismo
-     * de templates. Por convenção do projeto, encontra-se em
-     * {@code br/org/oficinadasmeninas/infra/email/templates/default.html}.
+     * Comportamento:
+     * - Processa o template lógico {@code "email/default"} localizado em
+     *   {@code src/main/resources/templates/email/default.html} (padrão do projeto) e envia o HTML
+     *   resultante ao destinatário.
+     * - Monta um mapa de variáveis simples usado pelo template. As variáveis mais comuns que o
+     *   template utiliza são:
+     *     <ul>
+     *       <li>{@code title}  - Título principal exibido no topo (string).</li>
+     *       <li>{@code greeting} - Texto alternativo para saudação/título (string).</li>
+     *       <li>{@code description} - Parágrafo descritivo (string).</li>
+     *       <li>{@code contentHtml} - Conteúdo HTML livre que pode ser inserido no corpo (string, usado com th:utext).</li>
+     *       <li>{@code heroImageUrl} - URL da imagem de destaque (string, opcional).</li>
+     *       <li>{@code footerAddress} - Texto do rodapé com endereço/contato (string).</li>
+     *       <li>{@code year} - Ano exibido no rodapé (número).</li>
+     *     </ul>
+     * <p>
+     * Observações:
+     * - Se {@code title} não for informado, {@code greeting} será usado como fallback.
+     * - O método delega para {@link #sendHtml(String, String, String, Map)} e pode lançar
+     *   exceções de runtime caso ocorra falha no envio.
      *
      * @param to endereço de e-mail do destinatário; não deve ser {@code null} nem vazio
      * @param subject assunto do e-mail; não deve ser {@code null} nem vazio
