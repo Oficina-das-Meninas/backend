@@ -1,10 +1,10 @@
 package br.org.oficinadasmeninas.infra.email.service;
 
 import br.org.oficinadasmeninas.domain.email.service.IEmailService;
+import br.org.oficinadasmeninas.infra.shared.exception.EmailSendException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -16,13 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Implementação do serviço de envio de e-mails.
- * <p>
- * Fornece métodos para envio em texto simples e envio de HTML a partir de
- * templates processados pelo Thymeleaf. Também expõe um método utilitário
- * para enviar o template padrão do projeto.
- */
+
 @Service
 public class EmailService implements IEmailService {
 
@@ -51,7 +45,7 @@ public class EmailService implements IEmailService {
             helper.setText(text, false);
             mailSender.send(mimeMessage);
         } catch (MessagingException | UnsupportedEncodingException e) {
-            throw new RuntimeException("Falha ao enviar e-mail", e);
+            throw new EmailSendException("Falha ao enviar e-mail");
         }
     }
 
@@ -65,8 +59,7 @@ public class EmailService implements IEmailService {
             Context context = new Context();
             if (variables != null) {
                 // Preenche valores padrão caso não fornecidos
-                variables.putIfAbsent("footerAddress", "Oficina das Meninas · R. Padre Manoel da Nobrega, 552 - Parque Alvorada");
-                variables.putIfAbsent("year", java.time.Year.now().getValue());
+                addDefaultVariables(variables);
                 variables.forEach(context::setVariable);
             }
 
@@ -79,7 +72,7 @@ public class EmailService implements IEmailService {
 
             mailSender.send(mimeMessage);
         } catch (MessagingException | UnsupportedEncodingException e) {
-            throw new RuntimeException("Falha ao enviar e-mail", e);
+            throw new EmailSendException("Falha ao enviar e-mail");
         }
     }
 
@@ -88,8 +81,12 @@ public class EmailService implements IEmailService {
         Map<String, Object> vars = new HashMap<>();
         vars.put("greeting", greeting);
         vars.put("contentHtml", contentHtml);
-        vars.putIfAbsent("footerAddress", "Oficina das Meninas · R. Padre Manoel da Nobrega, 552 - Parque Alvorada");
-        vars.putIfAbsent("year", java.time.Year.now().getValue());
+        addDefaultVariables(vars);
         sendHtml(to, subject, "email/default", vars);
+    }
+
+    private void addDefaultVariables(Map<String, Object> variables) {
+        variables.putIfAbsent("footerAddress", "Oficina das Meninas · R. Padre Manoel da Nobrega, 552 - Parque Alvorada");
+        variables.putIfAbsent("year", java.time.Year.now().getValue());
     }
 }

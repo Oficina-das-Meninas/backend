@@ -44,7 +44,7 @@
          <p th:if="${description != null}" th:text="${description}">
            Junte-se a nós para um dia inesquecível de aprendizado, diversão e novas amizades.
          </p>
-         <div th:if="description == null and contentHtml != null" th:utext="${contentHtml}"></div>
+           <div th:if="${description == null and contentHtml != null}" th:utext="${contentHtml}"></div>
 
          <div class="divider"></div>
        </div>

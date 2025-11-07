@@ -53,7 +53,7 @@ public interface IEmailService {
      * Observações:
      * - Se {@code title} não for informado, {@code greeting} será usado como fallback.
      * - O método delega para {@link #sendHtml(String, String, String, Map)} e pode lançar
-     *   exceções de runtime caso ocorra falha no envio.
+     *   exceções de email caso o envio falhe.
      *
      * @param to endereço de e-mail do destinatário; não deve ser {@code null} nem vazio
      * @param subject assunto do e-mail; não deve ser {@code null} nem vazio
