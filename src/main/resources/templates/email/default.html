@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Oficina das Meninas</title>
+  <style>
+    body { margin:0; padding:0; background:#f6f7fb; color:#1f2d3d; font-family: Arial, Helvetica, sans-serif; }
+    .container { max-width:640px; margin:24px auto; }
+    .card { background:#ffffff; border:1px solid #e6e8f0; border-radius:16px; overflow:hidden; box-shadow:0 6px 18px rgba(31,45,61,.06); }
+    .hero { display:block; width:100%; height:auto; max-height:240px; object-fit:contain; background:#fff0ec; }
+    .content { padding:24px; }
+    h1 { font-size:22px; line-height:1.3; margin:0 0 12px 0; color:#ba005c; }
+    p { margin:0 0 14px 0; line-height:1.6; }
+    .cta-wrap { text-align:center; margin-top:20px; }
+    .cta { display:inline-block; padding:12px 20px; background:#e84a72; color:#ffffff !important; text-decoration:none; border-radius:10px; font-weight:700; box-shadow:0 4px 10px rgba(232,74,114,.25); }
+    .divider { height:1px; background:#e6e8f0; margin:20px 0; }
+    .footer { text-align:center; color:#5f6b7a; font-size:12px; padding:16px; }
+    .socials { text-align:center; padding:8px 0 0; }
+    .socials a { display:inline-block; margin:0 6px; width:28px; height:28px; line-height:28px; text-align:center; border-radius:6px; background:#f0f2f7; color:#3b3b3b; font-size:14px; text-decoration:none; font-weight:700; }
+    .brand { display:block; text-decoration:none; font-weight:800; color:#4b5bdc; padding:20px 24px 0 24px; }
+    @media (prefers-color-scheme: dark) {
+      body { background:#0f172a; color:#e2e8f0; }
+      .card { background:#0b1220; border-color:#172036; }
+      .divider { background:#172036; }
+      h1 { color:#60a5fa; }
+      .footer { color:#94a3b8; }
+      .socials a { background:#111827; color:#e5e7eb; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+       <!-- Imagem de destaque (opcional). Use heroImageUrl para personalizar -->
+       <div style="width:100%;height:240px;display:block;text-align:center;background:#fff0ec;">
+         <img class="hero"  th:src="${heroImageUrl ?: 'https://files.apollomusic.com.br/oficinadasmeninasteste/pub/Logo_OficinaDasMeninas-1.png'}" alt="Imagem de destaque"
+              width="640" height="240" style="display:inline-block;width:100%;height:240px;object-fit:contain;border:0;background:#fff0ec;" />
+       </div>
+
+       <div class="content">
+         <h1 th:text="${title ?: greeting}">Desperte a Criatividade na Próxima Oficina!</h1>
+
+         <p th:if="${description != null}" th:text="${description}">
+           Junte-se a nós para um dia inesquecível de aprendizado, diversão e novas amizades.
+         </p>
+           <div th:if="${description == null and contentHtml != null}" th:utext="${contentHtml}"></div>
+
+         <div class="divider"></div>
+       </div>
+     </div>
+
+     <div class="footer">
+      <div th:text="${footerAddress}">Oficina das Meninas · Rua da Criatividade, 123 · Bairro Feliz</div>
+      <div>© <span th:text="${year}">2025</span> Oficina das Meninas. Todos os direitos reservados.</div>
+     </div>
+   </div>
+ </body>
+ </html>
