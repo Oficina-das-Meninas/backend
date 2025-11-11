@@ -12,6 +12,8 @@ public class PaymentMapper {
                 payment.getGateway(),
                 payment.getCheckoutId(),
                 payment.getMethod(),
-                payment.getStatus());
+                payment.getStatus(),
+        		payment.getDate()
+        );
     }
 }

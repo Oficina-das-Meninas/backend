@@ -1,5 +1,6 @@
 package br.org.oficinadasmeninas.infra.paymentgateway.pagbank.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -134,7 +135,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
        donationService.updateStatus(paymentId, donationStatusEnum);
        paymentService.updateStatus(paymentId, paymentStatus);
        paymentService.updateMethod(paymentId, paymentMethod);
-
+       paymentService.updatePaymentDate(paymentId, LocalDateTime.now());
 
        if (recurring) {
          UserDto userDto = userService.findByDocument(customer.tax_id());
