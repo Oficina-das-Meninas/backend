@@ -7,34 +7,74 @@ import br.org.oficinadasmeninas.domain.user.dto.CreateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
 import br.org.oficinadasmeninas.domain.user.service.IUserService;
 import br.org.oficinadasmeninas.infra.auth.UserDetailsCustom;
+import br.org.oficinadasmeninas.infra.auth.dto.LoginResponseDto;
 import br.org.oficinadasmeninas.infra.auth.dto.LoginUserDto;
+import br.org.oficinadasmeninas.infra.auth.dto.UserResponseDto;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
+import br.org.oficinadasmeninas.presentation.shared.utils.CookieUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
+	
+	private static final boolean IS_ADMIN = true;
+	private static final String ACCESS_TOKEN = "access_token";
 
 	private final IAdminService adminService;
 	private final IUserService userService;
 	private final AuthenticationManager authenticationManager;
+	private final JwtService jwtService;
 
-	private final boolean IS_ADMIN = true;
-
-	public AuthService(IAdminService adminService, IUserService userService,
-			AuthenticationManager authenticationManager) {
-		super();
+	public AuthService(
+		IAdminService adminService, 
+		IUserService userService,
+		AuthenticationManager authenticationManager,
+		JwtService jwtService
+	) {
 		this.adminService = adminService;
 		this.userService = userService;
 		this.authenticationManager = authenticationManager;
+		this.jwtService = jwtService;
+	}
+	
+	public LoginResponseDto login(LoginUserDto loginUserDto, HttpServletResponse response) {
+		UserDetailsCustom authenticatedUser = authenticate(loginUserDto);
+
+		String jwtToken = jwtService.generateToken(authenticatedUser);
+		long expirationTime = jwtService.getExpirationTime();
+	
+		CookieUtils.addCookie(response, ACCESS_TOKEN, jwtToken, expirationTime);
+		
+		UserResponseDto userResponse = new UserResponseDto();
+		userResponse.setId(authenticatedUser.getId());
+		userResponse.setName(authenticatedUser.getName());
+		userResponse.setIsAdmin(authenticatedUser.getAdmin());
+
+		LoginResponseDto loginResponse = new LoginResponseDto();
+		loginResponse.setUser(userResponse);
+		loginResponse.setExpiresIn(jwtService.getExpirationTime());
+		
+		return loginResponse;
+	}
+	
+	public Void logout(HttpServletRequest request, HttpServletResponse response) {
+	    CookieUtils.deleteCookie(request, response, ACCESS_TOKEN);
+	    SecurityContextHolder.clearContext();
+	    
+		return null;
 	}
 
 	public UserDto createUserAccount(CreateUserDto user) {
 		return userService.insert(user);
 	}
 
-	public UserDetailsCustom authenticate(LoginUserDto loginUserDTO) {
+	private UserDetailsCustom authenticate(LoginUserDto loginUserDTO) {
 		authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(loginUserDTO.getEmail(), loginUserDTO.getPassword()));
 
@@ -60,4 +100,5 @@ public class AuthService {
 	private UserDetailsCustom createUserDetailsCustom(AdminDto admin, String password) {
 		return new UserDetailsCustom(admin.getId(), admin.getEmail(), password, admin.getName(), IS_ADMIN);
 	}
+	
 }

@@ -73,4 +73,11 @@ public final class Messages {
     public static final String ADMIN_CREATED_SUCCESSFULLY = "Administrador criado com sucesso.";
 
     public static final String ADMIN_UPDATED_SUCCESSFULLY = "Administrador atualizado com sucesso.";
+    
+    public static final String AUTH_LOGIN_SUCCESSFULLY = "Usuário logado com sucesso.";
+    
+    public static final String AUTH_LOGOUT_SUCCESSFULLY = "Usuário deslogado com sucesso.";
+
+    public static final String SESSION_USER_SUCCESSFULLY = "Sessão recuperada com sucesso.";
+    
 }
