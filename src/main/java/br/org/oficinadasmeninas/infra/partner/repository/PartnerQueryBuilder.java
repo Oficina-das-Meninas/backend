@@ -4,13 +4,13 @@ public class PartnerQueryBuilder {
     public static final String SELECT_COUNT = """
         SELECT count(*)
         FROM partners
-        WHERE unaccent(name) ILIKE COALESCE('%' || unaccent(?) || '%', name)
+        WHERE unaccent(name) ILIKE unaccent(COALESCE('%' || ? || '%', name))
     """;
 
     public static final String GET_PARTNERS = """
         SELECT id, preview_image_url, name
         FROM partners
-        WHERE unaccent(name) ILIKE COALESCE('%' || unaccent(?) || '%', name)
+        WHERE unaccent(name) ILIKE unaccent(COALESCE('%' || ? || '%', name))
         ORDER BY name
         LIMIT ? OFFSET ?
     """;
@@ -32,7 +32,7 @@ public class PartnerQueryBuilder {
             name = ?
         WHERE id = ?
     """;
-    
+
     public static final String DELETE_PARTNER = """
         DELETE FROM partners
         WHERE id = ?
