@@ -84,7 +84,7 @@ public class PartnerService implements IPartnerService {
 
         var fileName = storageService.sanitizeFileName(file.getOriginalFilename());
 
-        storageService.upload(file, fileName, true);
+        storageService.uploadWithName(file, fileName, true);
 
         return fileName;
     }
