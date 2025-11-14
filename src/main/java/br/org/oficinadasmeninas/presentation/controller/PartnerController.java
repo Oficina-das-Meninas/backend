@@ -4,6 +4,9 @@ import br.org.oficinadasmeninas.domain.partner.dto.CreatePartnerDto;
 import br.org.oficinadasmeninas.domain.partner.dto.UpdatePartnerDto;
 import br.org.oficinadasmeninas.domain.partner.service.IPartnerService;
 import br.org.oficinadasmeninas.domain.resources.Messages;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -27,8 +30,13 @@ public class PartnerController extends BaseController {
         this.partnerService = partnerService;
     }
 
-    @PostMapping()
-    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Cria um novo parceiro")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Parceiro criado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos para criação do parceiro"),
+            @ApiResponse(responseCode = "503", description = "Erro ao executar o Bucket")
+    })
+    @PostMapping
     public ResponseEntity<?> createPartner(
             @ModelAttribute @Valid CreatePartnerDto createPartnerDto
     ) {
@@ -39,8 +47,14 @@ public class PartnerController extends BaseController {
         );
     }
 
+    @Operation(summary = "Atualiza um parceiro existente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Parceiro atualizado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos para atualização"),
+            @ApiResponse(responseCode = "404", description = "Parceiro não encontrado"),
+            @ApiResponse(responseCode = "503", description = "Erro ao executar o Bucket")
+    })
     @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> updatePartner(
             @PathVariable UUID id,
             @ModelAttribute @Valid UpdatePartnerDto updatePartnerDto
@@ -51,8 +65,11 @@ public class PartnerController extends BaseController {
         );
     }
 
+    @Operation(summary = "Remove um parceiro pelo identificador")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Parceiro removido com sucesso")
+    })
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<?> deletePartner(@PathVariable UUID id) {
 
         return handle(
@@ -61,6 +78,11 @@ public class PartnerController extends BaseController {
         );
     }
 
+    @Operation(summary = "Lista parceiros filtrados")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Parceiros encontrados com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Parâmetros inválidos")
+    })
     @GetMapping
     public ResponseEntity<?> findAll(
             @RequestParam @Nullable String searchTerm,
@@ -70,8 +92,12 @@ public class PartnerController extends BaseController {
         return handle(() -> partnerService.findAll(searchTerm, page, pageSize));
     }
 
+    @Operation(summary = "Busca um parceiro pelo identificador")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Parceiro encontrado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Parceiro não encontrado")
+    })
     @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> findPartnerById(@PathVariable UUID id) {
         return handle(() -> partnerService.findById(id));
     }

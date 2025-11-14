@@ -5,6 +5,9 @@ import br.org.oficinadasmeninas.domain.event.dto.GetEventDto;
 import br.org.oficinadasmeninas.domain.event.dto.UpdateEventDto;
 import br.org.oficinadasmeninas.domain.event.service.IEventService;
 import br.org.oficinadasmeninas.domain.resources.Messages;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -28,8 +31,13 @@ public class EventController extends BaseController {
         this.eventService = eventService;
     }
 
-    @PostMapping()
-    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Cria um novo evento")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Evento criado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos para criação do Evento"),
+            @ApiResponse(responseCode = "503", description = "Erro ao executar o Bucket")
+    })
+    @PostMapping
     public ResponseEntity<?> createEvent(
             @ModelAttribute @Valid CreateEventDto createEventDto
     ) {
@@ -40,8 +48,14 @@ public class EventController extends BaseController {
         );
     }
 
+    @Operation(summary = "Atualiza um Evento existente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Evento atualizado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Evento não encontrado"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos para atualização do Evento"),
+            @ApiResponse(responseCode = "503", description = "Erro ao executar o Bucket")
+    })
     @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> updateEvent(
             @PathVariable UUID id,
             @ModelAttribute @Valid UpdateEventDto updateEventDto
@@ -52,6 +66,10 @@ public class EventController extends BaseController {
         );
     }
 
+    @Operation(summary = "Exclui um Evento existente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Evento excluido com sucesso"),
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteEvent(
             @PathVariable UUID id
@@ -62,8 +80,11 @@ public class EventController extends BaseController {
         );
     }
 
-    @GetMapping()
-    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Lista eventos filtrados")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Eventos encontrados com sucesso")
+    })
+    @GetMapping
     public ResponseEntity<?> getFilteredEvents(
             @RequestParam(defaultValue = "0") @PositiveOrZero int page,
             @RequestParam(defaultValue = "10") @Positive @Max(100) int pageSize,
@@ -78,8 +99,12 @@ public class EventController extends BaseController {
         return handle(() -> eventService.findByFilter(request));
     }
 
+    @Operation(summary = "Busca um evento pelo identificador")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Evento encontrado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Evento não encontrado")
+    })
     @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> findEventById(
             @PathVariable UUID id
     ) {
