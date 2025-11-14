@@ -43,7 +43,7 @@ jobs:
 
       - name: Salvar application.properties
         run: |
-          printf "%s\n" "${{ steps.secrets.outputs.APP_CONFIG }}" > application.properties
+           echo "${{ steps.secrets.outputs.APP_CONFIG }}" > application.properties
 
       - name: Build Spring Boot
         run: mvn clean package -DskipTests -U
