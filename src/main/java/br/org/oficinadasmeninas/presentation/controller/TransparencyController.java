@@ -76,7 +76,7 @@ public class TransparencyController extends BaseController {
     })
     @DeleteMapping("/documents/{documentId}")
     public ResponseEntity<?> deleteDocument(
-            @PathVariable("documentId") @NotBlank UUID documentId
+            @PathVariable("documentId") UUID documentId
     ) {
         return handle(
                 () -> documentsService.deleteById(documentId),
@@ -92,7 +92,7 @@ public class TransparencyController extends BaseController {
     })
     @PatchMapping("/collaborators/{collaboratorId}")
     public ResponseEntity<?> updateCollaborator(
-            @PathVariable("collaboratorId") @NotBlank UUID collaboratorId,
+            @PathVariable("collaboratorId") UUID collaboratorId,
             @Valid @RequestBody UpdateCollaboratorDto request
     ) {
         return handle(
@@ -109,7 +109,7 @@ public class TransparencyController extends BaseController {
     })
     @DeleteMapping("/collaborators/{collaboratorId}")
     public ResponseEntity<?> deleteCollaborator(
-            @PathVariable("collaboratorId") @NotBlank UUID collaboratorId
+            @PathVariable("collaboratorId") UUID collaboratorId
     ) {
         return handle(
                 () -> collaboratorsService.deleteById(collaboratorId),
