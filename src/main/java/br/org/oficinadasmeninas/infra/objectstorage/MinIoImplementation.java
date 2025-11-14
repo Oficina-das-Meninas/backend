@@ -1,6 +1,7 @@
 package br.org.oficinadasmeninas.infra.objectstorage;
 
 import br.org.oficinadasmeninas.domain.objectstorage.IObjectStorage;
+import br.org.oficinadasmeninas.infra.exceptions.ObjectStorageException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -9,7 +10,6 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 @Service
 public class MinIoImplementation implements IObjectStorage {
@@ -26,38 +26,17 @@ public class MinIoImplementation implements IObjectStorage {
     }
 
     @Override
-    public void upload(String key, InputStream data, String contentType) throws IOException {
-
-        String fullKey = "public/" + key;
-
-        s3Client.putObject(
-                PutObjectRequest.builder()
-                        .bucket(bucketName)
-                        .key(fullKey)
-                        .contentType(contentType)
-                        .build(),
-                RequestBody.fromInputStream(data, data.available())
-        );
-    }
-
-    @Override
-    public void upload(MultipartFile file, Boolean isPublic) throws IOException {
+    public void upload(MultipartFile file, Boolean isPublic) {
         String originalName = file.getOriginalFilename();
         if (originalName != null) {
             originalName = sanitizeFileName(originalName);
         }
 
-        upload(file, originalName, isPublic);
-    }
-
-    public String sanitizeFileName(String fileName) {
-        String normalized = java.text.Normalizer.normalize(fileName, java.text.Normalizer.Form.NFD)
-                .replaceAll("\\p{M}", "");
-        return normalized.replaceAll("[^a-zA-Z0-9\\.\\-_]", "_");
+        uploadWithName(file, originalName, isPublic);
     }
 
     @Override
-    public void upload(MultipartFile file, String fileName,  Boolean isPublic) {
+    public void uploadWithName(MultipartFile file, String fileName, Boolean isPublic) {
         try {
             if (isSmallFile(file)) {
                 simpleUpload(file, fileName, isPublic);
@@ -65,12 +44,12 @@ public class MinIoImplementation implements IObjectStorage {
                 multipartUpload(file, fileName, isPublic);
             }
         } catch (IOException e) {
-            throw new RuntimeException("NAO FOI POSSIVEL ARMAZENAR ARQUIVO", e);
+            throw new ObjectStorageException(e);
         }
     }
 
     @Override
-    public String uploadTransparencyFile(MultipartFile file, boolean isImage) throws IOException {
+    public String uploadWithFilePath(MultipartFile file, boolean isImage) {
         var title = file.getOriginalFilename();
 
         if (title != null) {
@@ -89,12 +68,12 @@ public class MinIoImplementation implements IObjectStorage {
             return "/pub/" + objectKey;
 
         } catch (IOException e) {
-            throw new RuntimeException("NAO FOI POSSIVEL ARMAZENAR ARQUIVO", e);
+            throw new ObjectStorageException(e);
         }
     }
 
     @Override
-    public void deleteTransparencyFile(String fileUrl) {
+    public void deleteFileByPath(String fileUrl) {
         try {
             s3Client.deleteObject(DeleteObjectRequest.builder()
                     .bucket(bucketName)
@@ -102,8 +81,14 @@ public class MinIoImplementation implements IObjectStorage {
                     .build());
 
         } catch (S3Exception e) {
-            throw new RuntimeException("NÃO FOI POSSÍVEL REMOVER ARQUIVO: " + fileUrl, e);
+            throw new ObjectStorageException(e);
         }
+    }
+
+    public String sanitizeFileName(String fileName) {
+        String normalized = java.text.Normalizer.normalize(fileName, java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "");
+        return normalized.replaceAll("[^a-zA-Z0-9\\.\\-_]", "_");
     }
 
     private boolean isSmallFile(MultipartFile file) {
