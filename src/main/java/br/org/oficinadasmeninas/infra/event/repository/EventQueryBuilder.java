@@ -10,7 +10,7 @@ public class EventQueryBuilder {
           )
           AND description ILIKE COALESCE('%' || ? || '%', description)
           AND event_date BETWEEN COALESCE(?, event_date)
-          AND COALESCE(?, event_date)
+                         AND COALESCE(?, event_date)
     """;
 
     public static final String GET_EVENT_BY_ID = """
@@ -51,7 +51,7 @@ public class EventQueryBuilder {
     """;
     
     public static final String DELETE_EVENT = """
-    		DELETE FROM EVENTS 
-			WHERE id = ?
+    		DELETE FROM EVENTS
+    		WHERE id = ?
     """;
 }
