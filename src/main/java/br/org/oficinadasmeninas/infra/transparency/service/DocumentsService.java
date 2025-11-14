@@ -35,19 +35,14 @@ public class DocumentsService implements IDocumentsService {
                 .findById(request.categoryId())
                 .orElseThrow(() -> new NotFoundException(Messages.CATEGORY_NOT_FOUND));
 
-        try {
-            var previewLink = objectStorage.uploadTransparencyFile(request.file(), false);
+        var previewLink = objectStorage.uploadWithFilePath(request.file(), false);
 
-            var document = toEntity(request);
-            document.setCategory(category);
-            document.setPreviewLink(previewLink);
+        var document = toEntity(request);
+        document.setCategory(category);
+        document.setPreviewLink(previewLink);
 
-            documentsRepository.insert(document);
-            return document.getId();
-
-        } catch (IOException e) {
-            throw new ObjectStorageException(e);
-        }
+        documentsRepository.insert(document);
+        return document.getId();
     }
 
     @Override
@@ -56,13 +51,9 @@ public class DocumentsService implements IDocumentsService {
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.DOCUMENT_NOT_FOUND));
 
-        try {
-            documentsRepository.deleteById(document.getId());
-            objectStorage.deleteTransparencyFile(document.getPreviewLink());
+        documentsRepository.deleteById(document.getId());
+        objectStorage.deleteFileByPath(document.getPreviewLink());
 
-            return document.getId();
-        } catch (IOException e) {
-            throw new ObjectStorageException(e);
-        }
+        return document.getId();
     }
 }
