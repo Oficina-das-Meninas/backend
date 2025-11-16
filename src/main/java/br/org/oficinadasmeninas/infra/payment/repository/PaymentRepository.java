@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -99,8 +100,10 @@ public class PaymentRepository implements IPaymentRepository {
 
         return payment;
 	}
-    
+
     private Payment mapRowPayment(ResultSet rs, int rowNum) throws SQLException {
+        Timestamp ts = rs.getTimestamp("payment_date");
+
         return new Payment(
                 rs.getObject("id", UUID.class),
                 rs.getObject("donation_id", UUID.class),
@@ -108,7 +111,7 @@ public class PaymentRepository implements IPaymentRepository {
                 rs.getString("checkout_id"),
                 rs.getString("method") != null ? PaymentMethodEnum.valueOf(rs.getString("method")) : null,
                 PaymentStatusEnum.valueOf(rs.getString("status")),
-                rs.getTimestamp("payment_date").toLocalDateTime()
+                ts != null ? ts.toLocalDateTime() : null
         );
     }
 }
