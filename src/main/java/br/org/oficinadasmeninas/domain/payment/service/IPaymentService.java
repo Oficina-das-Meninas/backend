@@ -5,6 +5,7 @@ import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
 import br.org.oficinadasmeninas.domain.payment.dto.CreatePaymentDto;
 import br.org.oficinadasmeninas.domain.payment.dto.PaymentDto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,7 +39,17 @@ public interface IPaymentService {
 	 * @param status novo status do pagamento ({@link PaymentStatusEnum})
 	 */
 	void updateStatus(UUID id, PaymentStatusEnum status);
-
+	
+	/**
+	 * Atualiza o dia de pagamento de um registro existente.
+	 * <p>
+	 * Pode ser utilizada para atribuir a data de pagamento de um registro existente
+	 *
+	 * @param id     identificador único do pagamento
+	 * @param date data  ({@link LocalDateTime})
+	 */
+    
+    void updatePaymentDate(UUID id, LocalDateTime date);
 	/**
 	 * Atualiza o método de pagamento de um registro existente.
 	 * <p>
@@ -49,7 +60,7 @@ public interface IPaymentService {
 	 * @param method novo método de pagamento ({@link PaymentMethodEnum})
 	 */
 	void updateMethod(UUID id, PaymentMethodEnum method);
-
+	
 	/**
 	 * Busca todos os pagamentos associados a uma doação específica.
 	 *

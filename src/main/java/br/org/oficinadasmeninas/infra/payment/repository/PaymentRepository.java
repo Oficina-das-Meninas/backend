@@ -36,7 +36,8 @@ public class PaymentRepository implements IPaymentRepository {
                 payment.getGateway().name(),
                 payment.getCheckoutId(),
                 payment.getMethod() != null ? payment.getMethod().name() : null,
-                payment.getStatus().name()
+                payment.getStatus().name(),
+                payment.getDate()
         );
 
         return payment;
@@ -88,6 +89,17 @@ public class PaymentRepository implements IPaymentRepository {
         );
     }
 
+    @Override
+	public Payment updateDate(Payment payment) {
+		jdbc.update(
+                PaymentQueryBuilder.UPDATE_PAYMENT_DATE,
+                payment.getDate(),
+                payment.getId()
+        );
+
+        return payment;
+	}
+    
     private Payment mapRowPayment(ResultSet rs, int rowNum) throws SQLException {
         return new Payment(
                 rs.getObject("id", UUID.class),
@@ -95,7 +107,8 @@ public class PaymentRepository implements IPaymentRepository {
                 PaymentGatewayEnum.valueOf(rs.getString("gateway")),
                 rs.getString("checkout_id"),
                 rs.getString("method") != null ? PaymentMethodEnum.valueOf(rs.getString("method")) : null,
-                PaymentStatusEnum.valueOf(rs.getString("status"))
+                PaymentStatusEnum.valueOf(rs.getString("status")),
+                rs.getTimestamp("payment_date").toLocalDateTime()
         );
     }
 }

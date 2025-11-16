@@ -13,6 +13,7 @@ import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,7 +53,8 @@ public class PaymentService implements IPaymentService {
                 request.gateway(),
                 request.checkoutId(),
                 request.method(),
-                request.status()
+                request.status(), 
+                null
         );
 
         paymentRepository.insert(payment);
@@ -78,4 +80,18 @@ public class PaymentService implements IPaymentService {
         payment.setMethod(method);
         paymentRepository.updateMethod(payment);
     }
+
+	@Override
+	public void updatePaymentDate(UUID id, LocalDateTime date) {
+	   var payment = paymentRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Messages.PAYMENT_NOT_FOUND + id));
+
+        payment.setDate(date);
+        paymentRepository.updateDate(payment);	
+	}
+    
+    
+    
+    
+    
 }
