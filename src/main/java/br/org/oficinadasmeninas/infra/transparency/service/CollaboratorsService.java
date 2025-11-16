@@ -39,19 +39,14 @@ public class CollaboratorsService implements ICollaboratorsService {
 
         validateImageFileType(request.image());
 
-        try {
-            var imageLink = objectStorage.uploadTransparencyFile(request.image(), true);
+        var imageLink = objectStorage.uploadWithFilePath(request.image(), true);
 
-            var collaborator = CollaboratorMapper.toEntity(request);
-            collaborator.setImage(imageLink);
-            collaborator.setCategory(category);
+        var collaborator = CollaboratorMapper.toEntity(request);
+        collaborator.setImage(imageLink);
+        collaborator.setCategory(category);
 
-            collaboratorsRepository.insert(collaborator);
-            return collaborator.getId();
-
-        } catch (IOException e) {
-            throw new ObjectStorageException(e);
-        }
+        collaboratorsRepository.insert(collaborator);
+        return collaborator.getId();
     }
 
     @Override
@@ -72,14 +67,10 @@ public class CollaboratorsService implements ICollaboratorsService {
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.COLLABORATOR_NOT_FOUND));
 
-        try {
-            collaboratorsRepository.deleteById(collaborator.getId());
-            objectStorage.deleteTransparencyFile(collaborator.getImage());
+        collaboratorsRepository.deleteById(collaborator.getId());
+        objectStorage.deleteFileByPath(collaborator.getImage());
 
-            return collaborator.getId();
-        } catch (IOException e) {
-            throw new ObjectStorageException(e);
-        }
+        return collaborator.getId();
     }
 
     private void validateImageFileType(MultipartFile file) {

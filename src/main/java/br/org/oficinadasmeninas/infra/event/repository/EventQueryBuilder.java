@@ -5,12 +5,12 @@ public class EventQueryBuilder {
         SELECT count(*)
         FROM EVENTS
         WHERE (
-                (unaccent(title) ILIKE COALESCE('%' || unaccent(?) || '%', title))
-                OR (unaccent(location) ILIKE COALESCE('%' || unaccent(?) || '%', location))
+                (unaccent(title) ILIKE unaccent(COALESCE('%' || ? || '%', title)))
+                OR (unaccent(location) ILIKE unaccent(COALESCE('%' || ? || '%', location)))
           )
           AND description ILIKE COALESCE('%' || ? || '%', description)
           AND event_date BETWEEN COALESCE(?, event_date)
-          AND COALESCE(?, event_date)
+                         AND COALESCE(?, event_date)
     """;
 
     public static final String GET_EVENT_BY_ID = """
@@ -23,8 +23,8 @@ public class EventQueryBuilder {
         SELECT id, title, preview_image_url, partners_image_url, description, event_date, location,  url_to_platform
         FROM EVENTS
         WHERE (
-                (unaccent(title) ILIKE COALESCE('%' || unaccent(?) || '%', title))
-                OR (unaccent(location) ILIKE COALESCE('%' || unaccent(?) || '%', location))
+                (unaccent(title) ILIKE unaccent(COALESCE('%' || ? || '%', title)))
+                OR (unaccent(location) ILIKE unaccent(COALESCE('%' || ? || '%', location)))
           )
           AND description ILIKE COALESCE('%' || ? || '%', description)
           AND event_date BETWEEN COALESCE(?, event_date)
@@ -49,9 +49,9 @@ public class EventQueryBuilder {
             url_to_platform = ?
         WHERE id = ?
     """;
-    
+
     public static final String DELETE_EVENT = """
-    		DELETE FROM EVENTS 
-			WHERE id = ?
+    		DELETE FROM EVENTS
+    		WHERE id = ?
     """;
 }

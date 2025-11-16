@@ -1,9 +1,7 @@
 package br.org.oficinadasmeninas.domain.objectstorage;
 
+import br.org.oficinadasmeninas.infra.exceptions.ObjectStorageException;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Serviço responsável pelas operações de armazenamento de objetos,
@@ -22,20 +20,8 @@ public interface IObjectStorage {
      *
      * @param fileName nome original do arquivo; não deve ser {@code null}
      * @return nome do arquivo sanitizado, nunca {@code null}
-     * @throws IllegalArgumentException se {@code fileName} for {@code null} ou vazio
      */
     String sanitizeFileName(String fileName);
-
-    /**
-     * Realiza o upload de um fluxo de dados para o armazenamento, utilizando a chave informada.
-     *
-     * @param key identificador único (chave) do objeto no armazenamento; não deve ser {@code null}
-     * @param data fluxo de dados contendo o conteúdo a ser enviado; não deve ser {@code null}
-     * @param contentType tipo MIME do conteúdo (ex.: {@code "image/png"}); pode ser {@code null} se não aplicável
-     * @throws IOException se ocorrer falha de leitura ou escrita durante o upload
-     * @throws IllegalArgumentException se {@code key} ou {@code data} forem {@code null}
-     */
-    void upload(String key, InputStream data, String contentType) throws IOException;
 
     /**
      * Realiza o upload de um arquivo multipart, permitindo definir se ele deve ser público.
@@ -45,10 +31,9 @@ public interface IObjectStorage {
      *
      * @param file arquivo multipart a ser enviado; não deve ser {@code null}
      * @param isPublic indica se o arquivo deve ser acessível publicamente; não deve ser {@code null}
-     * @throws IOException se ocorrer falha de leitura ou escrita durante o upload
-     * @throws IllegalArgumentException se {@code file} ou {@code isPublic} forem {@code null}
+     * @throws ObjectStorageException se ocorrer falha de leitura ou escrita durante o upload
      */
-    void upload(MultipartFile file, Boolean isPublic) throws IOException;
+    void upload(MultipartFile file, Boolean isPublic);
 
     /**
      * Realiza o upload de um arquivo multipart utilizando um nome de arquivo explícito.
@@ -56,29 +41,26 @@ public interface IObjectStorage {
      * @param file arquivo multipart a ser enviado; não deve ser {@code null}
      * @param fileName nome que será utilizado no armazenamento; não deve ser {@code null}
      * @param isPublic indica se o arquivo deve ser acessível publicamente; não deve ser {@code null}
-     * @throws IOException se ocorrer falha de leitura ou escrita durante o upload
-     * @throws IllegalArgumentException se algum parâmetro obrigatório for {@code null}
+     * @throws ObjectStorageException se ocorrer falha de leitura ou escrita durante o upload
      */
-    void upload(MultipartFile file, String fileName, Boolean isPublic) throws IOException;
+    void uploadWithName(MultipartFile file, String fileName, Boolean isPublic);
 
     /**
-     * Realiza o upload de um arquivo de transparência (por exemplo, imagem PNG com canal alfa)
+     * Realiza o upload de um arquivo com a rota de pastas e o nome do arquivo (por exemplo, imagem PNG com canal alfa)
      * e retorna a URL ou chave gerada no armazenamento.
      *
      * @param file arquivo multipart contendo a imagem ou conteúdo a ser armazenado; não deve ser {@code null}
      * @param isImage indica se o arquivo deve ser tratado como imagem; se {@code false}, outro processamento pode ser aplicado
      * @return URL ou chave única do arquivo armazenado; nunca {@code null}
-     * @throws IOException se ocorrer falha de leitura, escrita ou processamento durante o upload
-     * @throws IllegalArgumentException se {@code file} for {@code null}
+     * @throws ObjectStorageException se ocorrer falha de leitura, escrita ou processamento durante o upload
      */
-    String uploadTransparencyFile(MultipartFile file, boolean isImage) throws IOException;
+    String uploadWithFilePath(MultipartFile file, boolean isImage);
 
     /**
-     * Remove um arquivo de transparência previamente armazenado.
+     * Remove um arquivo previamente armazenado.
      *
      * @param fileUrl URL ou chave do arquivo a ser removido; não deve ser {@code null}
-     * @throws IOException se ocorrer falha durante a remoção
-     * @throws IllegalArgumentException se {@code fileUrl} for {@code null} ou vazio
+     * @throws ObjectStorageException se ocorrer falha durante a remoção
      */
-    void deleteTransparencyFile(String fileUrl) throws IOException;
+    void deleteFileByPath(String fileUrl);
 }
