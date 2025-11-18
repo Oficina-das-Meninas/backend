@@ -18,6 +18,7 @@ import br.org.oficinadasmeninas.domain.transparency.repository.ICategoriesReposi
 import br.org.oficinadasmeninas.domain.transparency.repository.ICollaboratorsRepository;
 import br.org.oficinadasmeninas.domain.transparency.repository.IDocumentsRepository;
 import br.org.oficinadasmeninas.domain.transparency.service.ICategoriesService;
+import br.org.oficinadasmeninas.infra.logging.Logging;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Logging
 @Service
 public class CategoriesService implements ICategoriesService {
 

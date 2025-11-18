@@ -6,15 +6,15 @@ import br.org.oficinadasmeninas.domain.transparency.dto.CreateDocumentRequestDto
 import br.org.oficinadasmeninas.domain.transparency.repository.ICategoriesRepository;
 import br.org.oficinadasmeninas.domain.transparency.repository.IDocumentsRepository;
 import br.org.oficinadasmeninas.domain.transparency.service.IDocumentsService;
-import br.org.oficinadasmeninas.infra.exceptions.ObjectStorageException;
+import br.org.oficinadasmeninas.infra.logging.Logging;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.UUID;
 
 import static br.org.oficinadasmeninas.domain.transparency.mapper.DocumentMapper.toEntity;
 
+@Logging
 @Service
 public class DocumentsService implements IDocumentsService {
 
