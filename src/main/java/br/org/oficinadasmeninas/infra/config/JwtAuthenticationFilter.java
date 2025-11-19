@@ -49,24 +49,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (accessToken != null) {
                 try {
-    	            final String userEmail = jwtService.extractUsername(accessToken);
-    	        	
-    	            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    	
-    	            if (userEmail != null && authentication == null) {
-    	                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-    	
-    	                if (jwtService.isTokenValid(accessToken, userDetails)) {
-    	                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-    	                            userDetails,
-    	                            null,
-    	                            userDetails.getAuthorities()
-    	                    );
-    	
-    	                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-    	                    SecurityContextHolder.getContext().setAuthentication(authToken);
-    	                }
-    	            }
+                    final String userEmail = jwtService.extractUsername(accessToken);
+                    
+                    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    
+                    if (userEmail != null && authentication == null) {
+                        UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+    
+                        if (jwtService.isTokenValid(accessToken, userDetails)) {
+                            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
+    
+                            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                            SecurityContextHolder.getContext().setAuthentication(authToken);
+                        }
+                    }
                 } catch (Exception e) {
                     SecurityContextHolder.clearContext();
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
