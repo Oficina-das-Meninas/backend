@@ -1,5 +1,8 @@
 package br.org.oficinadasmeninas.domain.donation;
 
+import br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum;
+import br.org.oficinadasmeninas.domain.paymentgateway.PaymentGatewayEnum;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -7,20 +10,27 @@ public class Donation {
 
 	private UUID id;
 	private double value;
-	private LocalDateTime donationAt;
+	private String checkoutId;
+	private PaymentGatewayEnum gateway;
+	private UUID sponsorId;
+	private PaymentMethodEnum method;
 	private UUID userId;
-	private DonationStatusEnum status;
+	private LocalDateTime donationAt;
 
 	public Donation() {
 	}
 
-	public Donation(UUID id, long value, LocalDateTime donationAt, UUID userId, DonationStatusEnum status) {
+	public Donation(UUID id, double value, String checkoutId, PaymentGatewayEnum gateway,
+			UUID sponsorId, PaymentMethodEnum method, UUID userId, LocalDateTime donationAt) {
 		super();
 		this.id = id;
 		this.value = value;
-		this.donationAt = donationAt;
+		this.checkoutId = checkoutId;
+		this.gateway = gateway;
+		this.sponsorId = sponsorId;
+		this.method = method;
 		this.userId = userId;
-		this.status = status;
+		this.donationAt = donationAt;
 	}
 
 	public UUID getId() {
@@ -39,12 +49,36 @@ public class Donation {
 		this.value = value;
 	}
 
-	public LocalDateTime getDonationAt() {
-		return donationAt;
+	public String getCheckoutId() {
+		return checkoutId;
 	}
 
-	public void setDonationAt(LocalDateTime donationAt) {
-		this.donationAt = donationAt;
+	public void setCheckoutId(String checkoutId) {
+		this.checkoutId = checkoutId;
+	}
+
+	public PaymentGatewayEnum getGateway() {
+		return gateway;
+	}
+
+	public void setGateway(PaymentGatewayEnum gateway) {
+		this.gateway = gateway;
+	}
+
+	public UUID getSponsorId() {
+		return sponsorId;
+	}
+
+	public void setSponsorId(UUID sponsorId) {
+		this.sponsorId = sponsorId;
+	}
+
+	public PaymentMethodEnum getMethod() {
+		return method;
+	}
+
+	public void setMethod(PaymentMethodEnum method) {
+		this.method = method;
 	}
 
 	public UUID getUserId() {
@@ -55,12 +89,12 @@ public class Donation {
 		this.userId = userId;
 	}
 
-	public DonationStatusEnum getStatus() {
-		return status;
+	public LocalDateTime getDonationAt() {
+		return donationAt;
 	}
 
-	public void setStatus(DonationStatusEnum status) {
-		this.status = status;
+	public void setDonationAt(LocalDateTime donationAt) {
+		this.donationAt = donationAt;
 	}
 
 }

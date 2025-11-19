@@ -11,9 +11,12 @@ public final class DonationMapper {
     public static Donation toEntity(CreateDonationDto request) {
         var donation = new Donation();
         donation.setValue(request.value());
-        donation.setStatus(request.status());
-        donation.setDonationAt(LocalDateTime.now());
+        donation.setCheckoutId(request.checkoutId());
+        donation.setGateway(request.gateway());
+        donation.setSponsorId(request.sponsorId());
+        donation.setMethod(request.method());
         donation.setUserId(request.userId());
+        donation.setDonationAt(LocalDateTime.now());
 
         return donation;
     }
@@ -23,9 +26,12 @@ public final class DonationMapper {
         return new DonationDto(
                 donation.getId(),
                 donation.getValue(),
-                donation.getDonationAt(),
+                donation.getCheckoutId(),
+                donation.getGateway(),
+                donation.getSponsorId(),
+                donation.getMethod(),
                 donation.getUserId(),
-                donation.getStatus()
+                donation.getDonationAt()
         );
     }
 }

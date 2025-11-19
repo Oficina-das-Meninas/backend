@@ -38,20 +38,24 @@ public class DonationRepository implements IDonationRepository {
                 DonationQueryBuilder.INSERT_DONATION,
                 id,
                 donation.getValue(),
-                donation.getDonationAt(),
+                donation.getCheckoutId(),
+                donation.getGateway() != null ? donation.getGateway().name() : null,
+                donation.getSponsorId(),
+                donation.getMethod() != null ? donation.getMethod().name() : null,
                 donation.getUserId(),
-                donation.getStatus().name()
+                donation.getDonationAt()
         );
 
         return donation;
     }
 
+
     @Override
-    public Donation updateStatus(Donation donation) {
+    public Donation updateMethod(Donation donation) {
 
         jdbc.update(
-                DonationQueryBuilder.UPDATE_DONATION_STATUS,
-                donation.getStatus().name(),
+                DonationQueryBuilder.UPDATE_DONATION_METHOD,
+                donation.getMethod() != null ? donation.getMethod().name() : null,
                 donation.getId()
         );
 
@@ -129,10 +133,23 @@ public class DonationRepository implements IDonationRepository {
 	private Donation mapRowDonation(ResultSet rs, int rowNum) throws SQLException {
 		Donation donation = new Donation();
 		donation.setId(rs.getObject("id", UUID.class));
-		donation.setValue(rs.getLong("value"));
-		donation.setDonationAt(rs.getObject("donation_at", LocalDateTime.class));
+		donation.setValue(rs.getDouble("value"));
+		donation.setCheckoutId(rs.getString("checkout_id"));
+
+		String gateway = rs.getString("gateway");
+		if (gateway != null) {
+			donation.setGateway(br.org.oficinadasmeninas.domain.paymentgateway.PaymentGatewayEnum.valueOf(gateway));
+		}
+
+		donation.setSponsorId(rs.getObject("sponsor_id", UUID.class));
+
+		String method = rs.getString("method");
+		if (method != null) {
+			donation.setMethod(br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum.valueOf(method));
+		}
+
 		donation.setUserId(rs.getObject("user_id", UUID.class));
-		donation.setStatus(DonationStatusEnum.valueOf(rs.getString("status")));
+		donation.setDonationAt(rs.getObject("donation_at", LocalDateTime.class));
 		return donation;
 	}
 

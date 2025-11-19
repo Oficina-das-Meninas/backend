@@ -1,6 +1,5 @@
 package br.org.oficinadasmeninas.infra.donation.service;
 
-import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
 import br.org.oficinadasmeninas.domain.donation.dto.CreateDonationDto;
 import br.org.oficinadasmeninas.domain.donation.dto.DonationDto;
 import br.org.oficinadasmeninas.domain.donation.dto.DonationWithDonorDto;
@@ -8,6 +7,7 @@ import br.org.oficinadasmeninas.domain.donation.dto.GetDonationDto;
 import br.org.oficinadasmeninas.domain.donation.mapper.DonationMapper;
 import br.org.oficinadasmeninas.domain.donation.repository.IDonationRepository;
 import br.org.oficinadasmeninas.domain.donation.service.IDonationService;
+import br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum;
 import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
@@ -57,13 +57,13 @@ public class DonationService implements IDonationService {
         return toDto(donation);
     }
 
-    @Override
-    public void updateStatus(UUID id, DonationStatusEnum status) {
 
+    @Override
+    public void updateMethod(UUID id, PaymentMethodEnum method) {
         var donation = donationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.DONATION_NOT_FOUND + id));
 
-        donation.setStatus(status);
-        donationRepository.updateStatus(donation);
+        donation.setMethod(method);
+        donationRepository.updateMethod(donation);
     }
 }
