@@ -48,6 +48,7 @@ public class GatewayNotificationController {
         boolean recurring = charge.recurring() != null;
         ResponseWebhookCustomer customer = request.customer();
     	paymentGatewayService.updatePaymentStatus(request.reference_id(), charge.status(), charge.payment_method().type(), recurring, customer);
+    	
 
         if (charge.status() == PaymentStatusEnum.PAID){
             PaymentDto payment = paymentService.findByDonationId(request.reference_id()).getLast();

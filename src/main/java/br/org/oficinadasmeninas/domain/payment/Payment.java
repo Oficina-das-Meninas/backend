@@ -2,6 +2,7 @@ package br.org.oficinadasmeninas.domain.payment;
 
 import br.org.oficinadasmeninas.domain.paymentgateway.PaymentGatewayEnum;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class Payment {
@@ -12,15 +13,18 @@ public class Payment {
 	private String checkoutId;
 	private PaymentMethodEnum method;
 	private PaymentStatusEnum status;
+	private LocalDateTime date;
 
 	public Payment(UUID id, UUID donationId, PaymentGatewayEnum gateway, String checkoutId, PaymentMethodEnum method,
-			PaymentStatusEnum status) {
+			PaymentStatusEnum status, LocalDateTime date) {
+		super();
 		this.id = id;
 		this.donationId = donationId;
 		this.gateway = gateway;
 		this.checkoutId = checkoutId;
 		this.method = method;
 		this.status = status;
+		this.date = date;
 	}
 
 	public UUID getId() {
@@ -29,6 +33,14 @@ public class Payment {
 
 	public void setId(UUID id) {
 		this.id = id;
+	}
+
+	public LocalDateTime getDate() {
+		return date;
+	}
+
+	public void setDate(LocalDateTime date) {
+		this.date = date;
 	}
 
 	public UUID getDonationId() {

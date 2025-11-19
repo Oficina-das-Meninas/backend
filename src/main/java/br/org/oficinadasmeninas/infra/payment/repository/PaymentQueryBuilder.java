@@ -3,18 +3,18 @@ package br.org.oficinadasmeninas.infra.payment.repository;
 public class PaymentQueryBuilder {
 
 	public static final String INSERT_PAYMENT = """
-			    INSERT INTO payment (id, donation_id, gateway, checkout_id, method, status)
-			    VALUES (?, ?, ?, ?, ?, ?)
+			    INSERT INTO payment (id, donation_id, gateway, checkout_id, method, status, payment_date)
+			    VALUES (?, ?, ?, ?, ?, ?, ?)
 			""";
 
 	public static final String SELECT_PAYMENT_BY_ID = """
-			    SELECT id, donation_id, gateway, checkout_id, method, status
+			    SELECT id, donation_id, gateway, checkout_id, method, status, payment_date
 			    FROM payment
 			    WHERE id = ?
 			""";
 
 	public static final String SELECT_PAYMENTS_BY_DONATION = """
-			    SELECT id, donation_id, gateway, checkout_id, method, status
+			    SELECT id, donation_id, gateway, checkout_id, method, status, payment_date
 			    FROM payment
 			    WHERE donation_id = ?
 			""";
@@ -30,5 +30,10 @@ public class PaymentQueryBuilder {
 			    SET method = ?
 			    WHERE donation_id = ?
 			""";
+	public static final String UPDATE_PAYMENT_DATE = """
+		    UPDATE payment
+		    SET payment_date = ?
+		    WHERE donation_id = ?
+		""";
 
 }

@@ -9,7 +9,7 @@ import java.util.UUID;
 
 /**
  * Interface para operações relacionadas à gestão de usuários.
- *
+ * <p>
  * Define contratos para criação, consulta e atualização de usuários.
  */
 public interface IUserService {

@@ -6,15 +6,15 @@ import br.org.oficinadasmeninas.domain.transparency.dto.CreateDocumentRequestDto
 import br.org.oficinadasmeninas.domain.transparency.repository.ICategoriesRepository;
 import br.org.oficinadasmeninas.domain.transparency.repository.IDocumentsRepository;
 import br.org.oficinadasmeninas.domain.transparency.service.IDocumentsService;
-import br.org.oficinadasmeninas.infra.exceptions.ObjectStorageException;
+import br.org.oficinadasmeninas.infra.logging.Logging;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.UUID;
 
 import static br.org.oficinadasmeninas.domain.transparency.mapper.DocumentMapper.toEntity;
 
+@Logging
 @Service
 public class DocumentsService implements IDocumentsService {
 
@@ -35,19 +35,14 @@ public class DocumentsService implements IDocumentsService {
                 .findById(request.categoryId())
                 .orElseThrow(() -> new NotFoundException(Messages.CATEGORY_NOT_FOUND));
 
-        try {
-            var previewLink = objectStorage.uploadTransparencyFile(request.file(), false);
+        var previewLink = objectStorage.uploadWithFilePath(request.file(), false);
 
-            var document = toEntity(request);
-            document.setCategory(category);
-            document.setPreviewLink(previewLink);
+        var document = toEntity(request);
+        document.setCategory(category);
+        document.setPreviewLink(previewLink);
 
-            documentsRepository.insert(document);
-            return document.getId();
-
-        } catch (IOException e) {
-            throw new ObjectStorageException(e);
-        }
+        documentsRepository.insert(document);
+        return document.getId();
     }
 
     @Override
@@ -56,13 +51,9 @@ public class DocumentsService implements IDocumentsService {
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.DOCUMENT_NOT_FOUND));
 
-        try {
-            documentsRepository.deleteById(document.getId());
-            objectStorage.deleteTransparencyFile(document.getPreviewLink());
+        documentsRepository.deleteById(document.getId());
+        objectStorage.deleteFileByPath(document.getPreviewLink());
 
-            return document.getId();
-        } catch (IOException e) {
-            throw new ObjectStorageException(e);
-        }
+        return document.getId();
     }
 }

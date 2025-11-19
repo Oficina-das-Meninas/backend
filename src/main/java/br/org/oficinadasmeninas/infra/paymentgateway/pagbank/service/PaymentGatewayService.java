@@ -1,10 +1,13 @@
 package br.org.oficinadasmeninas.infra.paymentgateway.pagbank.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+import br.org.oficinadasmeninas.domain.payment.dto.PaymentDto;
+import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -129,17 +132,28 @@ public class PaymentGatewayService implements IPaymentGatewayService {
     }
 
     @Override
-    public void updatePaymentStatus(UUID paymentId, PaymentStatusEnum paymentStatus, PaymentMethodEnum paymentMethod, boolean recurring, ResponseWebhookCustomer customer) {
-       DonationStatusEnum donationStatusEnum = RequestNotifyPaymentDonationStatusMapper.fromPaymentStatus(paymentStatus);
-       donationService.updateStatus(paymentId, donationStatusEnum);
-       paymentService.updateStatus(paymentId, paymentStatus);
-       paymentService.updateMethod(paymentId, paymentMethod);
+    public void updatePaymentStatus(UUID donationId, PaymentStatusEnum paymentStatus, PaymentMethodEnum paymentMethod, boolean recurring, ResponseWebhookCustomer customer) {
 
+        DonationStatusEnum donationStatusEnum = RequestNotifyPaymentDonationStatusMapper.fromPaymentStatus(paymentStatus);
 
-       if (recurring) {
-         UserDto userDto = userService.findByDocument(customer.tax_id());
-         sponsorService.activateByUserId(userDto.getId());
-       }
+        List<PaymentDto> payments = paymentService.findByDonationId(donationId);
+
+        if (payments == null || payments.isEmpty()) {
+            throw new ValidationException("Não foi possível encontrar doação");
+        }
+
+        donationService.updateStatus(donationId, donationStatusEnum);
+
+        PaymentDto payment = payments.getLast();
+
+        paymentService.updateStatus(payment.id(), paymentStatus);
+        paymentService.updateMethod(payment.id(), paymentMethod);
+        paymentService.updatePaymentDate(payment.id(), LocalDateTime.now());
+
+        if (recurring) {
+            UserDto userDto = userService.findByDocument(customer.tax_id());
+            sponsorService.activateByUserId(userDto.getId());
+        }
     }
 
     @Override

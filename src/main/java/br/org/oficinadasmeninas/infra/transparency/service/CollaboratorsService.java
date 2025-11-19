@@ -8,15 +8,15 @@ import br.org.oficinadasmeninas.domain.transparency.mapper.CollaboratorMapper;
 import br.org.oficinadasmeninas.domain.transparency.repository.ICategoriesRepository;
 import br.org.oficinadasmeninas.domain.transparency.repository.ICollaboratorsRepository;
 import br.org.oficinadasmeninas.domain.transparency.service.ICollaboratorsService;
-import br.org.oficinadasmeninas.infra.exceptions.ObjectStorageException;
+import br.org.oficinadasmeninas.infra.logging.Logging;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.UUID;
 
+@Logging
 @Service
 public class CollaboratorsService implements ICollaboratorsService {
 
@@ -39,19 +39,14 @@ public class CollaboratorsService implements ICollaboratorsService {
 
         validateImageFileType(request.image());
 
-        try {
-            var imageLink = objectStorage.uploadTransparencyFile(request.image(), true);
+        var imageLink = objectStorage.uploadWithFilePath(request.image(), true);
 
-            var collaborator = CollaboratorMapper.toEntity(request);
-            collaborator.setImage(imageLink);
-            collaborator.setCategory(category);
+        var collaborator = CollaboratorMapper.toEntity(request);
+        collaborator.setImage(imageLink);
+        collaborator.setCategory(category);
 
-            collaboratorsRepository.insert(collaborator);
-            return collaborator.getId();
-
-        } catch (IOException e) {
-            throw new ObjectStorageException(e);
-        }
+        collaboratorsRepository.insert(collaborator);
+        return collaborator.getId();
     }
 
     @Override
@@ -72,14 +67,10 @@ public class CollaboratorsService implements ICollaboratorsService {
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.COLLABORATOR_NOT_FOUND));
 
-        try {
-            collaboratorsRepository.deleteById(collaborator.getId());
-            objectStorage.deleteTransparencyFile(collaborator.getImage());
+        collaboratorsRepository.deleteById(collaborator.getId());
+        objectStorage.deleteFileByPath(collaborator.getImage());
 
-            return collaborator.getId();
-        } catch (IOException e) {
-            throw new ObjectStorageException(e);
-        }
+        return collaborator.getId();
     }
 
     private void validateImageFileType(MultipartFile file) {

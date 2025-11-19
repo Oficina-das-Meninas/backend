@@ -15,8 +15,6 @@ public class UserDto {
 	public UserDto() {
 		super();
 	}
-	
-	
 
 	public UserDto(User user) {
 		super();
@@ -26,7 +24,6 @@ public class UserDto {
 		this.document = user.getDocument();
 		this.phone = user.getPhone();
 	}
-
 
 	public UserDto(UUID id, String name, String email, String document, String phone) {
 		super();

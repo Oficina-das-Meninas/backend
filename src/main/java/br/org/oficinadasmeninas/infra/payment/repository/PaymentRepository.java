@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,7 +37,8 @@ public class PaymentRepository implements IPaymentRepository {
                 payment.getGateway().name(),
                 payment.getCheckoutId(),
                 payment.getMethod() != null ? payment.getMethod().name() : null,
-                payment.getStatus().name()
+                payment.getStatus().name(),
+                payment.getDate()
         );
 
         return payment;
@@ -88,14 +90,28 @@ public class PaymentRepository implements IPaymentRepository {
         );
     }
 
+    @Override
+	public Payment updateDate(Payment payment) {
+		jdbc.update(
+                PaymentQueryBuilder.UPDATE_PAYMENT_DATE,
+                payment.getDate(),
+                payment.getId()
+        );
+
+        return payment;
+	}
+
     private Payment mapRowPayment(ResultSet rs, int rowNum) throws SQLException {
+        Timestamp ts = rs.getTimestamp("payment_date");
+
         return new Payment(
                 rs.getObject("id", UUID.class),
                 rs.getObject("donation_id", UUID.class),
                 PaymentGatewayEnum.valueOf(rs.getString("gateway")),
                 rs.getString("checkout_id"),
                 rs.getString("method") != null ? PaymentMethodEnum.valueOf(rs.getString("method")) : null,
-                PaymentStatusEnum.valueOf(rs.getString("status"))
+                PaymentStatusEnum.valueOf(rs.getString("status")),
+                ts != null ? ts.toLocalDateTime() : null
         );
     }
 }

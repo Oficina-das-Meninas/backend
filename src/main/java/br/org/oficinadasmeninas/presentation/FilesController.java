@@ -26,7 +26,7 @@ public class FilesController {
     public ResponseEntity<String> uploadWithName(
             @PathVariable String fileName,
             @RequestParam("file") MultipartFile file) throws IOException {
-        objectStorage.upload(file, fileName, true);
+        objectStorage.uploadWithName(file, fileName, true);
         return ResponseEntity.ok("Arquivo '" + fileName + "' enviado com sucesso!");
     }
 

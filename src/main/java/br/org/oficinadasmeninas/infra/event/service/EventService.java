@@ -32,20 +32,15 @@ public class EventService implements IEventService {
     @Override
     public UUID insert(CreateEventDto request) {
 
-        try {
-            var previewFileName = uploadMultipartFile(request.previewImage());
-            var partnersFileName = uploadMultipartFile(request.partnersImage());
+        var previewFileName = uploadMultipartFile(request.previewImage());
+        var partnersFileName = uploadMultipartFile(request.partnersImage());
 
-            var event = toEntity(request);
-            event.setPreviewImageUrl(previewFileName);
-            event.setPartnersImageUrl(partnersFileName);
+        var event = toEntity(request);
+        event.setPreviewImageUrl(previewFileName);
+        event.setPartnersImageUrl(partnersFileName);
 
-            eventRepository.insert(event);
-            return event.getId();
-
-        } catch (IOException e) {
-            throw new ObjectStorageException(e);
-        }
+        eventRepository.insert(event);
+        return event.getId();
     }
 
     @Override
@@ -54,25 +49,20 @@ public class EventService implements IEventService {
         var event = eventRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.EVENT_NOT_FOUND + id));
 
-        try {
-            var previewFileName = uploadMultipartFile(request.previewImage());
-            var partnersFileName = uploadMultipartFile(request.partnersImage());
+        var previewFileName = uploadMultipartFile(request.previewImage());
+        var partnersFileName = uploadMultipartFile(request.partnersImage());
 
-            event.setTitle(request.title());
-            event.setDescription(request.description());
-            event.setEventDate(request.eventDate());
-            event.setLocation(request.location());
-            event.setUrlToPlatform(request.urlToPlatform());
-            event.setPreviewImageUrl(previewFileName);
-            event.setPartnersImageUrl(partnersFileName);
+        event.setTitle(request.title());
+        event.setDescription(request.description());
+        event.setEventDate(request.eventDate());
+        event.setLocation(request.location());
+        event.setUrlToPlatform(request.urlToPlatform());
+        event.setPreviewImageUrl(previewFileName);
+        event.setPartnersImageUrl(partnersFileName);
 
-            eventRepository.update(event);
+        eventRepository.update(event);
 
-            return event.getId();
-
-        } catch (IOException e) {
-            throw new ObjectStorageException(e);
-        }
+        return event.getId();
     }
 
     @Override
@@ -93,13 +83,13 @@ public class EventService implements IEventService {
         return eventRepository.findByFilter(getEventDto);
     }
 
-    private String uploadMultipartFile(MultipartFile file) throws IOException {
+    private String uploadMultipartFile(MultipartFile file) {
         if (file == null || file.isEmpty())
             return null;
 
         var fileName = storageService.sanitizeFileName(file.getOriginalFilename());
 
-        storageService.upload(file, fileName, true);
+        storageService.uploadWithName(file, fileName, true);
 
         return fileName;
     }
