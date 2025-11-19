@@ -60,7 +60,7 @@ public final class SponsorshipQueryBuilder {
 
     public static final String GET_SPONSORSHIP_BY_SUBSCRIPTION_ID = """        
         SELECT id, billing_day, start_date, is_active, subscription_id, user_id, cancel_date
-        FROM sponsorships WHERE
-        subscription_id = ?
+        FROM sponsorships
+        WHERE subscription_id = ?
     """;
 }

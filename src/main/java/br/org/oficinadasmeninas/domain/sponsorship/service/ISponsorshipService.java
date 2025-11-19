@@ -2,7 +2,6 @@ package br.org.oficinadasmeninas.domain.sponsorship.service;
 
 import br.org.oficinadasmeninas.domain.sponsorship.dto.SponsorshipDto;
 import br.org.oficinadasmeninas.domain.sponsorship.dto.UpdateSponsorshipDto;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +13,6 @@ import java.util.UUID;
  * Essa interface é responsável pela criação, atualização, ativação e consulta
  * de informações sobre patrocínios associados a usuários.
  */
-@Repository
 public interface ISponsorshipService {
 
     /**
@@ -33,9 +31,13 @@ public interface ISponsorshipService {
     void update(UpdateSponsorshipDto sponsorship);
 
     /**
-     * Ativa o patrocínio associado a um usuário específico.
+     * Ativa o patrocínio mais recente associado a um usuário específico.
+     * <p>
+     * <strong>Comportamento:</strong> Este método ativa apenas o último patrocínio criado
+     * (com base no ID mais recente) para o usuário. Todos os outros patrocínios do mesmo
+     * usuário permanecerão com seu status atual.
      *
-     * @param userId identificador único do usuário cujo patrocínio deve ser ativado
+     * @param userId identificador único do usuário cujo patrocínio mais recente deve ser ativado
      */
     void activateByUserId(UUID userId);
 

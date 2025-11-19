@@ -1,7 +1,6 @@
 package br.org.oficinadasmeninas.infra.donation.repository;
 
 import br.org.oficinadasmeninas.domain.donation.Donation;
-import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
 import br.org.oficinadasmeninas.domain.donation.dto.DonationWithDonorDto;
 import br.org.oficinadasmeninas.domain.donation.dto.GetDonationDto;
 import br.org.oficinadasmeninas.domain.donation.repository.IDonationRepository;
@@ -74,7 +73,6 @@ public class DonationRepository implements IDonationRepository {
     }
 
     public PageDTO<DonationWithDonorDto> findByFilter(GetDonationDto getDonationDto) {
-        String donationStatus = getDonationDto.status() != null ? getDonationDto.status().name() : null;
         String donationType = getDonationDto.donationType();
         String donorName = getDonationDto.donorName();
 
@@ -92,7 +90,6 @@ public class DonationRepository implements IDonationRepository {
                 donorName, donorName,
                 getDonationDto.startDate(), getDonationDto.startDate(),
                 getDonationDto.endDate(), getDonationDto.endDate(),
-                donationStatus, donationStatus,
                 donationType, donationType,
                 getDonationDto.pageSize(),
                 getDonationDto.page() * getDonationDto.pageSize()
@@ -104,7 +101,6 @@ public class DonationRepository implements IDonationRepository {
                 donorName, donorName,
                 getDonationDto.startDate(), getDonationDto.startDate(),
                 getDonationDto.endDate(), getDonationDto.endDate(),
-                donationStatus, donationStatus,
                 donationType, donationType
         );
 
@@ -161,7 +157,6 @@ public class DonationRepository implements IDonationRepository {
 				rs.getTimestamp("donation_at").toLocalDateTime(),
                 userIdString != null ? UUID.fromString(userIdString) : null,
                 rs.getString("donation_type"),
-                DonationStatusEnum.valueOf(rs.getString("status").toUpperCase()),
                 rs.getString("sponsor_status"),
 				rs.getString("donor_name")
 		);

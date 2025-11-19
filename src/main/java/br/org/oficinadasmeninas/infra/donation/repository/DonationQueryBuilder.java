@@ -12,7 +12,6 @@ public class DonationQueryBuilder {
         WHERE (?::text IS NULL OR u.name ILIKE '%' || ? || '%')
           AND (?::timestamp IS NULL OR d.donation_at >= ?)
           AND (?::timestamp IS NULL OR d.donation_at <= ?)
-          AND (?::text IS NULL OR d.status = ?)
           AND (?::text IS NULL OR
                (CASE WHEN d.sponsorship_id IS NOT NULL THEN 'RECURRING'
                ELSE 'ONE_TIME'
@@ -52,7 +51,6 @@ public class DonationQueryBuilder {
             "donorName", "u.name",
             "value", "d.value",
             "donationAt", "d.donation_at",
-            "status", "d.status",
             "donationType", "(CASE WHEN d.sponsorship_id IS NOT NULL THEN 'RECURRING' ELSE 'ONE_TIME' END)",
             "sponsorStatus", "(CASE WHEN s.is_active = TRUE THEN 'ACTIVE' WHEN s.is_active = FALSE THEN 'INACTIVE' ELSE null END)"
     );
@@ -63,7 +61,6 @@ public class DonationQueryBuilder {
                   ,d.donation_at
                   ,d.user_id
                   ,u.name AS donor_name
-                  ,d.status
                   ,CASE WHEN d.sponsorship_id IS NOT NULL THEN 'RECURRING'
                    ELSE 'ONE_TIME'
                    END AS donation_type
@@ -77,7 +74,6 @@ public class DonationQueryBuilder {
             WHERE (?::text IS NULL OR u.name ILIKE '%' || ? || '%')
               AND (?::timestamp IS NULL OR d.donation_at >= ?)
               AND (?::timestamp IS NULL OR d.donation_at <= ?)
-              AND (?::text IS NULL OR d.status = ?)
               AND (?::text IS NULL OR
                    (CASE WHEN d.sponsorship_id IS NOT NULL THEN 'RECURRING'
                    ELSE 'ONE_TIME'

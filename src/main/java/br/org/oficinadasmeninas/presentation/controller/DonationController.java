@@ -1,7 +1,6 @@
 package br.org.oficinadasmeninas.presentation.controller;
 
 import br.org.oficinadasmeninas.application.DonationApplication;
-import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
 import br.org.oficinadasmeninas.domain.donation.dto.CreateDonationCheckoutDto;
 import br.org.oficinadasmeninas.domain.donation.dto.GetDonationDto;
 import br.org.oficinadasmeninas.domain.resources.Messages;
@@ -41,18 +40,15 @@ public class DonationController extends BaseController {
     public ResponseEntity<?> findByFilter(@RequestParam(defaultValue = "0") @PositiveOrZero int page,
                                           @RequestParam(defaultValue = "10") @Positive @Max(100) int pageSize,
                                           @RequestParam @Nullable String donationType,
-                                          @RequestParam @Nullable String status,
                                           @RequestParam @Nullable String searchTerm,
                                           @RequestParam @Nullable LocalDate startDate,
                                           @RequestParam @Nullable LocalDate endDate,
                                           @RequestParam(defaultValue = "donationAt") String sortField,
                                           @RequestParam(defaultValue = "desc") String sortDirection
     ) {
-        var donationStatus = status != null ? DonationStatusEnum.valueOf(status) : null;
-
         return handle(() -> donationService.findByFilter(
                 GetDonationDto.FromRequestParams(page, pageSize, donationType,
-                        donationStatus, searchTerm, startDate,
+                        searchTerm, startDate,
                         endDate, sortField, sortDirection)
         ));
     }
