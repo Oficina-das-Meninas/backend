@@ -49,13 +49,6 @@ public interface IPaymentRepository {
     Payment updateStatus(Payment payment);
 
     /**
-     * Atualiza o metodo de um pagamento existente.
-     *
-     * @param payment Entidade {@link Payment} a ser atualiza o metodo de pagamento;
-     */
-    Payment updateMethod(Payment payment);
-    
-    /**
      * Atualiza a data de um pagamento existente.
      *
      * @param payment Entidade {@link Payment} a ser atualiza a data de pagamento;

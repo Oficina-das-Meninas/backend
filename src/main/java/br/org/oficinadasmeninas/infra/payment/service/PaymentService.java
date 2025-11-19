@@ -1,7 +1,6 @@
 package br.org.oficinadasmeninas.infra.payment.service;
 
 import br.org.oficinadasmeninas.domain.payment.Payment;
-import br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum;
 import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
 import br.org.oficinadasmeninas.domain.payment.dto.CreatePaymentDto;
 import br.org.oficinadasmeninas.domain.payment.dto.PaymentDto;
@@ -49,12 +48,9 @@ public class PaymentService implements IPaymentService {
     public PaymentDto insert(CreatePaymentDto request) {
         var payment = new Payment(
                 null,
-                request.donationId(),
-                request.gateway(),
-                request.checkoutId(),
-                request.method(),
-                request.status(), 
-                null
+                null,
+                request.status(),
+                request.donationId()
         );
 
         paymentRepository.insert(payment);
@@ -72,15 +68,6 @@ public class PaymentService implements IPaymentService {
         paymentRepository.updateStatus(payment);
     }
 
-    @Override
-    public void updateMethod(UUID id, PaymentMethodEnum method) {
-        var payment = paymentRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(Messages.PAYMENT_NOT_FOUND + id));
-
-        payment.setMethod(method);
-        paymentRepository.updateMethod(payment);
-    }
-
 	@Override
 	public void updatePaymentDate(UUID id, LocalDateTime date) {
 	   var payment = paymentRepository.findById(id)
@@ -89,9 +76,4 @@ public class PaymentService implements IPaymentService {
         payment.setDate(date);
         paymentRepository.updateDate(payment);	
 	}
-    
-    
-    
-    
-    
 }

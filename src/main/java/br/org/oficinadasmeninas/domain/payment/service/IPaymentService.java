@@ -1,6 +1,5 @@
 package br.org.oficinadasmeninas.domain.payment.service;
 
-import br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum;
 import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
 import br.org.oficinadasmeninas.domain.payment.dto.CreatePaymentDto;
 import br.org.oficinadasmeninas.domain.payment.dto.PaymentDto;
@@ -50,17 +49,7 @@ public interface IPaymentService {
 	 */
     
     void updatePaymentDate(UUID id, LocalDateTime date);
-	/**
-	 * Atualiza o método de pagamento de um registro existente.
-	 * <p>
-	 * Pode ser utilizada para corrigir informações ou refletir alterações
-	 * no método utilizado pelo usuário no momento da transação.
-	 *
-	 * @param id     identificador único do pagamento
-	 * @param method novo método de pagamento ({@link PaymentMethodEnum})
-	 */
-	void updateMethod(UUID id, PaymentMethodEnum method);
-	
+
 	/**
 	 * Busca todos os pagamentos associados a uma doação específica.
 	 *

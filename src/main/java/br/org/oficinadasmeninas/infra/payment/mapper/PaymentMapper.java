@@ -8,12 +8,9 @@ public class PaymentMapper {
     public static PaymentDto toDto(Payment payment) {
         return new PaymentDto(
                 payment.getId(),
-                payment.getDonationId(),
-                payment.getGateway(),
-                payment.getCheckoutId(),
-                payment.getMethod(),
+                payment.getDate(),
                 payment.getStatus(),
-        		payment.getDate()
+                payment.getDonationId()
         );
     }
 }

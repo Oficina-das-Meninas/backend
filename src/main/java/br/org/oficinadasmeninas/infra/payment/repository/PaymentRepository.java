@@ -1,10 +1,8 @@
 package br.org.oficinadasmeninas.infra.payment.repository;
 
 import br.org.oficinadasmeninas.domain.payment.Payment;
-import br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum;
 import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
 import br.org.oficinadasmeninas.domain.payment.repository.IPaymentRepository;
-import br.org.oficinadasmeninas.domain.paymentgateway.PaymentGatewayEnum;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -33,12 +31,9 @@ public class PaymentRepository implements IPaymentRepository {
 
         jdbc.update(PaymentQueryBuilder.INSERT_PAYMENT,
                 id,
-                payment.getDonationId(),
-                payment.getGateway().name(),
-                payment.getCheckoutId(),
-                payment.getMethod() != null ? payment.getMethod().name() : null,
+                payment.getDate(),
                 payment.getStatus().name(),
-                payment.getDate()
+                payment.getDonationId()
         );
 
         return payment;
@@ -50,18 +45,6 @@ public class PaymentRepository implements IPaymentRepository {
         jdbc.update(
                 PaymentQueryBuilder.UPDATE_PAYMENT_STATUS,
                 payment.getStatus().name(),
-                payment.getId()
-        );
-
-        return payment;
-    }
-
-    @Override
-    public Payment updateMethod(Payment payment) {
-
-        jdbc.update(
-                PaymentQueryBuilder.UPDATE_PAYMENT_METHOD,
-                payment.getMethod().name(),
                 payment.getId()
         );
 
@@ -106,12 +89,9 @@ public class PaymentRepository implements IPaymentRepository {
 
         return new Payment(
                 rs.getObject("id", UUID.class),
-                rs.getObject("donation_id", UUID.class),
-                PaymentGatewayEnum.valueOf(rs.getString("gateway")),
-                rs.getString("checkout_id"),
-                rs.getString("method") != null ? PaymentMethodEnum.valueOf(rs.getString("method")) : null,
+                ts != null ? ts.toLocalDateTime() : null,
                 PaymentStatusEnum.valueOf(rs.getString("status")),
-                ts != null ? ts.toLocalDateTime() : null
+                rs.getObject("donation_id", UUID.class)
         );
     }
 }

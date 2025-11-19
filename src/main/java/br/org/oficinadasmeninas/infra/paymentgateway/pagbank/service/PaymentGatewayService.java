@@ -13,16 +13,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
 import br.org.oficinadasmeninas.domain.donation.service.IDonationService;
 import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
 import br.org.oficinadasmeninas.domain.payment.service.IPaymentService;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.ResponseCreateCheckoutDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
-import br.org.oficinadasmeninas.domain.sponsor.service.ISponsorService;
+import br.org.oficinadasmeninas.domain.sponsorship.service.ISponsorshipService;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
- import br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum;
+import br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutConfig;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutPagbank;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutRecurrenceInterval;
@@ -31,7 +30,6 @@ import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseCreateC
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseSignatureCustomer;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseWebhookCustomer;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.mappers.RequestCreateCheckoutPagbankMapper;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.mappers.RequestNotifyPaymentDonationStatusMapper;
 import br.org.oficinadasmeninas.infra.shared.exception.PaymentGatewayException;
 import br.org.oficinadasmeninas.infra.user.service.UserService;
 import br.org.oficinadasmeninas.presentation.shared.utils.IsoDateFormater;
@@ -46,7 +44,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
     private final IPaymentService paymentService;
 
-    private final ISponsorService sponsorService;
+    private final ISponsorshipService sponsorshipService;
     private final UserService userService;
 
     @Value("${app.redirectCheckoutUrl}")
@@ -66,11 +64,11 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
 
 
-    public PaymentGatewayService(RequestCreateCheckoutPagbankMapper mapper, WebClient.Builder builder, @Value("${app.url}") String url, IDonationService donationService, IPaymentService paymentService, ISponsorService sponsorService, UserService userService) {
+    public PaymentGatewayService(RequestCreateCheckoutPagbankMapper mapper, WebClient.Builder builder, @Value("${app.url}") String url, IDonationService donationService, IPaymentService paymentService, ISponsorshipService sponsorshipService, UserService userService) {
         this.mapper = mapper;
         this.donationService = donationService;
         this.paymentService = paymentService;
-        this.sponsorService = sponsorService;
+        this.sponsorshipService = sponsorshipService;
         this.webClient = builder.baseUrl(url)
                 .build();
         this.userService = userService;
@@ -134,33 +132,34 @@ public class PaymentGatewayService implements IPaymentGatewayService {
     @Override
     public void updatePaymentStatus(UUID donationId, PaymentStatusEnum paymentStatus, PaymentMethodEnum paymentMethod, boolean recurring, ResponseWebhookCustomer customer) {
 
-        DonationStatusEnum donationStatusEnum = RequestNotifyPaymentDonationStatusMapper.fromPaymentStatus(paymentStatus);
-
         List<PaymentDto> payments = paymentService.findByDonationId(donationId);
 
         if (payments == null || payments.isEmpty()) {
             throw new ValidationException("Não foi possível encontrar doação");
         }
 
-        donationService.updateStatus(donationId, donationStatusEnum);
-
         PaymentDto payment = payments.getLast();
 
         paymentService.updateStatus(payment.id(), paymentStatus);
-        paymentService.updateMethod(payment.id(), paymentMethod);
         paymentService.updatePaymentDate(payment.id(), LocalDateTime.now());
+
+        // Atualizar método de pagamento e gateway na donation
+        donationService.updateMethod(donationId, paymentMethod);
 
         if (recurring) {
             UserDto userDto = userService.findByDocument(customer.tax_id());
-            sponsorService.activateByUserId(userDto.getId());
+            sponsorshipService.activateByUserId(userDto.getId());
         }
     }
 
     @Override
-    public void updateCheckoutStatus(String checkoutId, UUID paymentId, PaymentStatusEnum paymentStatus) {
-        DonationStatusEnum donationStatusEnum = RequestNotifyPaymentDonationStatusMapper.fromPaymentStatus(paymentStatus);
-        donationService.updateStatus(paymentId, donationStatusEnum);
-        paymentService.updateStatus(paymentId, paymentStatus);
+    public void updateCheckoutStatus(String checkoutId, UUID donationId, PaymentStatusEnum paymentStatus) {
+        List<PaymentDto> payments = paymentService.findByDonationId(donationId);
+
+        if (payments != null && !payments.isEmpty()) {
+            PaymentDto payment = payments.getLast();
+            paymentService.updateStatus(payment.id(), paymentStatus);
+        }
     }
     private ResponseCreateCheckoutPagbank createPagBankCheckout(RequestCreateCheckoutPagbank checkoutPagbank) {
         try {
