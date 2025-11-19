@@ -9,7 +9,7 @@ public record CreateDonationDto(
     double value,
     String checkoutId,
     PaymentGatewayEnum gateway,
-    UUID sponsorId,
+    UUID sponsorshipId,
     PaymentMethodEnum method,
     UUID userId
 ) {

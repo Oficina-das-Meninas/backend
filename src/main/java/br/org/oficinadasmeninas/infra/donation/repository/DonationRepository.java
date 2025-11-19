@@ -40,7 +40,7 @@ public class DonationRepository implements IDonationRepository {
                 donation.getValue(),
                 donation.getCheckoutId(),
                 donation.getGateway() != null ? donation.getGateway().name() : null,
-                donation.getSponsorId(),
+                donation.getSponsorshipId(),
                 donation.getMethod() != null ? donation.getMethod().name() : null,
                 donation.getUserId(),
                 donation.getDonationAt()
@@ -141,7 +141,7 @@ public class DonationRepository implements IDonationRepository {
 			donation.setGateway(br.org.oficinadasmeninas.domain.paymentgateway.PaymentGatewayEnum.valueOf(gateway));
 		}
 
-		donation.setSponsorId(rs.getObject("sponsor_id", UUID.class));
+		donation.setSponsorshipId(rs.getObject("sponsorship_id", UUID.class));
 
 		String method = rs.getString("method");
 		if (method != null) {

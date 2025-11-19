@@ -134,12 +134,12 @@ public class SponsorshipRepository implements ISponsorshipRepository {
     private Sponsorship mapRowSponsorship(ResultSet rs, int rowNum) throws SQLException {
         return new Sponsorship(
                 UUID.fromString(rs.getString("id")),
-                rs.getInt("billingDay"),
-                rs.getTimestamp("startDate") != null ? rs.getTimestamp("startDate").toLocalDateTime() : null,
-                rs.getBoolean("isActive"),
-                rs.getString("subscriptionId"),
-                UUID.fromString(rs.getString("userId")),
-                rs.getTimestamp("cancelDate") != null ? rs.getTimestamp("cancelDate").toLocalDateTime() : null
+                rs.getInt("billing_day"),
+                rs.getTimestamp("start_date") != null ? rs.getTimestamp("start_date").toLocalDateTime() : null,
+                rs.getBoolean("is_active"),
+                rs.getString("subscription_id"),
+                UUID.fromString(rs.getString("user_id")),
+                rs.getTimestamp("cancel_date") != null ? rs.getTimestamp("cancel_date").toLocalDateTime() : null
         );
     }
 }

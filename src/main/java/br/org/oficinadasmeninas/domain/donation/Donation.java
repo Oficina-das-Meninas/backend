@@ -12,7 +12,7 @@ public class Donation {
 	private double value;
 	private String checkoutId;
 	private PaymentGatewayEnum gateway;
-	private UUID sponsorId;
+	private UUID sponsorshipId;
 	private PaymentMethodEnum method;
 	private UUID userId;
 	private LocalDateTime donationAt;
@@ -21,13 +21,13 @@ public class Donation {
 	}
 
 	public Donation(UUID id, double value, String checkoutId, PaymentGatewayEnum gateway,
-			UUID sponsorId, PaymentMethodEnum method, UUID userId, LocalDateTime donationAt) {
+			UUID sponsorshipId, PaymentMethodEnum method, UUID userId, LocalDateTime donationAt) {
 		super();
 		this.id = id;
 		this.value = value;
 		this.checkoutId = checkoutId;
 		this.gateway = gateway;
-		this.sponsorId = sponsorId;
+		this.sponsorshipId = sponsorshipId;
 		this.method = method;
 		this.userId = userId;
 		this.donationAt = donationAt;
@@ -65,12 +65,12 @@ public class Donation {
 		this.gateway = gateway;
 	}
 
-	public UUID getSponsorId() {
-		return sponsorId;
+	public UUID getSponsorshipId() {
+		return sponsorshipId;
 	}
 
-	public void setSponsorId(UUID sponsorId) {
-		this.sponsorId = sponsorId;
+	public void setSponsorshipId(UUID sponsorshipId) {
+		this.sponsorshipId = sponsorshipId;
 	}
 
 	public PaymentMethodEnum getMethod() {

@@ -13,7 +13,7 @@ public final class DonationMapper {
         donation.setValue(request.value());
         donation.setCheckoutId(request.checkoutId());
         donation.setGateway(request.gateway());
-        donation.setSponsorId(request.sponsorId());
+        donation.setSponsorshipId(request.sponsorshipId());
         donation.setMethod(request.method());
         donation.setUserId(request.userId());
         donation.setDonationAt(LocalDateTime.now());
@@ -28,7 +28,7 @@ public final class DonationMapper {
                 donation.getValue(),
                 donation.getCheckoutId(),
                 donation.getGateway(),
-                donation.getSponsorId(),
+                donation.getSponsorshipId(),
                 donation.getMethod(),
                 donation.getUserId(),
                 donation.getDonationAt()
