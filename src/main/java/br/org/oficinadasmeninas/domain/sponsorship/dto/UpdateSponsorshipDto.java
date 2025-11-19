@@ -1,11 +1,11 @@
-package br.org.oficinadasmeninas.domain.sponsor.dto;
+package br.org.oficinadasmeninas.domain.sponsorship.dto;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public record UpdateSponsorDto(
+public record UpdateSponsorshipDto(
         UUID id,
-        LocalDateTime sponsorUntil,
+        LocalDateTime cancelDate,
         Boolean isActive,
         String subscriptionId
 ) {}

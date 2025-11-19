@@ -1,22 +1,20 @@
 package br.org.oficinadasmeninas.presentation.controller;
 
+import br.org.oficinadasmeninas.domain.donation.dto.DonationDto;
+import br.org.oficinadasmeninas.domain.donation.service.IDonationService;
 import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
 import br.org.oficinadasmeninas.domain.payment.dto.CheckoutNotificationDto;
-import br.org.oficinadasmeninas.domain.payment.dto.PaymentDto;
 import br.org.oficinadasmeninas.domain.payment.dto.PaymentNotificationDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.PaymentChargesDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
 import br.org.oficinadasmeninas.infra.logspagbank.dto.CreateLogPagbank;
 import br.org.oficinadasmeninas.infra.logspagbank.service.LogPagbankService;
-import br.org.oficinadasmeninas.infra.payment.service.PaymentService;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseWebhookCustomer;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
@@ -25,14 +23,13 @@ import java.time.LocalDateTime;
 public class GatewayNotificationController {
 
 	private final IPaymentGatewayService paymentGatewayService;
-    private final ObjectMapper mapper = new ObjectMapper();
-    private final PaymentService paymentService;
+    private final IDonationService donationService;
     private final LogPagbankService logService;
 
-    public GatewayNotificationController(IPaymentGatewayService paymentGatewayService, PaymentService paymentService, LogPagbankService logService) {
+    public GatewayNotificationController(IPaymentGatewayService paymentGatewayService, IDonationService donationService, LogPagbankService logService) {
 		super();
         this.paymentGatewayService = paymentGatewayService;
-        this.paymentService = paymentService;
+        this.donationService = donationService;
         this.logService = logService;
     }
 	
@@ -51,8 +48,10 @@ public class GatewayNotificationController {
     	
 
         if (charge.status() == PaymentStatusEnum.PAID){
-            PaymentDto payment = paymentService.findByDonationId(request.reference_id()).getLast();
-            paymentGatewayService.cancelCheckout(payment.checkoutId());
+            DonationDto donation = donationService.findById(request.reference_id());
+            if (donation.checkoutId() != null) {
+                paymentGatewayService.cancelCheckout(donation.checkoutId());
+            }
         }
     }
 
