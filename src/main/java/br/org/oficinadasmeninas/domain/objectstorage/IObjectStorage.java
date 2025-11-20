@@ -1,7 +1,8 @@
 package br.org.oficinadasmeninas.domain.objectstorage;
 
-import br.org.oficinadasmeninas.infra.exceptions.ObjectStorageException;
 import org.springframework.web.multipart.MultipartFile;
+
+import br.org.oficinadasmeninas.infra.shared.exception.ObjectStorageException;
 
 /**
  * Serviço responsável pelas operações de armazenamento de objetos,

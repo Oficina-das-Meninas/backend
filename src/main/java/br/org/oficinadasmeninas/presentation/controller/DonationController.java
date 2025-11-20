@@ -15,12 +15,14 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/donations")
+@PreAuthorize("hasRole('USER')")
 public class DonationController extends BaseController {
 
     private final DonationApplication donationApplication;
@@ -37,6 +39,7 @@ public class DonationController extends BaseController {
             @ApiResponse(responseCode = "400", description = "Parâmetros inválidos")
     })
     @GetMapping
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<?> findByFilter(@RequestParam(defaultValue = "0") @PositiveOrZero int page,
                                           @RequestParam(defaultValue = "10") @Positive @Max(100) int pageSize,
                                           @RequestParam @Nullable String donationType,

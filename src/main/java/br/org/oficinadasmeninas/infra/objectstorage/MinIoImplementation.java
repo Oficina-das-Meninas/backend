@@ -1,7 +1,8 @@
 package br.org.oficinadasmeninas.infra.objectstorage;
 
 import br.org.oficinadasmeninas.domain.objectstorage.IObjectStorage;
-import br.org.oficinadasmeninas.infra.exceptions.ObjectStorageException;
+import br.org.oficinadasmeninas.infra.shared.exception.ObjectStorageException;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

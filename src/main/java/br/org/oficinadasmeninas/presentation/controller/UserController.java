@@ -16,6 +16,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -23,6 +24,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users")
+@PreAuthorize("hasRole('USER')")
 public class UserController extends BaseController {
 
     private final IUserService userService;
@@ -40,6 +42,7 @@ public class UserController extends BaseController {
             @ApiResponse(responseCode = "400", description = "Dados inválidos para criação do usuário"),
     })
     @PostMapping
+    @PreAuthorize("isAnonymous()")
     public ResponseEntity<?> insert(
             @Valid @RequestBody CreateUserDto request
     ) {
@@ -72,6 +75,7 @@ public class UserController extends BaseController {
             @ApiResponse(responseCode = "200", description = "Usuários listados com sucesso")
     })
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> findAll() {
         return handle(userService::findAll);
     }
@@ -82,6 +86,7 @@ public class UserController extends BaseController {
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     })
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> findByUserId(
             @PathVariable UUID id
     ) {

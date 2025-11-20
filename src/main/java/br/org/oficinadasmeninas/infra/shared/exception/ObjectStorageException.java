@@ -1,4 +1,4 @@
-package br.org.oficinadasmeninas.infra.exceptions;
+package br.org.oficinadasmeninas.infra.shared.exception;
 
 import br.org.oficinadasmeninas.domain.resources.Messages;
 

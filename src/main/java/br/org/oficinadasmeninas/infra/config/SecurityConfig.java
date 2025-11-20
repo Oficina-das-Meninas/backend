@@ -5,31 +5,43 @@ import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import br.org.oficinadasmeninas.domain.Response;
+import br.org.oficinadasmeninas.domain.resources.Messages;
+
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
 	private final AuthenticationProvider authenticationProvider;
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	private final ObjectMapper objectMapper;
 
 	public SecurityConfig(
 		AuthenticationProvider authenticationProvider,
-		JwtAuthenticationFilter jwtAuthenticationFilter
+		JwtAuthenticationFilter jwtAuthenticationFilter,
+		ObjectMapper objectMapper
 	) {
 		this.authenticationProvider = authenticationProvider;
 		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+		this.objectMapper = objectMapper;
 	}
 	
 	@Bean
@@ -49,6 +61,9 @@ public class SecurityConfig {
 	        )
 	        .authenticationProvider(authenticationProvider)
 	        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+	        .exceptionHandling(ex -> ex
+	                .accessDeniedHandler(customAccessDeniedHandler())
+	            )
 	        .cors(Customizer.withDefaults());
 
 	    return http.build();
@@ -73,5 +88,16 @@ public class SecurityConfig {
 
 		return source;
 	}
+	
+    @Bean
+    AccessDeniedHandler customAccessDeniedHandler() {
+        return (request, response, accessDeniedException) -> {
+        	response.setStatus(HttpStatus.FORBIDDEN.value());
+            response.setContentType("application/json");
+
+            var body = new Response<Void>(Messages.ACCESS_DENIED, null);
+            response.getWriter().write(objectMapper.writeValueAsString(body));
+        };
+    }
 
 }
