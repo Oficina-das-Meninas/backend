@@ -1,8 +1,8 @@
 package br.org.oficinadasmeninas.domain.donation.service;
 
-import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
 import br.org.oficinadasmeninas.domain.donation.dto.CreateDonationDto;
 import br.org.oficinadasmeninas.domain.donation.dto.DonationDto;
+import br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum;
 
 import java.util.List;
 import java.util.UUID;
@@ -42,13 +42,12 @@ public interface IDonationService {
      */
     DonationDto insert(CreateDonationDto donation);
 
+
     /**
-     * Atualiza o status de uma doação existente.
+     * Atualiza o método de pagamento de uma doação existente.
      *
      * @param id identificador único ({@link UUID}) da doação a ser atualizada; não deve ser {@code null}
-     * @param status novo status {@link DonationStatusEnum} a ser atribuído; não deve ser {@code null}
-     * @throws IllegalArgumentException se {@code id} ou {@code status} forem {@code null}
-     * @throws IllegalStateException se a doação não existir ou não puder ter o status alterado
+     * @param method novo método {@link PaymentMethodEnum} a ser atribuído; não deve ser {@code null}
      */
-    void updateStatus(UUID id, DonationStatusEnum status);
+    void updateMethod(UUID id, PaymentMethodEnum method);
 }

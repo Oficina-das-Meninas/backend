@@ -1,30 +1,25 @@
 package br.org.oficinadasmeninas.domain.payment;
 
-import br.org.oficinadasmeninas.domain.paymentgateway.PaymentGatewayEnum;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class Payment {
 
 	private UUID id;
-	private UUID donationId;
-	private PaymentGatewayEnum gateway;
-	private String checkoutId;
-	private PaymentMethodEnum method;
-	private PaymentStatusEnum status;
 	private LocalDateTime date;
+	private PaymentStatusEnum status;
+	private UUID donationId;
 
-	public Payment(UUID id, UUID donationId, PaymentGatewayEnum gateway, String checkoutId, PaymentMethodEnum method,
-			PaymentStatusEnum status, LocalDateTime date) {
+	public Payment() {
+		super();
+	}
+
+	public Payment(UUID id, LocalDateTime date, PaymentStatusEnum status, UUID donationId) {
 		super();
 		this.id = id;
-		this.donationId = donationId;
-		this.gateway = gateway;
-		this.checkoutId = checkoutId;
-		this.method = method;
-		this.status = status;
 		this.date = date;
+		this.status = status;
+		this.donationId = donationId;
 	}
 
 	public UUID getId() {
@@ -43,38 +38,6 @@ public class Payment {
 		this.date = date;
 	}
 
-	public UUID getDonationId() {
-		return donationId;
-	}
-
-	public void setDonationId(UUID donationId) {
-		this.donationId = donationId;
-	}
-
-	public PaymentGatewayEnum getGateway() {
-		return gateway;
-	}
-
-	public void setGateway(PaymentGatewayEnum gateway) {
-		this.gateway = gateway;
-	}
-
-	public String getCheckoutId() {
-		return checkoutId;
-	}
-
-	public void setCheckoutId(String checkoutId) {
-		this.checkoutId = checkoutId;
-	}
-
-	public PaymentMethodEnum getMethod() {
-		return method;
-	}
-
-	public void setMethod(PaymentMethodEnum method) {
-		this.method = method;
-	}
-
 	public PaymentStatusEnum getStatus() {
 		return status;
 	}
@@ -83,4 +46,11 @@ public class Payment {
 		this.status = status;
 	}
 
+	public UUID getDonationId() {
+		return donationId;
+	}
+
+	public void setDonationId(UUID donationId) {
+		this.donationId = donationId;
+	}
 }

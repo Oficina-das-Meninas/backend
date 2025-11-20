@@ -13,7 +13,7 @@ public interface IDonationRepository {
 
     Donation insert(Donation donation);
 
-    Donation updateStatus(Donation donation);
+    Donation updateMethod(Donation donation);
 
 	List<Donation> findAll();
 

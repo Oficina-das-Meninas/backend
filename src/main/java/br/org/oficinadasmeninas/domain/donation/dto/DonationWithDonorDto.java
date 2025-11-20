@@ -1,6 +1,5 @@
 package br.org.oficinadasmeninas.domain.donation.dto;
 
-import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -12,7 +11,6 @@ public record DonationWithDonorDto(
         LocalDateTime donationAt,
         UUID userId,
         String donationType,
-        DonationStatusEnum status,
         String sponsorStatus,
         String donorName
 ) {

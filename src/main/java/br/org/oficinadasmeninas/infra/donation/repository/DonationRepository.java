@@ -1,7 +1,6 @@
 package br.org.oficinadasmeninas.infra.donation.repository;
 
 import br.org.oficinadasmeninas.domain.donation.Donation;
-import br.org.oficinadasmeninas.domain.donation.DonationStatusEnum;
 import br.org.oficinadasmeninas.domain.donation.dto.DonationWithDonorDto;
 import br.org.oficinadasmeninas.domain.donation.dto.GetDonationDto;
 import br.org.oficinadasmeninas.domain.donation.repository.IDonationRepository;
@@ -38,20 +37,24 @@ public class DonationRepository implements IDonationRepository {
                 DonationQueryBuilder.INSERT_DONATION,
                 id,
                 donation.getValue(),
-                donation.getDonationAt(),
+                donation.getCheckoutId(),
+                donation.getGateway() != null ? donation.getGateway().name() : null,
+                donation.getSponsorshipId(),
+                donation.getMethod() != null ? donation.getMethod().name() : null,
                 donation.getUserId(),
-                donation.getStatus().name()
+                donation.getDonationAt()
         );
 
         return donation;
     }
 
+
     @Override
-    public Donation updateStatus(Donation donation) {
+    public Donation updateMethod(Donation donation) {
 
         jdbc.update(
-                DonationQueryBuilder.UPDATE_DONATION_STATUS,
-                donation.getStatus().name(),
+                DonationQueryBuilder.UPDATE_DONATION_METHOD,
+                donation.getMethod() != null ? donation.getMethod().name() : null,
                 donation.getId()
         );
 
@@ -70,7 +73,6 @@ public class DonationRepository implements IDonationRepository {
     }
 
     public PageDTO<DonationWithDonorDto> findByFilter(GetDonationDto getDonationDto) {
-        String donationStatus = getDonationDto.status() != null ? getDonationDto.status().name() : null;
         String donationType = getDonationDto.donationType();
         String donorName = getDonationDto.donorName();
 
@@ -88,7 +90,6 @@ public class DonationRepository implements IDonationRepository {
                 donorName, donorName,
                 getDonationDto.startDate(), getDonationDto.startDate(),
                 getDonationDto.endDate(), getDonationDto.endDate(),
-                donationStatus, donationStatus,
                 donationType, donationType,
                 getDonationDto.pageSize(),
                 getDonationDto.page() * getDonationDto.pageSize()
@@ -100,7 +101,6 @@ public class DonationRepository implements IDonationRepository {
                 donorName, donorName,
                 getDonationDto.startDate(), getDonationDto.startDate(),
                 getDonationDto.endDate(), getDonationDto.endDate(),
-                donationStatus, donationStatus,
                 donationType, donationType
         );
 
@@ -129,10 +129,23 @@ public class DonationRepository implements IDonationRepository {
 	private Donation mapRowDonation(ResultSet rs, int rowNum) throws SQLException {
 		Donation donation = new Donation();
 		donation.setId(rs.getObject("id", UUID.class));
-		donation.setValue(rs.getLong("value"));
-		donation.setDonationAt(rs.getObject("donation_at", LocalDateTime.class));
+		donation.setValue(rs.getDouble("value"));
+		donation.setCheckoutId(rs.getString("checkout_id"));
+
+		String gateway = rs.getString("gateway");
+		if (gateway != null) {
+			donation.setGateway(br.org.oficinadasmeninas.domain.paymentgateway.PaymentGatewayEnum.valueOf(gateway));
+		}
+
+		donation.setSponsorshipId(rs.getObject("sponsorship_id", UUID.class));
+
+		String method = rs.getString("method");
+		if (method != null) {
+			donation.setMethod(br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum.valueOf(method));
+		}
+
 		donation.setUserId(rs.getObject("user_id", UUID.class));
-		donation.setStatus(DonationStatusEnum.valueOf(rs.getString("status")));
+		donation.setDonationAt(rs.getObject("donation_at", LocalDateTime.class));
 		return donation;
 	}
 
@@ -144,7 +157,6 @@ public class DonationRepository implements IDonationRepository {
 				rs.getTimestamp("donation_at").toLocalDateTime(),
                 userIdString != null ? UUID.fromString(userIdString) : null,
                 rs.getString("donation_type"),
-                DonationStatusEnum.valueOf(rs.getString("status").toUpperCase()),
                 rs.getString("sponsor_status"),
 				rs.getString("donor_name")
 		);
