@@ -14,6 +14,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,7 @@ import java.util.UUID;
 @Validated
 @RestController
 @RequestMapping("/api/partners")
+@PreAuthorize("hasRole('ADMIN')")
 public class PartnerController extends BaseController {
 
     private final IPartnerService partnerService;
@@ -84,6 +86,7 @@ public class PartnerController extends BaseController {
             @ApiResponse(responseCode = "400", description = "Parâmetros inválidos")
     })
     @GetMapping
+    @PreAuthorize("isAnonymous() or hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> findAll(
             @RequestParam @Nullable String searchTerm,
             @RequestParam(defaultValue = "0") @PositiveOrZero int page,

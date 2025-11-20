@@ -1,8 +1,12 @@
 package br.org.oficinadasmeninas.infra.auth.service;
 
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
 import br.org.oficinadasmeninas.domain.admin.dto.AdminDto;
 import br.org.oficinadasmeninas.domain.admin.service.IAdminService;
-import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.user.dto.CreateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
 import br.org.oficinadasmeninas.domain.user.service.IUserService;
@@ -10,15 +14,9 @@ import br.org.oficinadasmeninas.infra.auth.UserDetailsCustom;
 import br.org.oficinadasmeninas.infra.auth.dto.LoginResponseDto;
 import br.org.oficinadasmeninas.infra.auth.dto.LoginUserDto;
 import br.org.oficinadasmeninas.infra.auth.dto.UserResponseDto;
-import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.shared.utils.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
@@ -78,19 +76,17 @@ public class AuthService {
 		authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(loginUserDTO.getEmail(), loginUserDTO.getPassword()));
 
+		try {
+			AdminDto admin = adminService.findByEmail(loginUserDTO.getEmail());
+
+			if (admin != null) {
+				return createUserDetailsCustom(admin, loginUserDTO.getPassword());
+			}
+		}catch(Exception e) {}
+
 		UserDto user = userService.findByEmail(loginUserDTO.getEmail());
-
-		if (user != null) {
-			return createUserDetailsCustom(user, loginUserDTO.getPassword());
-		}
-
-		AdminDto admin = adminService.findByEmail(loginUserDTO.getEmail());
-
-		if (admin != null) {
-			return createUserDetailsCustom(admin, loginUserDTO.getPassword());
-		}
-
-		throw new NotFoundException(Messages.USER_NOT_FOUND);
+		
+		return createUserDetailsCustom(user, loginUserDTO.getPassword());
 	}
 
 	private UserDetailsCustom createUserDetailsCustom(UserDto user, String password) {

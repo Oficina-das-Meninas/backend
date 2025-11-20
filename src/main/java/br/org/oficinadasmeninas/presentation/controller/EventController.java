@@ -15,6 +15,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +25,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/events")
 @Validated
+@PreAuthorize("hasRole('ADMIN')")
 public class EventController extends BaseController {
     private final IEventService eventService;
 
@@ -85,6 +87,7 @@ public class EventController extends BaseController {
             @ApiResponse(responseCode = "200", description = "Eventos encontrados com sucesso")
     })
     @GetMapping
+    @PreAuthorize("isAnonymous() or hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getFilteredEvents(
             @RequestParam(defaultValue = "0") @PositiveOrZero int page,
             @RequestParam(defaultValue = "10") @Positive @Max(100) int pageSize,
@@ -105,6 +108,7 @@ public class EventController extends BaseController {
             @ApiResponse(responseCode = "404", description = "Evento não encontrado")
     })
     @GetMapping("/{id}")
+    @PreAuthorize("isAnonymous() or hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> findEventById(
             @PathVariable UUID id
     ) {

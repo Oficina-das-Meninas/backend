@@ -7,7 +7,7 @@ import br.org.oficinadasmeninas.domain.partner.dto.UpdatePartnerDto;
 import br.org.oficinadasmeninas.domain.partner.repository.IPartnerRepository;
 import br.org.oficinadasmeninas.domain.partner.service.IPartnerService;
 import br.org.oficinadasmeninas.domain.resources.Messages;
-import br.org.oficinadasmeninas.infra.exceptions.ObjectStorageException;
+import br.org.oficinadasmeninas.infra.shared.exception.ObjectStorageException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.stereotype.Service;
