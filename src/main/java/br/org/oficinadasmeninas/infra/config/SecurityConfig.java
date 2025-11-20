@@ -39,8 +39,9 @@ public class SecurityConfig {
 	        .authorizeHttpRequests(auth -> auth
 	            .requestMatchers("/api/auth/**").permitAll()
 				.requestMatchers(HttpMethod.POST, "/api/notification/**").permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/events").permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/transparencies").permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/partners").permitAll()
 				.anyRequest().authenticated()
 	        )
 	        .sessionManagement(session -> session
@@ -72,16 +73,5 @@ public class SecurityConfig {
 
 		return source;
 	}
-
-//	@Bean
-//	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//		http.csrf(AbstractHttpConfigurer::disable)
-//                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-//				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//				.authorizeHttpRequests(auth -> auth.anyRequest().permitAll()).httpBasic(Customizer.withDefaults())
-//				.formLogin(AbstractHttpConfigurer::disable);
-//
-//		return http.build();
-//	}
 
 }
