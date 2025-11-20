@@ -41,7 +41,7 @@ public class GatewayNotificationController {
     @PostMapping("/payment")
     public void notifyPayment(@RequestBody PaymentNotificationDto request) throws IOException {
         PaymentChargesDto charge = request.charges().getFirst();
-        saveLog(charge);
+        saveLog(request);
         boolean recurring = charge.recurring() != null;
         ResponseWebhookCustomer customer = request.customer();
     	paymentGatewayService.updatePaymentStatus(request.reference_id(), charge.status(), charge.payment_method().type(), recurring, customer);
