@@ -1,12 +1,5 @@
 package br.org.oficinadasmeninas.infra.config;
 
-import br.org.oficinadasmeninas.domain.admin.Admin;
-import br.org.oficinadasmeninas.domain.admin.repository.IAdminRepository;
-import br.org.oficinadasmeninas.domain.resources.Messages;
-import br.org.oficinadasmeninas.domain.user.User;
-import br.org.oficinadasmeninas.domain.user.repository.IUserRepository;
-import br.org.oficinadasmeninas.infra.auth.UserDetailsCustom;
-import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,13 +9,21 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import br.org.oficinadasmeninas.domain.admin.Admin;
+import br.org.oficinadasmeninas.domain.admin.repository.IAdminRepository;
+import br.org.oficinadasmeninas.domain.resources.Messages;
+import br.org.oficinadasmeninas.domain.user.User;
+import br.org.oficinadasmeninas.domain.user.repository.IUserRepository;
+import br.org.oficinadasmeninas.infra.auth.UserDetailsCustom;
+import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
+
 @Configuration
 public class ApplicationConfiguration {
 
     private final IUserRepository userRepository;
     private final IAdminRepository adminRepository;
 
-    private final boolean IS_ADMIN = true;
+    private static final boolean IS_ADMIN = true;
 
     public ApplicationConfiguration(IUserRepository userRepository, IAdminRepository adminRepository) {
         this.userRepository = userRepository;
@@ -32,19 +33,16 @@ public class ApplicationConfiguration {
     @Bean
     UserDetailsService userDetailsService() {
         return username -> {
-            var user = userRepository.findByEmail(username)
-                    .orElseThrow(() -> new NotFoundException(Messages.USER_NOT_FOUND_BY_EMAIL + username));
-            if (user != null) {
-                return createUserDetailsCustom(user);
-            }
-
-            var admin = adminRepository.findByEmail(username)
-                    .orElseThrow(() -> new NotFoundException(Messages.ADMIN_NOT_FOUND_BY_EMAIL + username));
-            if (admin != null) {
-                return createUserDetailsCustom(admin);
-            }
-
-            throw new NotFoundException("Erro ao tentar efetuar autenticação");
+        	var admin = adminRepository.findByEmail(username);
+        	
+        	if (admin.isPresent()) 
+        		return createUserDetailsCustom(admin.get()); 
+        	
+        	
+        	var user = userRepository.findByEmail(username)
+        			.orElseThrow(() -> new NotFoundException(Messages.USER_NOT_FOUND_BY_EMAIL + username));
+        	
+        	return createUserDetailsCustom(user);
         };
     }
 

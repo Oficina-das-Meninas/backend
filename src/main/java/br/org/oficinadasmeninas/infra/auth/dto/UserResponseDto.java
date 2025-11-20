@@ -6,6 +6,8 @@ public class UserResponseDto {
 	private UUID id;
 	private String name;
 	private Boolean isAdmin;
+	
+	public UserResponseDto() {}
 
 	public UserResponseDto(UUID id, String name, Boolean isAdmin) {
 		super();
