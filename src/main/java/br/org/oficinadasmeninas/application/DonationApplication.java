@@ -42,9 +42,9 @@ public class DonationApplication {
 
 	public DonationCheckoutDto createDonationCheckout(CreateDonationCheckoutDto donationCheckout) {
 
-//        if(!this.captchaService.isCaptchaValid(donationCheckout.captchaToken())) {
-//            throw new ValidationException("Token Captcha inválido");
-//        }
+        if(!this.captchaService.isCaptchaValid(donationCheckout.captchaToken())) {
+            throw new ValidationException("Token Captcha inválido");
+        }
 
         UUID sponsorshipId = null;
         if (donationCheckout.donation().isRecurring()){
