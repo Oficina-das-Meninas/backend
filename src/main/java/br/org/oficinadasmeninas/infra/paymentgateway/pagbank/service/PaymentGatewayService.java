@@ -139,7 +139,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
                 .map(ResponseCreateCheckoutLink::href)
                 .orElseThrow(() -> new PaymentGatewayException("Link de pagamento não encontrado"));
 
-        return new ResponseCreateCheckoutDto(link, responseCreateCheckoutPagbank.id());
+        return new ResponseCreateCheckoutDto(link, responseCreateCheckoutPagbank.id(), requestCreateCheckoutDto.internalId());
     }
 
     @Override
