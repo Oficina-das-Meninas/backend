@@ -1,3 +1,5 @@
 package br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout;
 
-public record ResponseCreateCheckoutDto(String link, String checkoutId) {}
+import java.util.UUID;
+
+public record ResponseCreateCheckoutDto(String link, String checkoutId, UUID referenceId) {}

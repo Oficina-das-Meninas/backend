@@ -9,6 +9,5 @@ public record PaymentChargesDto(
         String reference_id,
         PaymentStatusEnum status,
         ResponseWebhookPaymentMethod payment_method,
-        Object recurring,
-        ResponseWebhookCustomer customer
+        Object recurring
 ) {}

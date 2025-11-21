@@ -10,6 +10,7 @@ public final class DonationMapper {
 
     public static Donation toEntity(CreateDonationDto request) {
         var donation = new Donation();
+        donation.setId(request.referenceId());
         donation.setValue(request.value());
         donation.setCheckoutId(request.checkoutId());
         donation.setGateway(request.gateway());
