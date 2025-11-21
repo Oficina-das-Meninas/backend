@@ -22,7 +22,6 @@ import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/donations")
-@PreAuthorize("hasRole('USER')")
 public class DonationController extends BaseController {
 
     private final DonationApplication donationApplication;
