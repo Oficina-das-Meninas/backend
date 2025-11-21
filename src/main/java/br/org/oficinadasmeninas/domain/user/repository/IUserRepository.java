@@ -23,4 +23,6 @@ public interface IUserRepository {
 	boolean existsByEmail(String email);
 
 	boolean existsByDocument(String document);
+
+	void markUserAsVerified(UUID id);
 }

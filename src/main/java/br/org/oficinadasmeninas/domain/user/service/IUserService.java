@@ -64,4 +64,11 @@ public interface IUserService {
      *         ou {@code null} se não existir
      */
     UserDto findByDocument(String document);
+    
+    /**
+     * Valida o e-mail do usuário
+     *
+     * @param id identificador único do usuário
+     */
+    void markUserAsVerified(UUID id);
 }

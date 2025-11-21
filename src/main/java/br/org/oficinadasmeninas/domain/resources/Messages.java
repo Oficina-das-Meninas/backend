@@ -82,4 +82,12 @@ public final class Messages {
     
     public static final String ACCESS_DENIED = "Você não ter permissão para acessar este recurso.";
     
+    public static final String INVALID_EMAIL_TOKEN = "Token de confirmação de e-mail inválido ou expirado.";
+    
+    public static final String INVALID_PASSWORD_TOKEN = "Token de recuperação de senha inválido ou expirado.";
+    
+    public static final String EMAIL_NOT_VERIFIED = "E-mail não verificado.";
+    
+    public static final String EMAIL_VERIFIED_SUCCESSFULLY = "E-mail confirmado com sucesso.";
+    
 }

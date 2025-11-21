@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import br.org.oficinadasmeninas.infra.config.TokenExpirationProperties;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,9 +25,16 @@ public class JwtService {
 
 	@Value("${security.jwt.secret-key}")
 	private String secretKey;
-
-	@Value("${security.jwt.expiration-time}")
-	private long jwtExpiration;
+	
+	private TokenExpirationProperties tokenExpirationProperties;
+	
+	public static enum PurposeTokenEnum {
+		VERIFY_EMAIL, RESET_PASSWORD;
+	}
+	
+	public JwtService(TokenExpirationProperties tokenExpirationProperties) {
+		this.tokenExpirationProperties = tokenExpirationProperties;
+	}
 
 	public String extractUsername(String token) {
 		return extractClaim(token, Claims::getSubject);
@@ -35,17 +44,31 @@ public class JwtService {
 		final Claims claims = extractAllClaims(token);
 		return claimsResolver.apply(claims);
 	}
-
-	public String generateToken(UserDetails userDetails) {
-		return generateToken(new HashMap<>(), userDetails);
+	
+	public String generateAdminSessionToken(UserDetails userDetails) {
+		return generateToken(new HashMap<>(), userDetails, tokenExpirationProperties.getAdminSession());
+	}
+	
+	public String generateUserSessionToken(UserDetails userDetails) {
+		return generateToken(new HashMap<>(), userDetails, tokenExpirationProperties.getUserSession());
+	}
+	
+	public String generateVerifyEmailToken(UserDetails userDetails) {
+		Map<String, Object> extraClaims = new HashMap<>();
+		extraClaims.put("purpose", PurposeTokenEnum.VERIFY_EMAIL.name());
+		
+		return generateToken(extraClaims, userDetails, tokenExpirationProperties.getVerifyEmail());
+	}
+	
+	public String generateResetPasswordToken(UserDetails userDetails) {
+		Map<String, Object> extraClaims = new HashMap<>();
+		extraClaims.put("purpose", PurposeTokenEnum.RESET_PASSWORD.name());
+		
+		return generateToken(extraClaims, userDetails, tokenExpirationProperties.getResetPassword());
 	}
 
-	public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-		return buildToken(extraClaims, userDetails, jwtExpiration);
-	}
-
-	public long getExpirationTime() {
-		return jwtExpiration;
+	public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
+		return buildToken(extraClaims, userDetails, expiration);
 	}
 
 	public boolean isTokenValid(String token, UserDetails userDetails) {
@@ -55,6 +78,31 @@ public class JwtService {
 		} catch (JwtException e) {
 			return false;
 		}
+	}
+	
+	public boolean isTokenValidForPurpose(String token, UserDetails userDetails, PurposeTokenEnum requiredPurpose) {
+		try {
+			
+			if (!isTokenValid(token, userDetails)) {
+				return false;
+			}
+
+			final String purposeString = extractClaim(token, claims -> claims.get("purpose", String.class));
+
+			if (purposeString == null || !purposeString.equals(requiredPurpose.name())) {
+				return false;
+			}
+
+			return true;
+		} catch (JwtException e) {
+			return false;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	
+	public TokenExpirationProperties getTokenExpirationProperties() {
+		return tokenExpirationProperties;
 	}
 
 	private boolean isTokenExpired(String token) {

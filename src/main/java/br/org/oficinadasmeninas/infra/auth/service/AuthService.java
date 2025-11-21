@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import br.org.oficinadasmeninas.domain.admin.dto.AdminDto;
 import br.org.oficinadasmeninas.domain.admin.service.IAdminService;
+import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.user.dto.CreateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
 import br.org.oficinadasmeninas.domain.user.service.IUserService;
@@ -14,6 +15,7 @@ import br.org.oficinadasmeninas.infra.auth.UserDetailsCustom;
 import br.org.oficinadasmeninas.infra.auth.dto.LoginResponseDto;
 import br.org.oficinadasmeninas.infra.auth.dto.LoginUserDto;
 import br.org.oficinadasmeninas.infra.auth.dto.UserResponseDto;
+import br.org.oficinadasmeninas.infra.shared.exception.EmailNotVerifiedException;
 import br.org.oficinadasmeninas.presentation.shared.utils.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -43,10 +45,15 @@ public class AuthService {
 	
 	public LoginResponseDto login(LoginUserDto loginUserDto, HttpServletResponse response) {
 		UserDetailsCustom authenticatedUser = authenticate(loginUserDto);
+		
+		String jwtToken  = jwtService.generateUserSessionToken(authenticatedUser);
+		long expirationTime = jwtService.getTokenExpirationProperties().getUserSession();
+		
+		if(authenticatedUser.getAdmin()) {
+			jwtToken = jwtService.generateAdminSessionToken(authenticatedUser);
+			expirationTime = jwtService.getTokenExpirationProperties().getAdminSession();
+		}
 
-		String jwtToken = jwtService.generateToken(authenticatedUser);
-		long expirationTime = jwtService.getExpirationTime();
-	
 		CookieUtils.addCookie(response, ACCESS_TOKEN, jwtToken, expirationTime);
 		
 		UserResponseDto userResponse = new UserResponseDto();
@@ -56,7 +63,7 @@ public class AuthService {
 
 		LoginResponseDto loginResponse = new LoginResponseDto();
 		loginResponse.setUser(userResponse);
-		loginResponse.setExpiresIn(jwtService.getExpirationTime());
+		loginResponse.setExpiresIn(expirationTime);
 		
 		return loginResponse;
 	}
@@ -85,6 +92,10 @@ public class AuthService {
 		}catch(Exception e) {}
 
 		UserDto user = userService.findByEmail(loginUserDTO.getEmail());
+		
+		if(user.isInactive()) {
+			throw new EmailNotVerifiedException(Messages.EMAIL_NOT_VERIFIED);
+		}
 		
 		return createUserDetailsCustom(user, loginUserDTO.getPassword());
 	}
