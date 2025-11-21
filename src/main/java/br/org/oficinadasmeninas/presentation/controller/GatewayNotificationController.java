@@ -10,6 +10,7 @@ import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewaySer
 import br.org.oficinadasmeninas.infra.logspagbank.dto.CreateLogPagbank;
 import br.org.oficinadasmeninas.infra.logspagbank.service.LogPagbankService;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseWebhookCustomer;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +20,8 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/api/nofitications")
+@RequestMapping("/api/notifications")
+@PreAuthorize("isAnonymous()")
 public class GatewayNotificationController {
 
 	private final IPaymentGatewayService paymentGatewayService;
