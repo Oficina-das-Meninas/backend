@@ -19,14 +19,20 @@ import br.org.oficinadasmeninas.domain.payment.service.IPaymentService;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.ResponseCreateCheckoutDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
+import br.org.oficinadasmeninas.domain.sponsorship.Sponsorship;
+import br.org.oficinadasmeninas.domain.sponsorship.dto.SponsorshipDto;
+import br.org.oficinadasmeninas.domain.sponsorship.dto.UpdateSponsorshipDto;
 import br.org.oficinadasmeninas.domain.sponsorship.service.ISponsorshipService;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
 import br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutConfig;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutPagbank;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutRecurrenceInterval;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestSubscriptionIdCustomer;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseCreateCheckoutLink;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseCreateCheckoutPagbank;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseFindSubscriptionId;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseFindSubscriptionIdSubscription;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseSignatureCustomer;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseWebhookCustomer;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.mappers.RequestCreateCheckoutPagbankMapper;
@@ -39,6 +45,8 @@ public class PaymentGatewayService implements IPaymentGatewayService {
     private final RequestCreateCheckoutPagbankMapper mapper;
 
     private final WebClient webClient;
+    
+    private final WebClient webClientSubscription;
 
     private final IDonationService donationService;
 
@@ -58,6 +66,9 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
     @Value("${app.url}")
     private String url;
+    
+    @Value("${app.url_signature}")
+    private String urlSignature;
 
     @Value("${app.token}")
     private String token;
@@ -66,11 +77,13 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
     public PaymentGatewayService(RequestCreateCheckoutPagbankMapper mapper, WebClient.Builder builder, @Value("${app.url}") String url, IDonationService donationService, IPaymentService paymentService, ISponsorshipService sponsorshipService, UserService userService) {
         this.mapper = mapper;
-        this.donationService = donationService;
+		this.donationService = donationService;
         this.paymentService = paymentService;
         this.sponsorshipService = sponsorshipService;
         this.webClient = builder.baseUrl(url)
                 .build();
+        this.webClientSubscription = builder.baseUrl(urlSignature)
+				.build();
         this.userService = userService;
     }
 
@@ -126,7 +139,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
                 .map(ResponseCreateCheckoutLink::href)
                 .orElseThrow(() -> new PaymentGatewayException("Link de pagamento não encontrado"));
 
-        return new ResponseCreateCheckoutDto(link, responseCreateCheckoutPagbank.id());
+        return new ResponseCreateCheckoutDto(link, responseCreateCheckoutPagbank.id(), requestCreateCheckoutDto.internalId());
     }
 
     @Override
@@ -147,8 +160,12 @@ public class PaymentGatewayService implements IPaymentGatewayService {
         donationService.updateMethod(donationId, paymentMethod);
 
         if (recurring) {
+        	String subscriptionId = this.findSubscriptionId( new RequestSubscriptionIdCustomer(customer.name(), customer.tax_id()));
             UserDto userDto = userService.findByDocument(customer.tax_id());
-            sponsorshipService.activateByUserId(userDto.getId());
+            
+            SponsorshipDto sponsor = sponsorshipService.findByUserId(userDto.getId()).getFirst();
+            
+            sponsorshipService.update(new UpdateSponsorshipDto(sponsor.id(), null, true, subscriptionId));
         }
     }
 
@@ -163,7 +180,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
     }
     private ResponseCreateCheckoutPagbank createPagBankCheckout(RequestCreateCheckoutPagbank checkoutPagbank) {
         try {
-            var response = webClient.post()
+			var response = webClient.post()
                     .uri("/checkouts")
                     .header("Authorization", "Bearer " + token)
                     .bodyValue(checkoutPagbank)
@@ -184,4 +201,24 @@ public class PaymentGatewayService implements IPaymentGatewayService {
             throw new PaymentGatewayException(e.getRawStatusCode() + " " + e.getStatusText());
         }
     }
+
+	@Override
+	public String findSubscriptionId(RequestSubscriptionIdCustomer customer) {
+		try {
+		
+			var response = webClientSubscription.get()
+					.uri("/subscriptions")
+                    .header("Authorization", "Bearer " + token)
+					.header("q", customer.document())
+					.header("q", customer.name())
+					.retrieve()
+					.bodyToMono(ResponseFindSubscriptionId.class)
+					.block();			
+			
+			return response.subscriptions().getFirst().id();			
+			
+		} catch (Exception e) {
+			throw new PaymentGatewayException(e.toString());
+		}
+	}
 }

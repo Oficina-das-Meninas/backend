@@ -50,10 +50,11 @@ public class SecurityConfig {
 	        .csrf(AbstractHttpConfigurer::disable)
 	        .authorizeHttpRequests(auth -> auth
 	            .requestMatchers("/api/auth/**").permitAll()
-				.requestMatchers(HttpMethod.POST, "/api/notification/**").permitAll()
+				.requestMatchers(HttpMethod.POST, "/api/notifications/**").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/transparencies").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/partners").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/donations").permitAll()
 				.anyRequest().authenticated()
 	        )
 	        .sessionManagement(session -> session

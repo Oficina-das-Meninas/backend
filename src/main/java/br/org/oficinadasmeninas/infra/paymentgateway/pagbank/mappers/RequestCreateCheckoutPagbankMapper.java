@@ -44,7 +44,7 @@ public class RequestCreateCheckoutPagbankMapper {
         }
 
         return new RequestCreateCheckoutPagbank(
-                domain.internalId(),
+                domain.internalId().toString(),
                 config.expirationDate(),
                 customer,
                 List.of(item),

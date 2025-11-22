@@ -11,7 +11,8 @@ public record CreateDonationDto(
     PaymentGatewayEnum gateway,
     UUID sponsorshipId,
     PaymentMethodEnum method,
-    UUID userId
+    UUID userId,
+    UUID referenceId
 ) {
 
 }

@@ -66,7 +66,8 @@ public class DonationApplication {
             paymentGatewayEnum,
             sponsorshipId,
             null,
-            donationCheckout.donor().id()
+            donationCheckout.donor().id(),
+            checkout.referenceId()
         );
 		DonationDto donation = donationService.insert(createDonation);
 
@@ -78,7 +79,7 @@ public class DonationApplication {
 
     private RequestCreateCheckoutDto createPaymentGateway(DonorInfoDto customer, DonationItemDto donation){
         return new RequestCreateCheckoutDto(
-                UUID.randomUUID().toString(),
+                UUID.randomUUID(),
                 new RequestCreateCheckoutCustomerDto(customer.name(), customer.phone(), customer.email(), customer.document()),
                 new RequestCreateCheckoutSignatureDto(donation.isRecurring(), donation.cycles()),
                 new RequestCreateCheckoutDonationDto(donation.value())

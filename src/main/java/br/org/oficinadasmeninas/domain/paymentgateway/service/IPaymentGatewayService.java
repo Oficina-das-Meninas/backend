@@ -4,6 +4,7 @@ import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.ResponseCreateCheckoutDto;
  import br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestSubscriptionIdCustomer;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseWebhookCustomer;
 
 import java.util.UUID;
@@ -65,4 +66,14 @@ public interface IPaymentGatewayService {
 	 * @param paymentStatus novo status do pagamento ({@link PaymentStatusEnum})
 	 */
 	void updateCheckoutStatus(String checkoutId, UUID paymentId, PaymentStatusEnum paymentStatus);
+	
+	/**
+	 * Busca junto a plataforma de pagamentos o ID intenro da assinatura deles
+	 * <p>
+	 *	 *
+	 * @param document   identificador do assinante
+	 */
+	
+	String findSubscriptionId(RequestSubscriptionIdCustomer customer);
+	
 }
