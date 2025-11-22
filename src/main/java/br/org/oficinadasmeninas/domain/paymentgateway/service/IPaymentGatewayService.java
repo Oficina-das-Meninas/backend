@@ -71,9 +71,15 @@ public interface IPaymentGatewayService {
 	 * Busca junto a plataforma de pagamentos o ID intenro da assinatura deles
 	 * <p>
 	 *	 *
-	 * @param document   identificador do assinante
+	 * @param customer objeto contendo os dados do cliente para busca da assinatura
 	 */
-	
 	String findSubscriptionId(RequestSubscriptionIdCustomer customer);
-	
+
+    /**
+     * Cancela uma assinatura de doação recorrente no gateway de pagamentos.
+     * <p>
+     * Essa operação interrompe futuras cobranças associadas à assinatura.
+     * @param subscriptionId identificador único da assinatura a ser cancelada
+     */
+    void cancelRecurringDonationSubscription(String subscriptionId);
 }

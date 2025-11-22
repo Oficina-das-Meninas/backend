@@ -7,10 +7,12 @@ import br.org.oficinadasmeninas.domain.paymentgateway.PaymentGatewayEnum;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.*;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
+import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.sponsorship.dto.SponsorshipDto;
 import br.org.oficinadasmeninas.domain.sponsorship.service.ISponsorshipService;
 import br.org.oficinadasmeninas.infra.recaptcha.CaptchaService;
 import br.org.oficinadasmeninas.infra.shared.exception.ActiveSubscriptionAlreadyExistsException;
+import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 
 import org.springframework.stereotype.Service;
@@ -96,5 +98,24 @@ public class DonationApplication {
                 donor.id(),
                 null
         ));
+    }
+
+    public void cancelRecurringDonationSubscription(UUID donationId) {
+        DonationDto donationDto = donationService.findById(donationId);
+
+        if (donationDto.sponsorshipId() == null) {
+            throw new ValidationException(Messages.DONATION_IS_NOT_RECURRING);
+        }
+
+        Optional<SponsorshipDto> sponsorshipDto = sponsorshipService.findById(donationDto.sponsorshipId());
+        if (sponsorshipDto.isEmpty() || sponsorshipDto.get().subscriptionId() == null) {
+            throw new NotFoundException(Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND);
+        }
+
+        paymentGatewayService.cancelRecurringDonationSubscription(
+                sponsorshipDto.get().subscriptionId()
+        );
+
+        sponsorshipService.cancelSponsorship(sponsorshipDto.get().id());
     }
 }
