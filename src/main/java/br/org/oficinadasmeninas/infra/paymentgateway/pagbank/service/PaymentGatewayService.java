@@ -75,7 +75,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
 
 
-    public PaymentGatewayService(RequestCreateCheckoutPagbankMapper mapper, WebClient.Builder builder, @Value("${app.url}") String url, IDonationService donationService, IPaymentService paymentService, ISponsorshipService sponsorshipService, UserService userService) {
+    public PaymentGatewayService(RequestCreateCheckoutPagbankMapper mapper, WebClient.Builder builder, @Value("${app.url}") String url, @Value("${app.url_signature}") String urlSignature,IDonationService donationService, IPaymentService paymentService, ISponsorshipService sponsorshipService, UserService userService) {
         this.mapper = mapper;
 		this.donationService = donationService;
         this.paymentService = paymentService;
