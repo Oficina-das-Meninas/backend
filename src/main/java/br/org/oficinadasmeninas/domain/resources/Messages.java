@@ -90,4 +90,8 @@ public final class Messages {
     
     public static final String EMAIL_VERIFIED_SUCCESSFULLY = "E-mail confirmado com sucesso.";
     
+    public static final String PASSWORD_CHANGED_SUCCESSFULLY = "Senha alterada com sucesso.";
+    
+    public static final String EMAIL_SENDED_SUCCESSFULLY = "E-mail enviado com sucesso.";
+    
 }

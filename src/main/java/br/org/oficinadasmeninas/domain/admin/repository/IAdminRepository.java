@@ -17,4 +17,6 @@ public interface IAdminRepository {
     Optional<Admin> findById(UUID id);
 
     Optional<Admin> findByEmail(String email);
+    
+    void updatePassword(UUID id, String encodedPassword);
 }

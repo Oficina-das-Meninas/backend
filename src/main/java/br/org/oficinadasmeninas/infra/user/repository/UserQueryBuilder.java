@@ -19,4 +19,6 @@ public class UserQueryBuilder {
     public static final String FIND_USER_BY_DOCUMENT = "SELECT id, name, email, password, phone, document, is_inactive FROM users WHERE document = ?";
     
     public static final String MARK_USER_AS_VERIFIED = "UPDATE users SET is_inactive = false WHERE id = ?";
+    
+    public static final String UPDATE_PASSWORD = "UPDATE users SET password = ? WHERE id = ?";
 }

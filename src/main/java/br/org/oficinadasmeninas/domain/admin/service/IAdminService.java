@@ -54,4 +54,12 @@ public interface IAdminService {
      * ou {@code null} se não existir
      */
     AdminDto findByEmail(String email);
+    
+    /**
+     * Atualiza a senha do administrador.
+     *
+     * @param id identificador único do administrador
+     * @param encodedPassword nova senha encriptada
+     */
+    void updatePassword(UUID id, String encodedPassword);
 }

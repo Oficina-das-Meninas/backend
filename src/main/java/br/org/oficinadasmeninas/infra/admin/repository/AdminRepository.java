@@ -2,6 +2,7 @@ package br.org.oficinadasmeninas.infra.admin.repository;
 
 import br.org.oficinadasmeninas.domain.admin.Admin;
 import br.org.oficinadasmeninas.domain.admin.repository.IAdminRepository;
+
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -89,6 +90,15 @@ public class AdminRepository implements IAdminRepository {
             return Optional.empty();
         }
     }
+    
+    @Override
+	public void updatePassword(UUID id, String encodedPassword) {
+    	jdbc.update(
+    			AdminQueryBuilder.UPDATE_PASSWORD,
+                encodedPassword,
+                id
+        );
+	}
 
     private Admin mapRowAdmin(ResultSet rs, int rowNum) throws SQLException {
         var admin = new Admin();
@@ -98,4 +108,6 @@ public class AdminRepository implements IAdminRepository {
         admin.setPassword(rs.getString("password"));
         return admin;
     }
+
+	
 }

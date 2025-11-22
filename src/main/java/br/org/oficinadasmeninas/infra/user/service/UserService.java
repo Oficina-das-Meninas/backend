@@ -7,8 +7,6 @@ import br.org.oficinadasmeninas.domain.user.dto.UpdateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
 import br.org.oficinadasmeninas.domain.user.repository.IUserRepository;
 import br.org.oficinadasmeninas.domain.user.service.IUserService;
-import br.org.oficinadasmeninas.infra.auth.UserDetailsCustom;
-import br.org.oficinadasmeninas.infra.auth.service.JwtService;
 import br.org.oficinadasmeninas.infra.email.service.EmailService;
 import br.org.oficinadasmeninas.infra.shared.exception.DocumentAlreadyExistsException;
 import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsException;
@@ -16,26 +14,26 @@ import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class UserService implements IUserService {
-
+	
     private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
-    private final JwtService jwtService;
 
-    public UserService(IUserRepository userRepository, PasswordEncoder passwordEncoder, EmailService emailService, JwtService jwtService) {
+    public UserService(IUserRepository userRepository, PasswordEncoder passwordEncoder, EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
-        this.jwtService = jwtService;
     }
 
     @Override
+    @Transactional
     public UserDto insert(CreateUserDto request) {
         try {
             var user = new User();
@@ -48,7 +46,7 @@ public class UserService implements IUserService {
 
             userRepository.insert(user);
             
-            sendConfirmAccountEmail(user);
+            emailService.sendConfirmUserAccountEmail(user.getEmail(), user.getName());
             
             return new UserDto(user);
 
@@ -136,29 +134,10 @@ public class UserService implements IUserService {
 	public void markUserAsVerified(UUID id) {
 		userRepository.markUserAsVerified(id);
 	}
-    
-    private void sendConfirmAccountEmail(User user) {
-    	String to = user.getEmail();
-        String subject = "Confirmação de conta";
-        String greeting = "Olá, " + user.getName();
-        
-        String verifyEmailToken = jwtService.generateVerifyEmailToken(
-        		new UserDetailsCustom(
-        				null, 
-        				user.getEmail(), 
-        				user.getPassword(), 
-        				user.getName(), 
-        				false
-        			)
-        		);
-        
-        String magicLink = "http://localhost:4200/verificar-email?token="+verifyEmailToken;
-        String href = String.format("<a href='%s'>Verificar e-mail</a>", magicLink);
-        
-        String contentHtml = "<p>Clique no link abaixo para verificar sua conta:</p>" +
-        		href;
-        
-        emailService.sendWithDefaultTemplate(to, subject, greeting, contentHtml);
-    }
+
+	@Override
+	public void updatePassword(UUID id, String encodedPassword) {
+		userRepository.updatePassword(id, encodedPassword);
+	}
 
 }

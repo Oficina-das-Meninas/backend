@@ -139,6 +139,15 @@ public class UserRepository implements IUserRepository {
                 id
         );
 	}
+    
+    @Override
+	public void updatePassword(UUID id, String encodedPassword) {
+		jdbc.update(
+                UserQueryBuilder.UPDATE_PASSWORD,
+                encodedPassword,
+                id
+        );
+	}
 
     private User mapRowUser(ResultSet rs, int rowNum) throws SQLException {
         var user = new User();
@@ -151,5 +160,6 @@ public class UserRepository implements IUserRepository {
         user.setInactive(rs.getBoolean("is_inactive"));
         return user;
     }
+	
 	
 }

@@ -11,4 +11,6 @@ public class AdminQueryBuilder {
     public static final String INSERT_ADMIN = "INSERT INTO admin (id, name, email, password) VALUES (?, ?, ?, ?)";
 
     public static final String UPDATE_ADMIN = "UPDATE admin SET name = ?, email = ?, password = ? WHERE id = ?";
+    
+    public static final String UPDATE_PASSWORD = "UPDATE admin SET password = ? WHERE id = ?";
 }

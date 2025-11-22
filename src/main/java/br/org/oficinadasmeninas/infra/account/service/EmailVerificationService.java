@@ -21,7 +21,7 @@ public class EmailVerificationService {
         this.userService = userService;
     }
 
-    public String verifyUserEmail(String token) {
+    public Void verifyUserEmail(String token) {
         final String username = jwtService.extractUsername(token);
 
         if (username == null) {
@@ -39,7 +39,7 @@ public class EmailVerificationService {
         
         if (verified && userDto != null && userDto.isInactive()) {
         	userService.markUserAsVerified(userDto.getId());
-            return "E-mail verificado com sucesso"; 
+            return null; 
         }
         
         throw new TokenValidationException(Messages.INVALID_EMAIL_TOKEN);

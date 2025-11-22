@@ -1,24 +1,26 @@
 package br.org.oficinadasmeninas.infra.auth.service;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.JwtParser;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import br.org.oficinadasmeninas.infra.config.TokenExpirationProperties;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.JwtParser;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 
 @Service
 public class JwtService {
@@ -104,7 +106,11 @@ public class JwtService {
 	public TokenExpirationProperties getTokenExpirationProperties() {
 		return tokenExpirationProperties;
 	}
-
+	
+	public String extractRole(String token) {
+	    return extractClaim(token, claims -> claims.get("role", String.class));
+	}
+	
 	private boolean isTokenExpired(String token) {
 		return extractExpiration(token).before(new Date());
 	}
@@ -120,6 +126,14 @@ public class JwtService {
 		claims.put("sub", userDetails.getUsername());
 		claims.put("iat", new Date(now));
 		claims.put("exp", new Date(now + expiration));
+		
+		List<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+		
+		if (!roles.isEmpty()) {
+	        claims.put("role", roles.get(0));
+	    }
 
 		return Jwts.builder().claims(claims).signWith(getSignInKey(), Jwts.SIG.HS256).compact();
 	}

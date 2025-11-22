@@ -7,9 +7,11 @@ import org.springframework.stereotype.Service;
 import br.org.oficinadasmeninas.domain.admin.dto.AdminDto;
 import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
+import br.org.oficinadasmeninas.infra.account.dto.ResetPasswordDto;
 import br.org.oficinadasmeninas.infra.admin.service.AdminService;
 import br.org.oficinadasmeninas.infra.auth.UserDetailsCustom;
 import br.org.oficinadasmeninas.infra.auth.service.JwtService;
+import br.org.oficinadasmeninas.infra.email.service.EmailService;
 import br.org.oficinadasmeninas.infra.shared.exception.TokenValidationException;
 import br.org.oficinadasmeninas.infra.user.service.UserService;
 
@@ -20,16 +22,54 @@ public class ResetPasswordService {
 	private final UserService userService;
 	private final AdminService adminService;
 	private final PasswordEncoder passwordEncoder;
+	private final EmailService emailService;
 
-	public ResetPasswordService(JwtService jwtService, UserService userService, AdminService adminService, PasswordEncoder passwordEncoder) {
+	public ResetPasswordService(JwtService jwtService, UserService userService, AdminService adminService, PasswordEncoder passwordEncoder, EmailService emailService) {
 		super();
 		this.jwtService = jwtService;
 		this.userService = userService;
 		this.adminService = adminService;
 		this.passwordEncoder = passwordEncoder;
+		this.emailService = emailService;
 	}
+	
+	public Void resetPassword(String token, ResetPasswordDto resetPasswordDto) {
+		final String role = jwtService.extractRole(token);
+		
+		if(role.equals("ROLE_ADMIN")) {	
+			resetAdminPassword(token, resetPasswordDto);
+			return null;
+		}
+		
+		resetUserPassword(token, resetPasswordDto);
+		return null;
+		
+	}
+	
+	public Void sendResetPasswordEmail(String email) {
+	    boolean emailSent = false;
 
-	public void resetUserPassword(String token, String newPassword) {
+	    try {
+	        AdminDto admin = adminService.findByEmail(email);
+	        emailService.sendResetPasswordEmail(admin.getEmail(), admin.getName(), true);
+	        emailSent = true;
+	        
+	    } catch (Exception e) {}
+
+	    if (!emailSent) {
+	        try {
+	            UserDto user = userService.findByEmail(email);
+	            
+	            emailService.sendResetPasswordEmail(user.getEmail(), user.getName(), false);
+	            emailSent = true;
+
+	        } catch (Exception e) {}
+	    }
+	    
+	    return null;
+	}
+	
+	public void resetUserPassword(String token, ResetPasswordDto resetPasswordDto) {
 		final String username = jwtService.extractUsername(token);
 
 		if (username == null) {
@@ -46,12 +86,12 @@ public class ResetPasswordService {
 			throw new TokenValidationException(Messages.INVALID_PASSWORD_TOKEN);
 		}
 
-		final String encodedPassword = passwordEncoder.encode(newPassword);
-
-		//userService.updatePassword(username, encodedPassword);
+		final String encodedPassword = passwordEncoder.encode(resetPasswordDto.newPassword());
+		
+		userService.updatePassword(userDto.getId(), encodedPassword);
 	}
 	
-	public void resetAdminPassword(String token, String newPassword) {
+	public void resetAdminPassword(String token, ResetPasswordDto resetPasswordDto) {
 		final String username = jwtService.extractUsername(token);
 
 		if (username == null) {
@@ -68,9 +108,9 @@ public class ResetPasswordService {
 			throw new TokenValidationException(Messages.INVALID_PASSWORD_TOKEN);
 		}
 
-		final String encodedPassword = passwordEncoder.encode(newPassword);
+		final String encodedPassword = passwordEncoder.encode(resetPasswordDto.newPassword());
 
-		//adminService.updatePassword(username, encodedPassword);
+		adminService.updatePassword(adminDto.getId(), encodedPassword);
 	}
 
 }

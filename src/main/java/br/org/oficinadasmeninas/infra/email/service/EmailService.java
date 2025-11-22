@@ -1,9 +1,10 @@
 package br.org.oficinadasmeninas.infra.email.service;
 
-import br.org.oficinadasmeninas.domain.email.service.IEmailService;
-import br.org.oficinadasmeninas.infra.shared.exception.EmailSendException;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -11,10 +12,12 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
+import br.org.oficinadasmeninas.domain.email.service.IEmailService;
+import br.org.oficinadasmeninas.infra.auth.UserDetailsCustom;
+import br.org.oficinadasmeninas.infra.auth.service.JwtService;
+import br.org.oficinadasmeninas.infra.shared.exception.EmailSendException;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 
 
 @Service
@@ -22,16 +25,24 @@ public class EmailService implements IEmailService {
 
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
+    private final JwtService jwtService;
 
     @Value("${app.mail.from}")
     private String fromAddress;
 
     @Value("${app.mail.from.name:Oficina das Meninas}")
     private String fromName;
+    
+    @Value("${app.redirect.verify-email}")
+    private String redirectVerifyEmail;
+    
+    @Value("${app.redirect.reset-password}")
+    private String redirectResetPassword;
 
-    public EmailService(JavaMailSender mailSender, TemplateEngine templateEngine) {
+    public EmailService(JavaMailSender mailSender, TemplateEngine templateEngine, JwtService jwtService) {
         this.mailSender = mailSender;
         this.templateEngine = templateEngine;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -83,6 +94,54 @@ public class EmailService implements IEmailService {
         vars.put("contentHtml", contentHtml);
         addDefaultVariables(vars);
         sendHtml(to, subject, "email/default", vars);
+    }
+    
+    public void sendConfirmUserAccountEmail(String email, String name) {
+    	String to = email;
+        String subject = "Verificação de e-mail";
+        String greeting = "Olá, " + name;
+        
+        String verifyEmailToken = jwtService.generateVerifyEmailToken(
+        		new UserDetailsCustom(
+        				null, 
+        				email, 
+        				null, 
+        				name, 
+        				false
+        			)
+        		);
+        
+        String magicLink = redirectVerifyEmail+verifyEmailToken;
+        String href = String.format("<a href='%s'>Verificar e-mail</a>", magicLink);
+        
+        String contentHtml = "<p>Clique no link abaixo para verificar sua conta:</p>" +
+        		href;
+        
+        sendWithDefaultTemplate(to, subject, greeting, contentHtml);
+    }
+    
+    public void sendResetPasswordEmail(String email, String name, boolean isAdmin) {
+    	String to = email;
+        String subject = "Recuperar conta";
+        String greeting = "Olá, " + name;
+        
+        String verifyEmailToken = jwtService.generateResetPasswordToken(
+        		new UserDetailsCustom(
+        				null, 
+        				email, 
+        				null, 
+        				name, 
+        				isAdmin
+        			)
+        		);
+        
+        String magicLink = redirectResetPassword+verifyEmailToken;
+        String href = String.format("<a href='%s'>Recuperar senha</a>", magicLink);
+        
+        String contentHtml = "<p>Clique no link abaixo para redefinir senha:</p>" +
+        		href;
+        
+        sendWithDefaultTemplate(to, subject, greeting, contentHtml);
     }
 
     private void addDefaultVariables(Map<String, Object> variables) {

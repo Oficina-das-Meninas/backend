@@ -66,9 +66,17 @@ public interface IUserService {
     UserDto findByDocument(String document);
     
     /**
-     * Valida o e-mail do usuário
+     * Ativa o usuário.
      *
      * @param id identificador único do usuário
      */
     void markUserAsVerified(UUID id);
+    
+    /**
+     * Atualiza a senha do usuário.
+     *
+     * @param id identificador único do usuário
+     * @param encodedPassword nova senha encriptada
+     */
+    void updatePassword(UUID id, String encodedPassword);
 }

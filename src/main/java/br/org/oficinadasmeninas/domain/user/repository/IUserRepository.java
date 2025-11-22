@@ -25,4 +25,6 @@ public interface IUserRepository {
 	boolean existsByDocument(String document);
 
 	void markUserAsVerified(UUID id);
+	
+	void updatePassword(UUID id, String encodedPassword);
 }
