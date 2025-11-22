@@ -60,8 +60,15 @@ public class DonorRepository implements IDonorRepository {
         return new PageDTO<>(donors, total, totalPages);
     }
 
+    /**
+     * Constrói uma cláusula ORDER BY segura usando apenas os campos e direções permitidos.
+     * Os valores de ALLOWED_SORT_FIELDS devem conter somente referências de coluna seguras (letras, números, underscores e pontos).
+     */
     private String buildOrderByClause(String sortField, String sortDirection) {
         String field = ALLOWED_SORT_FIELDS.getOrDefault(sortField, "s.total_donated_value");
+        if (!field.matches("^[a-zA-Z0-9_.]+$")) {
+            field = "s.total_donated_value";
+        }
         String direction = "desc".equalsIgnoreCase(sortDirection) ? "DESC" : "ASC";
         return field + " " + direction + ", u.id ASC";
     }
