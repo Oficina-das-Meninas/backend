@@ -163,7 +163,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
         	String subscriptionId = this.findSubscriptionId( new RequestSubscriptionIdCustomer(customer.name(), customer.tax_id()));
             UserDto userDto = userService.findByDocument(customer.tax_id());
             
-            SponsorshipDto sponsor = sponsorshipService.findByUserId(userDto.getId()).getFirst();
+            SponsorshipDto sponsor = sponsorshipService.findByUserId(userDto.getId()).getLast();
             
             sponsorshipService.update(new UpdateSponsorshipDto(sponsor.id(), null, true, subscriptionId));
         }
