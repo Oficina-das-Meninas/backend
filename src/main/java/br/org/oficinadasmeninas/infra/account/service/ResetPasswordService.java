@@ -14,6 +14,7 @@ import br.org.oficinadasmeninas.infra.auth.UserDetailsCustom;
 import br.org.oficinadasmeninas.infra.auth.service.JwtService;
 import br.org.oficinadasmeninas.infra.email.service.EmailService;
 import br.org.oficinadasmeninas.infra.shared.exception.TokenValidationException;
+import br.org.oficinadasmeninas.infra.shared.exception.UserNotVerifiedException;
 import br.org.oficinadasmeninas.infra.user.service.UserService;
 
 @Service
@@ -58,13 +59,14 @@ public class ResetPasswordService {
 	    } catch (Exception e) {}
 
 	    if (!emailSent) {
-	        try {
-	            UserDto user = userService.findByEmail(email);
-	            
-	            emailService.sendResetPasswordEmail(user.getEmail(), user.getName(), false);
-	            emailSent = true;
-
-	        } catch (Exception e) {}
+	    	UserDto user = userService.findByEmail(email);
+            
+            if(user.isInactive()) {
+            	throw new UserNotVerifiedException(Messages.USER_NOT_VERIFIED);
+            }
+            
+            emailService.sendResetPasswordEmail(user.getEmail(), user.getName(), false);
+            emailSent = true;
 	    }
 	    
 	    return null;
