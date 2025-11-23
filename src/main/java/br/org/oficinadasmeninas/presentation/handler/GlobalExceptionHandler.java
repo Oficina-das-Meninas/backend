@@ -6,6 +6,7 @@ import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsExcepti
 import br.org.oficinadasmeninas.infra.shared.exception.EmailSendException;
 import br.org.oficinadasmeninas.infra.shared.exception.ObjectStorageException;
 import br.org.oficinadasmeninas.infra.shared.exception.TokenValidationException;
+import br.org.oficinadasmeninas.infra.shared.exception.UserNotVerifiedException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.exceptions.UnauthorizedException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
@@ -99,6 +100,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DocumentAlreadyExistsException.class)
     public ResponseEntity<String> handleDocumentAlreadyExists(DocumentAlreadyExistsException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+    
+    @ExceptionHandler(UserNotVerifiedException.class)
+    public ResponseEntity<String> handleUserNotVerified(UserNotVerifiedException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
     
     @ExceptionHandler(Exception.class)

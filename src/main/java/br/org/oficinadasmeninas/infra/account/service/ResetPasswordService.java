@@ -59,14 +59,18 @@ public class ResetPasswordService {
 	    } catch (Exception e) {}
 
 	    if (!emailSent) {
-	    	UserDto user = userService.findByEmail(email);
-            
-            if(user.isInactive()) {
-            	throw new UserNotVerifiedException(Messages.USER_NOT_VERIFIED);
-            }
-            
-            emailService.sendResetPasswordEmail(user.getEmail(), user.getName(), false);
-            emailSent = true;
+	    	try {
+	    		UserDto user = userService.findByEmail(email);
+	            
+	            if(user.isInactive()) {
+	            	throw new UserNotVerifiedException(Messages.USER_NOT_VERIFIED);
+	            }
+	            
+	            emailService.sendResetPasswordEmail(user.getEmail(), user.getName(), false);
+	            emailSent = true;
+	    	}catch(UserNotVerifiedException e) {
+	    		throw e;
+	    	}catch (Exception e) {}
 	    }
 	    
 	    return null;
