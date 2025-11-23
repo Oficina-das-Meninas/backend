@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/donations")
@@ -68,6 +69,26 @@ public class DonationController extends BaseController {
                 () -> donationApplication.createDonationCheckout(donationCheckout),
                 Messages.DONATION_CREATED_SUCCESSFULLY,
                 HttpStatus.CREATED
+        );
+    }
+
+    @Operation(summary = "Cancelar uma assinatura de doação recorrente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Assinatura de doação recorrente cancelada com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Assinatura de doação recorrente não encontrada"),
+    })
+    @DeleteMapping("/recurring/{donationId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> cancelRecurringDonationSubscription(
+            @PathVariable UUID donationId
+    ) {
+        return handle(
+                () -> {
+                    donationApplication.cancelRecurringDonationSubscription(donationId);
+                    return null;
+                },
+                Messages.RECURRING_DONATION_SUBSCRIPTION_CANCELED_SUCCESSFULLY,
+                HttpStatus.OK
         );
     }
 }

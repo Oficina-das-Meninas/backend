@@ -55,6 +55,7 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.GET, "/api/transparencies").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/partners").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/donations").permitAll()
+                .requestMatchers(HttpMethod.DELETE, "/api/donations/**").permitAll()
 				.anyRequest().authenticated()
 	        )
 	        .sessionManagement(session -> session

@@ -156,7 +156,6 @@ public class PaymentGatewayService implements IPaymentGatewayService {
         paymentService.updateStatus(payment.id(), paymentStatus);
         paymentService.updatePaymentDate(payment.id(), LocalDateTime.now());
 
-        // Atualizar método de pagamento e gateway na donation
         donationService.updateMethod(donationId, paymentMethod);
 
         if (recurring) {
@@ -221,4 +220,27 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 			throw new PaymentGatewayException(e.toString());
 		}
 	}
+
+    @Override
+    public void cancelRecurringDonationSubscription(String subscriptionId) {
+        try {
+            String uriBuilder = "/subscriptions/" +
+                    subscriptionId +
+                    "/cancel";
+
+            webClientSubscription.put()
+                    .uri(uriBuilder)
+                    .header("Authorization", "Bearer " + token)
+                    .retrieve()
+                    .bodyToMono(ResponseSignatureCustomer.class)
+                    .block();
+
+
+        } catch (WebClientResponseException e) {
+            throw new PaymentGatewayException(e.getStatusCode() + " " + e.getStatusText() + e.getResponseBodyAs(String.class));
+        }
+    }
+
+
+
 }
