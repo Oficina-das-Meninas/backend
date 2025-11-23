@@ -78,6 +78,10 @@ public class SecurityConfig {
 		configuration.setAllowedOrigins(List.of(
 				"http://localhost:4200", "https://oficinadasmeninas.org.br",
 				"https://dev.oficinadasmeninas.org.br",
+                "http://dev.oficinadasmeninas.org.br",
+                "http://admin-dev.oficinadasmeninas.org.br",
+                "http://admin.oficinadasmeninas.org.br",
+                "http://oficinadasmeninas.org.br",
 				"https://admin-dev.oficinadasmeninas.org.br",
 				"https://admin.oficinadasmeninas.org.br\""));
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
