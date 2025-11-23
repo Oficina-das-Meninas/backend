@@ -76,9 +76,9 @@ public class SecurityConfig {
 		CorsConfiguration configuration = new CorsConfiguration();
 
 		configuration.setAllowedOrigins(List.of(
-				"http://localhost:4200", "https://apollomusic.com.br", 
-				"https://dev.apollomusic.com.br", 
-				"https://dev-admin.apollomusic.com.br", 
+				"http://localhost:4200", "https://oficinadasmeninas.org.br",
+				"https://dev.oficinadasmeninas.org.br",
+				"https://admin-dev.oficinadasmeninas.org.br",
 				"https://admin.apollomusic.com.br\""));
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
 		configuration.setAllowedHeaders(List.of("*"));
