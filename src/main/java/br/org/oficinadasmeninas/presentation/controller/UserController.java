@@ -94,7 +94,7 @@ public class UserController extends BaseController {
     }
     
 	@GetMapping("/me")
-	public ResponseEntity<?> findByUserToken() {
+	public ResponseEntity<?> findByUserSession() {
 		return handle(() -> userService.findByUserSession());
 	}
 
