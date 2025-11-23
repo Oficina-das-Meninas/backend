@@ -105,10 +105,10 @@ jobs:
 
           if [[ "${{ github.event.inputs.ENVIRONMENT }}" == "development" ]]; then
             DEST_DIR="${{ vars.VM_DIR_DEV }}"
-            SERVICE_NAME="${{ vars.SERVICE_DEV }}"
+            SERVICE_NAME="${{ vars.SERVICE_DEV_NAME }}"
           else
             DEST_DIR="${{ vars.VM_DIR_PRD }}"
-            SERVICE_NAME="${{ vars.SERVICE_PRD }}"
+            SERVICE_NAME="${{ vars.SERVICE_PRD_NAME }}"
           fi
 
           echo "📤 Enviando arquivos para $VM_USER@$VM_HOST:$DEST_DIR ..."
