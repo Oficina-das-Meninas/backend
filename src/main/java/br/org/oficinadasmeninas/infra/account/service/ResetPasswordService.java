@@ -9,6 +9,7 @@ import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
 import br.org.oficinadasmeninas.infra.account.dto.ResetPasswordDto;
 import br.org.oficinadasmeninas.infra.admin.service.AdminService;
+import br.org.oficinadasmeninas.infra.auth.AuthoritiesEnum;
 import br.org.oficinadasmeninas.infra.auth.UserDetailsCustom;
 import br.org.oficinadasmeninas.infra.auth.service.JwtService;
 import br.org.oficinadasmeninas.infra.email.service.EmailService;
@@ -36,7 +37,7 @@ public class ResetPasswordService {
 	public Void resetPassword(String token, ResetPasswordDto resetPasswordDto) {
 		final String role = jwtService.extractRole(token);
 		
-		if(role.equals("ROLE_ADMIN")) {	
+		if(role.equals(AuthoritiesEnum.ROLE_ADMIN.name())) {	
 			resetAdminPassword(token, resetPasswordDto);
 			return null;
 		}
@@ -69,7 +70,7 @@ public class ResetPasswordService {
 	    return null;
 	}
 	
-	public void resetUserPassword(String token, ResetPasswordDto resetPasswordDto) {
+	private void resetUserPassword(String token, ResetPasswordDto resetPasswordDto) {
 		final String username = jwtService.extractUsername(token);
 
 		if (username == null) {
@@ -91,7 +92,7 @@ public class ResetPasswordService {
 		userService.updatePassword(userDto.getId(), encodedPassword);
 	}
 	
-	public void resetAdminPassword(String token, ResetPasswordDto resetPasswordDto) {
+	private void resetAdminPassword(String token, ResetPasswordDto resetPasswordDto) {
 		final String username = jwtService.extractUsername(token);
 
 		if (username == null) {

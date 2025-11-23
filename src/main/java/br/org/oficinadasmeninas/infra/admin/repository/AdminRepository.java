@@ -108,6 +108,4 @@ public class AdminRepository implements IAdminRepository {
         admin.setPassword(rs.getString("password"));
         return admin;
     }
-
-	
 }
