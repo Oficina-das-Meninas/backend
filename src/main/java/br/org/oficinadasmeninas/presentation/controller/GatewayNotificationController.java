@@ -25,43 +25,19 @@ import java.time.LocalDateTime;
 public class GatewayNotificationController {
 
 	private final IPaymentGatewayService paymentGatewayService;
-    private final IDonationService donationService;
-    private final LogPagbankService logService;
 
-    public GatewayNotificationController(IPaymentGatewayService paymentGatewayService, IDonationService donationService, LogPagbankService logService) {
+    public GatewayNotificationController(IPaymentGatewayService paymentGatewayService, IDonationService donationService) {
 		super();
         this.paymentGatewayService = paymentGatewayService;
-        this.donationService = donationService;
-        this.logService = logService;
     }
 	
 	@PostMapping("/checkout")
     public void notifyCheckout(@RequestBody CheckoutNotificationDto request) {
-		paymentGatewayService.updateCheckoutStatus(request.id(), request.reference_id(), request.status());
+		paymentGatewayService.notifyCheckout(request);
     }
 
     @PostMapping("/payment")
     public void notifyPayment(@RequestBody PaymentNotificationDto request) throws IOException {
-        PaymentChargesDto charge = request.charges().getFirst();
-        saveLog(request);
-        boolean recurring = charge.recurring() != null;
-        ResponseWebhookCustomer customer = request.customer();
-    	paymentGatewayService.updatePaymentStatus(request.reference_id(), charge.status(), charge.payment_method().type(), recurring, customer);
-    	
-
-        if (charge.status() == PaymentStatusEnum.PAID){
-            DonationDto donation = donationService.findById(request.reference_id());
-            if (donation.checkoutId() != null) {
-                paymentGatewayService.cancelCheckout(donation.checkoutId());
-            }
-        }
-    }
-
-    private void saveLog(Object object) throws IOException {
-    	logService.createLogPagbank(new CreateLogPagbank(
-    				"WEBHOOK NOTIFY BODY",
-    				LocalDateTime.now(),
-    				object
-    			));
+       paymentGatewayService.notifyPayment(request);
     }
 }
