@@ -79,7 +79,7 @@ public class SecurityConfig {
 				"http://localhost:4200", "https://oficinadasmeninas.org.br",
 				"https://dev.oficinadasmeninas.org.br",
 				"https://admin-dev.oficinadasmeninas.org.br",
-				"https://admin.apollomusic.com.br\""));
+				"https://admin.oficinadasmeninas.org.br\""));
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
 		configuration.setAllowedHeaders(List.of("*"));
 		configuration.setAllowCredentials(true);
