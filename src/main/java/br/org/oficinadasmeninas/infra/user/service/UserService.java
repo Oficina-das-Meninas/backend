@@ -1,5 +1,13 @@
 package br.org.oficinadasmeninas.infra.user.service;
 
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.user.User;
 import br.org.oficinadasmeninas.domain.user.dto.CreateUserDto;
@@ -7,29 +15,19 @@ import br.org.oficinadasmeninas.domain.user.dto.UpdateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
 import br.org.oficinadasmeninas.domain.user.repository.IUserRepository;
 import br.org.oficinadasmeninas.domain.user.service.IUserService;
-import br.org.oficinadasmeninas.infra.email.service.EmailService;
 import br.org.oficinadasmeninas.infra.shared.exception.DocumentAlreadyExistsException;
 import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.UUID;
 
 @Service
 public class UserService implements IUserService {
 	
     private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final EmailService emailService;
 
-    public UserService(IUserRepository userRepository, PasswordEncoder passwordEncoder, EmailService emailService) {
+    public UserService(IUserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.emailService = emailService;
     }
 
     @Override
@@ -45,8 +43,6 @@ public class UserService implements IUserService {
             user.setInactive(true);
 
             userRepository.insert(user);
-            
-            emailService.sendConfirmUserAccountEmail(user.getEmail(), user.getName());
             
             return new UserDto(user);
 

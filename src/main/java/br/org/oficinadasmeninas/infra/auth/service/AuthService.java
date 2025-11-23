@@ -15,6 +15,7 @@ import br.org.oficinadasmeninas.infra.auth.UserDetailsCustom;
 import br.org.oficinadasmeninas.infra.auth.dto.LoginResponseDto;
 import br.org.oficinadasmeninas.infra.auth.dto.LoginUserDto;
 import br.org.oficinadasmeninas.infra.auth.dto.UserResponseDto;
+import br.org.oficinadasmeninas.infra.email.service.EmailService;
 import br.org.oficinadasmeninas.infra.shared.exception.EmailNotVerifiedException;
 import br.org.oficinadasmeninas.presentation.shared.utils.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,17 +31,20 @@ public class AuthService {
 	private final IUserService userService;
 	private final AuthenticationManager authenticationManager;
 	private final JwtService jwtService;
+    private final EmailService emailService;
 
 	public AuthService(
 		IAdminService adminService, 
 		IUserService userService,
 		AuthenticationManager authenticationManager,
-		JwtService jwtService
+		JwtService jwtService,
+		EmailService emailService
 	) {
 		this.adminService = adminService;
 		this.userService = userService;
 		this.authenticationManager = authenticationManager;
 		this.jwtService = jwtService;
+		this.emailService = emailService;
 	}
 	
 	public LoginResponseDto login(LoginUserDto loginUserDto, HttpServletResponse response) {
@@ -76,7 +80,11 @@ public class AuthService {
 	}
 
 	public UserDto createUserAccount(CreateUserDto user) {
-		return userService.insert(user);
+		UserDto userDto = userService.insert(user);
+		
+		emailService.sendConfirmUserAccountEmail(userDto.getEmail(), userDto.getName());
+		
+		return userDto;
 	}
 
 	private UserDetailsCustom authenticate(LoginUserDto loginUserDTO) {
