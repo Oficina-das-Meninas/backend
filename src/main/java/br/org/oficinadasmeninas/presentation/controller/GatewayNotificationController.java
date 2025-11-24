@@ -10,6 +10,7 @@ import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewaySer
 import br.org.oficinadasmeninas.infra.logspagbank.dto.CreateLogPagbank;
 import br.org.oficinadasmeninas.infra.logspagbank.service.LogPagbankService;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseWebhookCustomer;
+import br.org.oficinadasmeninas.infra.shared.utils.JsonLogger;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,11 +38,13 @@ public class GatewayNotificationController {
 	
 	@PostMapping("/checkout")
     public void notifyCheckout(@RequestBody CheckoutNotificationDto request) {
+		JsonLogger.logRequest("WEBHOOK - POST /api/notifications/checkout", request);
 		paymentGatewayService.updateCheckoutStatus(request.id(), request.reference_id(), request.status());
     }
 
     @PostMapping("/payment")
     public void notifyPayment(@RequestBody PaymentNotificationDto request) throws IOException {
+    	JsonLogger.logRequest("WEBHOOK - POST /api/notifications/payment", request);
         PaymentChargesDto charge = request.charges().getFirst();
         saveLog(request);
         boolean recurring = charge.recurring() != null;

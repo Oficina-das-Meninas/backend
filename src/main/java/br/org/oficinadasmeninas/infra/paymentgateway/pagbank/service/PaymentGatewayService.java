@@ -37,6 +37,7 @@ import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseSignatu
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseWebhookCustomer;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.mappers.RequestCreateCheckoutPagbankMapper;
 import br.org.oficinadasmeninas.infra.shared.exception.PaymentGatewayException;
+import br.org.oficinadasmeninas.infra.shared.utils.JsonLogger;
 import br.org.oficinadasmeninas.infra.user.service.UserService;
 import br.org.oficinadasmeninas.presentation.shared.utils.IsoDateFormater;
 
@@ -89,11 +90,14 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
     @Override
     public void cancelCheckout(String checkoutId) {
+        StringBuilder uriBuilder = null;
         try {
-            StringBuilder uriBuilder = new StringBuilder()
+            uriBuilder = new StringBuilder()
                     .append("/checkouts/")
                     .append(checkoutId)
                     .append("/inactivate");
+
+            JsonLogger.logRequest("POST " + uriBuilder.toString(), "checkoutId: " + checkoutId);
 
             var response = webClient.post()
                     .uri(uriBuilder.toString())
@@ -102,8 +106,11 @@ public class PaymentGatewayService implements IPaymentGatewayService {
                     .bodyToMono(ResponseSignatureCustomer.class)
                     .block();
 
+            JsonLogger.logResponse("POST " + uriBuilder.toString(), response);
             System.out.println(response);
         } catch (WebClientResponseException e) {
+            assert uriBuilder != null;
+            JsonLogger.logError("POST " + uriBuilder.toString(), e.getStatusCode() + " " + e.getStatusText() + " " + e.getResponseBodyAsString());
             throw new PaymentGatewayException(e.getStatusCode() + " " + e.getStatusText() + e.getResponseBodyAs(String.class));
         }
     }
@@ -179,6 +186,8 @@ public class PaymentGatewayService implements IPaymentGatewayService {
     }
     private ResponseCreateCheckoutPagbank createPagBankCheckout(RequestCreateCheckoutPagbank checkoutPagbank) {
         try {
+            JsonLogger.logRequest("POST /checkouts", checkoutPagbank);
+
 			var response = webClient.post()
                     .uri("/checkouts")
                     .header("Authorization", "Bearer " + token)
@@ -186,6 +195,8 @@ public class PaymentGatewayService implements IPaymentGatewayService {
                     .retrieve()
                     .bodyToMono(ResponseCreateCheckoutPagbank.class)
                     .block();
+
+            JsonLogger.logResponse("POST /checkouts", response);
 
             Optional<ResponseCreateCheckoutLink> payLink = Objects.requireNonNull(response).links().stream()
                     .filter(link -> "PAY".equalsIgnoreCase(link.rel()))
@@ -197,6 +208,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
                     response.status()
             );
         } catch (WebClientResponseException e) {
+            JsonLogger.logError("POST /checkouts", e.getRawStatusCode() + " " + e.getStatusText() + " " + e.getResponseBodyAsString());
             throw new PaymentGatewayException(e.getRawStatusCode() + " " + e.getStatusText());
         }
     }
@@ -204,7 +216,8 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 	@Override
 	public String findSubscriptionId(RequestSubscriptionIdCustomer customer) {
 		try {
-		
+			JsonLogger.logRequest("GET /subscriptions", customer);
+
 			var response = webClientSubscription.get()
 					.uri("/subscriptions")
                     .header("Authorization", "Bearer " + token)
@@ -212,31 +225,39 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 					.header("q", customer.name())
 					.retrieve()
 					.bodyToMono(ResponseFindSubscriptionId.class)
-					.block();			
-			
-			return response.subscriptions().getFirst().id();			
+					.block();
+
+			JsonLogger.logResponse("GET /subscriptions", response);
+
+			return response.subscriptions().getFirst().id();
 			
 		} catch (Exception e) {
+			JsonLogger.logError("GET /subscriptions", e.toString());
 			throw new PaymentGatewayException(e.toString());
 		}
 	}
 
     @Override
     public void cancelRecurringDonationSubscription(String subscriptionId) {
+        String uriBuilder = null;
         try {
-            String uriBuilder = "/subscriptions/" +
+            uriBuilder = "/subscriptions/" +
                     subscriptionId +
                     "/cancel";
 
-            webClientSubscription.put()
+            JsonLogger.logRequest("PUT " + uriBuilder, "subscriptionId: " + subscriptionId);
+
+            var response = webClientSubscription.put()
                     .uri(uriBuilder)
                     .header("Authorization", "Bearer " + token)
                     .retrieve()
                     .bodyToMono(ResponseSignatureCustomer.class)
                     .block();
 
+            JsonLogger.logResponse("PUT " + uriBuilder, response);
 
         } catch (WebClientResponseException e) {
+            JsonLogger.logError("PUT " + uriBuilder, e.getStatusCode() + " " + e.getStatusText() + " " + e.getResponseBodyAsString());
             throw new PaymentGatewayException(e.getStatusCode() + " " + e.getStatusText() + e.getResponseBodyAs(String.class));
         }
     }
