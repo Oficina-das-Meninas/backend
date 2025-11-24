@@ -124,13 +124,10 @@ public class DonationApplication {
         sponsorshipService.cancelSponsorship(sponsorshipDto.get().id());
     }
     private void cancelPendingCheckouts(UUID userid) {
-       try{
-           List<DonationDto> donations = donationService.findPendingCheckoutsByUserId(userid);
-           for (DonationDto donation : donations) {
-               paymentGatewayService.cancelCheckout(donation.checkoutId());
-           }
-       }catch (Exception e){
-           System.out.println(e.getMessage());
-       }
+        List<DonationDto> donations = donationService.findPendingCheckoutsByUserId(userid);
+        for (DonationDto donation : donations) {
+            paymentGatewayService.cancelCheckout(donation.checkoutId());
+            paymentService.cancelPendingPaymentByDonationId(donation.id());
+        }
     }
 }

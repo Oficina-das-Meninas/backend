@@ -76,7 +76,10 @@ public class SecurityConfig {
 		CorsConfiguration configuration = new CorsConfiguration();
 
 		configuration.setAllowedOrigins(List.of(
-				"http://localhost:4200", "https://oficinadasmeninas.org.br",
+				"http://localhost:4200",
+                "http://localhost:8080",
+                "https://dev.apollomusic.com.br",
+                "https://oficinadasmeninas.org.br",
 				"https://dev.oficinadasmeninas.org.br",
                 "http://dev.oficinadasmeninas.org.br",
                 "http://admin-dev.oficinadasmeninas.org.br",

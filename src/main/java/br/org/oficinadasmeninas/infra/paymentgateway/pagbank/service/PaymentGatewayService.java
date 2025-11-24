@@ -121,8 +121,6 @@ public class PaymentGatewayService implements IPaymentGatewayService {
                     .retrieve()
                     .bodyToMono(ResponseSignatureCustomer.class)
                     .block();
-
-            System.out.println(response);
         } catch (WebClientResponseException e) {
             throw new PaymentGatewayException(e.getStatusCode() + " " + e.getStatusText() + e.getResponseBodyAs(String.class));
         }
@@ -263,8 +261,6 @@ public class PaymentGatewayService implements IPaymentGatewayService {
     }
 
 
-
-
     @Override
     public void notifyPayment(PaymentNotificationDto request) {
         PaymentChargesDto charge = request.charges().getFirst();
@@ -277,6 +273,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
             DonationDto donation = donationService.findById(request.reference_id());
             if (donation.checkoutId() != null) {
                 cancelCheckout(donation.checkoutId());
+                paymentService.cancelPendingPaymentByDonationId(donation.id());
             }
         }
     }

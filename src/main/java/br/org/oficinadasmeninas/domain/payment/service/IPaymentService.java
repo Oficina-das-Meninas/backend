@@ -38,6 +38,8 @@ public interface IPaymentService {
 	 * @param status novo status do pagamento ({@link PaymentStatusEnum})
 	 */
 	void updateStatus(UUID id, PaymentStatusEnum status);
+
+    void cancelPendingPaymentByDonationId(UUID donationId);
 	
 	/**
 	 * Atualiza o dia de pagamento de um registro existente.
