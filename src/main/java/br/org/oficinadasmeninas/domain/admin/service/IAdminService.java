@@ -1,11 +1,12 @@
 package br.org.oficinadasmeninas.domain.admin.service;
 
+import java.util.UUID;
+
+import br.org.oficinadasmeninas.domain.admin.Admin;
 import br.org.oficinadasmeninas.domain.admin.dto.AdminDto;
 import br.org.oficinadasmeninas.domain.admin.dto.CreateAdminDto;
 import br.org.oficinadasmeninas.domain.admin.dto.UpdateAdminDto;
-
-import java.util.List;
-import java.util.UUID;
+import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 
 /**
  * Interface para operações relacionadas à gestão de administradores.
@@ -29,13 +30,16 @@ public interface IAdminService {
      * @param admin objeto contendo os novos dados do administrador
      */
     UUID update(UUID id, UpdateAdminDto admin);
-
+    
     /**
-     * Retorna todos os administradores cadastrados no sistema.
+     * Retorna os administradores filtrados conforme os critérios de pesquisa.
      *
-     * @return lista contendo todos os administradores
+     * @param searchTerm string de pesquisa
+     * @param page número da página
+     * @param pageSize quantidade de resultados por página
+     * @return página de administradores filtrados conforme os critérios informados
      */
-    List<AdminDto> findAll();
+    PageDTO<Admin> findByFilter(String searchTerm, int page, int pageSize);
 
     /**
      * Busca um administrador pelo seu identificador único.

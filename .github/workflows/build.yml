@@ -29,33 +29,47 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Autenticar no GCP
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_CREDENTIALS_JSON }}
-
-      - name: Download config do Secret Manager
-        id: secrets
-        uses: google-github-actions/get-secretmanager-secrets@v1
-        with:
-          secrets: |
-            APP_CONFIG:projects/${{ secrets.GCP_PROJECT_ID }}/secrets/application-${{ github.event.inputs.ENVIRONMENT }}-properties/versions/latest
-
-      - name: Salvar application.properties
+      # =============================================================
+      #  GERAR application.properties usando SECRETS DO GITHUB
+      # =============================================================
+      - name: Injetar application.properties
         run: |
-           echo "${{ steps.secrets.outputs.APP_CONFIG }}" > application.properties
+          mkdir -p src/main/resources
 
+          if [[ "${{ github.event.inputs.ENVIRONMENT }}" == "development" ]]; then
+            echo "${{ secrets.APPLICATION_DEVELOPMENT_PROPERTIES }}" > src/main/resources/application.properties
+          else
+            echo "${{ secrets.APPLICATION_PRODUCTION_PROPERTIES }}" > src/main/resources/application.properties
+          fi
+
+      # Debug opcional
+      - name: Mostrar resources
+        run: ls -lah src/main/resources/
+
+      # =============================================================
+      #  BUILD DO SPRING BOOT
+      # =============================================================
       - name: Build Spring Boot
-        run: mvn clean package -DskipTests -U
+        run: mvn clean package -DskipTests
 
+      # Debug opcional
+      - name: Debug – arquivos gerados
+        run: ls -lah target/
+
+      # =============================================================
+      #  UPLOAD DOS ARTEFATOS
+      # =============================================================
       - name: Upload artefatos
         uses: actions/upload-artifact@v4
         with:
           name: springboot-build
           path: |
             target/*.jar
-            application.properties
 
+
+  # =============================================================
+  #  DEPLOY
+  # =============================================================
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -67,12 +81,13 @@ jobs:
           name: springboot-build
           path: build/
 
-      - name: Preparar artefatos
-        run: |
-          mkdir -p build/final
-          mv build/target/*.jar build/final/
-          cp build/application.properties build/final/
+      # Debug opcional
+      - name: Debug – arquivos baixados
+        run: ls -lah build/
 
+      # =============================================================
+      #  SSH
+      # =============================================================
       - name: Configurar SSH
         run: |
           mkdir -p ~/.ssh
@@ -80,12 +95,15 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ vars.VM_HOST }} >> ~/.ssh/known_hosts
 
+      # =============================================================
+      #  DEPLOY NA VM
+      # =============================================================
       - name: Enviar artefatos e reiniciar serviço
         run: |
           VM_USER="${{ vars.VM_USER }}"
           VM_HOST="${{ vars.VM_HOST }}"
 
-          if [ "${{ github.event.inputs.ENVIRONMENT }}" = "development" ]; then
+          if [[ "${{ github.event.inputs.ENVIRONMENT }}" == "development" ]]; then
             DEST_DIR="${{ vars.VM_DIR_DEV }}"
             SERVICE_NAME="${{ vars.SERVICE_DEV_NAME }}"
           else
@@ -94,9 +112,9 @@ jobs:
           fi
 
           echo "📤 Enviando arquivos para $VM_USER@$VM_HOST:$DEST_DIR ..."
-          rsync -avz --delete build/final/*.jar $VM_USER@$VM_HOST:$DEST_DIR/
-          rsync -avz --delete build/final/application.properties $VM_USER@$VM_HOST:$DEST_DIR/
+          rsync -avz --delete build/*.jar $VM_USER@$VM_HOST:$DEST_DIR/
 
           echo "🔄 Reiniciando serviço $SERVICE_NAME ..."
-          ssh -i ~/.ssh/id_rsa $VM_USER@$VM_HOST "sudo systemctl restart $SERVICE_NAME"
+          ssh $VM_USER@$VM_HOST "sudo systemctl restart $SERVICE_NAME"
+
           echo "✅ Implantação concluída com sucesso!"

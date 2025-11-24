@@ -80,4 +80,15 @@ public class SponsorshipService implements ISponsorshipService {
 
         sponsorshipRepository.update(sponsorship);
     }
+
+    @Override
+    public void cancelSponsorship (UUID sponsorshipId) {
+        var sponsorship = sponsorshipRepository.findById(sponsorshipId)
+                .orElseThrow(() -> new NotFoundException(Messages.SPONSOR_NOT_FOUND + sponsorshipId));
+
+        sponsorship.setIsActive(false);
+        sponsorship.setCancelDate(java.time.LocalDateTime.now());
+
+        sponsorshipRepository.update(sponsorship);
+    }
 }

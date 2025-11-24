@@ -96,7 +96,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
             LogPagbankService logService
     ) {
         this.mapper = mapper;
-        this.donationService = donationService;
+		this.donationService = donationService;
         this.paymentService = paymentService;
         this.sponsorshipService = sponsorshipService;
         this.webClient = builder.baseUrl(url)
@@ -241,6 +241,29 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 			throw new PaymentGatewayException(e.toString());
 		}
 	}
+
+    @Override
+    public void cancelRecurringDonationSubscription(String subscriptionId) {
+        try {
+            String uriBuilder = "/subscriptions/" +
+                    subscriptionId +
+                    "/cancel";
+
+            webClientSubscription.put()
+                    .uri(uriBuilder)
+                    .header("Authorization", "Bearer " + token)
+                    .retrieve()
+                    .bodyToMono(ResponseSignatureCustomer.class)
+                    .block();
+
+
+        } catch (WebClientResponseException e) {
+            throw new PaymentGatewayException(e.getStatusCode() + " " + e.getStatusText() + e.getResponseBodyAs(String.class));
+        }
+    }
+
+
+
 
     @Override
     public void notifyPayment(PaymentNotificationDto request) {

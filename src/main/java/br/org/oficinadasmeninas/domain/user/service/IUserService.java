@@ -64,4 +64,13 @@ public interface IUserService {
      *         ou {@code null} se não existir
      */
     UserDto findByDocument(String document);
+    
+    /**
+     * Busca um usuário pela sessão.
+     *
+     * @param token token de sessão
+     * @return objeto contendo os dados do usuário encontrado,
+     *         ou {@code null} se não existir
+     */
+    UserDto findByUserSession();
 }

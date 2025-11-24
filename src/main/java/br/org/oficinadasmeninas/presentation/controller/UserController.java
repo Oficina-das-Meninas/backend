@@ -92,6 +92,11 @@ public class UserController extends BaseController {
     ) {
         return handle(() -> userService.findByUserId(id));
     }
+    
+	@GetMapping("/me")
+	public ResponseEntity<?> findByUserSession() {
+		return handle(() -> userService.findByUserSession());
+	}
 
     @GetMapping("/{id}/pontuations")
     public ResponseEntity<?> getUserPontuations(

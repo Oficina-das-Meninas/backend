@@ -75,4 +75,12 @@ public interface ISponsorshipService {
      *         ou {@link Optional#empty()} se não existir
      */
     Optional<SponsorshipDto> findBySubscriptionId(String subscriptionId);
+
+
+    /**
+     * Cancela uma assinatura com base no seu identificador único.
+     *
+     * @param sponsorshipId identificador único da assinatura a ser cancelada
+     */
+    void cancelSponsorship (UUID sponsorshipId);
 }
