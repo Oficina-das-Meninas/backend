@@ -40,6 +40,8 @@ public class DonationService implements IDonationService {
         return donationRepository.findByFilter(getDonationDto);
     }
 
+
+
     @Override
     public DonationDto findById(UUID id) {
         var donation = donationRepository.findById(id)
@@ -65,5 +67,13 @@ public class DonationService implements IDonationService {
 
         donation.setMethod(method);
         donationRepository.updateMethod(donation);
+    }
+
+    @Override
+    public List<DonationDto> findPendingCheckoutsByUserId(UUID userId) {
+        return donationRepository
+                .findPendingCheckoutsByUserId(userId).stream()
+                .map(DonationMapper::toDto)
+                .toList();
     }
 }

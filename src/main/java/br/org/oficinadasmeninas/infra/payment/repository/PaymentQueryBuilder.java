@@ -30,5 +30,4 @@ public class PaymentQueryBuilder {
 		    SET payment_date = ?
 		    WHERE id = ?
 		""";
-
 }
