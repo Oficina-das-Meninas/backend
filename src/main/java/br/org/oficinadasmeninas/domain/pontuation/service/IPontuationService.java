@@ -20,9 +20,8 @@ public interface IPontuationService {
      * Os resultados podem ser filtrados por período, método de doação e descrição.
      * A resposta é paginada conforme os parâmetros de página e tamanho da página.
      *
-     * @param id identificador único do usuário
      * @param getUserPontuationsDTO objeto contendo os critérios de busca e paginação
      * @return página de {@link PontuationDto} filtrados conforme os critérios informados e representando as pontuações do usuário
      */
-    PageDTO<PontuationDto> getUserPontuations(UUID id, GetUserPontuationsDto getUserPontuationsDTO);
+    PageDTO<PontuationDto> getUserPontuations(GetUserPontuationsDto getUserPontuationsDTO);
 }
