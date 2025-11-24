@@ -44,9 +44,9 @@ public class DonationApplication {
 
 	public DonationCheckoutDto createDonationCheckout(CreateDonationCheckoutDto donationCheckout) {
 
-        if(!this.captchaService.isCaptchaValid(donationCheckout.captchaToken())) {
-            throw new ValidationException("Token Captcha inválido");
-        }
+//        if(!this.captchaService.isCaptchaValid(donationCheckout.captchaToken())) {
+//            throw new ValidationException("Token Captcha inválido");
+//        }
 
         UUID sponsorshipId = null;
         if (donationCheckout.donation().isRecurring()){
@@ -108,7 +108,7 @@ public class DonationApplication {
         }
 
         Optional<SponsorshipDto> sponsorshipDto = sponsorshipService.findById(donationDto.sponsorshipId());
-        if (sponsorshipDto.isEmpty() || sponsorshipDto.get().subscriptionId() == null) {
+        if (sponsorshipDto.isEmpty() || sponsorshipDto.get().subscriptionId() == null || !sponsorshipDto.get().isActive()) {
             throw new NotFoundException(Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND);
         }
 
