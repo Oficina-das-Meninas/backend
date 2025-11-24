@@ -10,6 +10,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
+import static br.org.oficinadasmeninas.infra.donor.repository.DonorQueryBuilder.ALLOWED_SORT_FIELDS;
+
 @Repository
 public class DonorRepository implements IDonorRepository {
 
@@ -26,9 +28,14 @@ public class DonorRepository implements IDonorRepository {
             String sortField, String sortDirection,
             String searchTerm
     ) {
+        String orderBy = buildOrderByClause(
+                sortField,
+                sortDirection
+        );
+
         String query = String.format(
-                DonorQueryBuilder.GET_DONORS,
-                sortDirection.equalsIgnoreCase("DESC") ? "DESC" : "ASC"
+                DonorQueryBuilder.GET_DONORS
+                        .replace("%ORDER_BY%", "ORDER BY " + orderBy)
         );
 
         var donors = jdbc.query(
@@ -36,7 +43,6 @@ public class DonorRepository implements IDonorRepository {
                 this::mapRow,
                 searchTerm, searchTerm, searchTerm,
                 donorBadge, donorBadge,
-                sortField, sortField, sortField, sortField, sortField,
                 pageSize, page * pageSize
         );
 
@@ -52,6 +58,19 @@ public class DonorRepository implements IDonorRepository {
         int totalPages = (int) Math.ceil((double) total / pageSize);
 
         return new PageDTO<>(donors, total, totalPages);
+    }
+
+    /**
+     * Constrói uma cláusula ORDER BY segura usando apenas os campos e direções permitidos.
+     * Os valores de ALLOWED_SORT_FIELDS devem conter somente referências de coluna seguras (letras, números, underscores e pontos).
+     */
+    private String buildOrderByClause(String sortField, String sortDirection) {
+        String field = ALLOWED_SORT_FIELDS.getOrDefault(sortField, "s.total_donated_value");
+        if (!field.matches("^[a-zA-Z0-9_.]+$")) {
+            field = "s.total_donated_value";
+        }
+        String direction = "desc".equalsIgnoreCase(sortDirection) ? "DESC" : "ASC";
+        return field + " " + direction + ", u.id ASC";
     }
 
     private DonorDto mapRow(ResultSet rs, int rowNum) throws SQLException {
