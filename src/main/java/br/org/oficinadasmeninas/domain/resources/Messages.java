@@ -86,6 +86,8 @@ public final class Messages {
 
     public static final String SESSION_USER_SUCCESSFULLY = "Sessão recuperada com sucesso.";
     
-    public static final String ACCESS_DENIED = "Você não ter permissão para acessar este recurso.";
+    public static final String ACCESS_DENIED = "Você não tem permissão para acessar este recurso.";
+    
+    public static final String UNAUTHORIZED = "Autenticação necessária para acessar este recurso.";
     
 }
