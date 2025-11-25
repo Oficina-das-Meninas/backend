@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import br.org.oficinadasmeninas.domain.admin.dto.AdminDto;
 import br.org.oficinadasmeninas.domain.admin.service.IAdminService;
+import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.user.dto.CreateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
 import br.org.oficinadasmeninas.domain.user.service.IUserService;
@@ -14,6 +15,8 @@ import br.org.oficinadasmeninas.infra.auth.UserDetailsCustom;
 import br.org.oficinadasmeninas.infra.auth.dto.LoginResponseDto;
 import br.org.oficinadasmeninas.infra.auth.dto.LoginUserDto;
 import br.org.oficinadasmeninas.infra.auth.dto.UserResponseDto;
+import br.org.oficinadasmeninas.infra.email.service.EmailService;
+import br.org.oficinadasmeninas.infra.shared.exception.EmailNotVerifiedException;
 import br.org.oficinadasmeninas.presentation.shared.utils.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,25 +31,33 @@ public class AuthService {
 	private final IUserService userService;
 	private final AuthenticationManager authenticationManager;
 	private final JwtService jwtService;
+    private final EmailService emailService;
 
 	public AuthService(
 		IAdminService adminService, 
 		IUserService userService,
 		AuthenticationManager authenticationManager,
-		JwtService jwtService
+		JwtService jwtService,
+		EmailService emailService
 	) {
 		this.adminService = adminService;
 		this.userService = userService;
 		this.authenticationManager = authenticationManager;
 		this.jwtService = jwtService;
+		this.emailService = emailService;
 	}
 	
 	public LoginResponseDto login(LoginUserDto loginUserDto, HttpServletResponse response) {
 		UserDetailsCustom authenticatedUser = authenticate(loginUserDto);
+		
+		String jwtToken  = jwtService.generateUserSessionToken(authenticatedUser);
+		long expirationTime = jwtService.getTokenExpirationProperties().getUserSession();
+		
+		if(authenticatedUser.getAdmin()) {
+			jwtToken = jwtService.generateAdminSessionToken(authenticatedUser);
+			expirationTime = jwtService.getTokenExpirationProperties().getAdminSession();
+		}
 
-		String jwtToken = jwtService.generateToken(authenticatedUser);
-		long expirationTime = jwtService.getExpirationTime();
-	
 		CookieUtils.addCookie(response, ACCESS_TOKEN, jwtToken, expirationTime);
 		
 		UserResponseDto userResponse = new UserResponseDto();
@@ -56,7 +67,7 @@ public class AuthService {
 
 		LoginResponseDto loginResponse = new LoginResponseDto();
 		loginResponse.setUser(userResponse);
-		loginResponse.setExpiresIn(jwtService.getExpirationTime());
+		loginResponse.setExpiresIn(expirationTime);
 		
 		return loginResponse;
 	}
@@ -69,7 +80,11 @@ public class AuthService {
 	}
 
 	public UserDto createUserAccount(CreateUserDto user) {
-		return userService.insert(user);
+		UserDto userDto = userService.insert(user);
+		
+		emailService.sendConfirmUserAccountEmail(userDto.getEmail(), userDto.getName());
+		
+		return userDto;
 	}
 
 	private UserDetailsCustom authenticate(LoginUserDto loginUserDTO) {
@@ -85,6 +100,10 @@ public class AuthService {
 		}catch(Exception e) {}
 
 		UserDto user = userService.findByEmail(loginUserDTO.getEmail());
+		
+		if(!user.isActive()) {
+			throw new EmailNotVerifiedException(Messages.EMAIL_NOT_VERIFIED);
+		}
 		
 		return createUserDetailsCustom(user, loginUserDTO.getPassword());
 	}

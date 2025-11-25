@@ -3,7 +3,10 @@ package br.org.oficinadasmeninas.presentation.handler;
 import br.org.oficinadasmeninas.domain.Response;
 import br.org.oficinadasmeninas.infra.shared.exception.DocumentAlreadyExistsException;
 import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsException;
+import br.org.oficinadasmeninas.infra.shared.exception.EmailSendException;
 import br.org.oficinadasmeninas.infra.shared.exception.ObjectStorageException;
+import br.org.oficinadasmeninas.infra.shared.exception.TokenValidationException;
+import br.org.oficinadasmeninas.infra.shared.exception.UserNotVerifiedException;
 import br.org.oficinadasmeninas.infra.shared.exception.PaymentGatewayException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.exceptions.UnauthorizedException;
@@ -84,19 +87,33 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
+    
+    @ExceptionHandler(TokenValidationException.class)
+    public ResponseEntity<String> handleTokenValidation(TokenValidationException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+    }
+    
+    @ExceptionHandler(EmailSendException.class)
+    public ResponseEntity<String> handleEmailSend(EmailSendException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(ex.getMessage());
+    }
 
     @ExceptionHandler(DocumentAlreadyExistsException.class)
     public ResponseEntity<String> handleDocumentAlreadyExists(DocumentAlreadyExistsException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
     
-    @ExceptionHandler(PaymentGatewayException.class)
-    public ResponseEntity<String> handleDocumentAlreadyExists(PaymentGatewayException ex) {
+    @ExceptionHandler(UserNotVerifiedException.class)
+    public ResponseEntity<String> handleUserNotVerified(UserNotVerifiedException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+    
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleGenericException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     }
 
     private static ResponseEntity<?> buildResponse(String message, HttpStatus status) {
-
         var body = new Response<Void>(message, null);
         return ResponseEntity.status(status).body(body);
     }

@@ -94,4 +94,9 @@ public class AdminService implements IAdminService {
 
         return toDto(admin);
     }
+
+    @Override
+	public void updatePassword(UUID uuid, String encodedPassword) {
+    	adminRepository.updatePassword(uuid, encodedPassword);
+	}
 }

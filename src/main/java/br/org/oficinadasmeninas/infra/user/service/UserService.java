@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.user.User;
@@ -21,7 +22,7 @@ import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 
 @Service
 public class UserService implements IUserService {
-
+	
     private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final SessionService sessionService;
@@ -33,6 +34,7 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Transactional
     public UserDto insert(CreateUserDto request) {
         try {
             var user = new User();
@@ -41,8 +43,10 @@ public class UserService implements IUserService {
             user.setDocument(request.getDocument());
             user.setPhone(request.getPhone());
             user.setPassword(passwordEncoder.encode(request.getPassword()));
+            user.setIsActive(false);
 
             userRepository.insert(user);
+            
             return new UserDto(user);
 
         } catch (DataIntegrityViolationException e) {
@@ -125,6 +129,16 @@ public class UserService implements IUserService {
         return new UserDto(user);
     }
     
+    @Override
+    public void markUserAsVerified(UUID id) {
+      userRepository.markUserAsVerified(id);
+    }
+
+    @Override
+    public void updatePassword(UUID id, String encodedPassword) {
+      userRepository.updatePassword(id, encodedPassword);
+    }
+
     @Override
     public UserDto findByUserSession() {
     	String userEmail = sessionService.getSession().getUsername();

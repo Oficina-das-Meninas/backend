@@ -13,7 +13,7 @@ import java.util.Properties;
 public class EmailConfiguration {
 
     @Bean
-    public JavaMailSender javaMailSender(
+    JavaMailSender javaMailSender(
             @Value("${spring.mail.host:}") String host,
             @Value("${spring.mail.port:0}") int port,
             @Value("${spring.mail.username:}") String username,

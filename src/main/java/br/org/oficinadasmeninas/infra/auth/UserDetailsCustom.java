@@ -38,9 +38,9 @@ public class UserDetailsCustom implements UserDetails {
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		if (Boolean.TRUE.equals(isAdmin)) {
-			return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
+			return List.of(new SimpleGrantedAuthority(AuthoritiesEnum.ROLE_ADMIN.name()));
 		}
-		return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+		return List.of(new SimpleGrantedAuthority(AuthoritiesEnum.ROLE_USER.name()));
 	}
 
 	@Override
