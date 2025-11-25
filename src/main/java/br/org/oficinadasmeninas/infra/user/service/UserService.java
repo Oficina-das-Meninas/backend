@@ -34,7 +34,6 @@ public class UserService implements IUserService {
     }
 
     @Override
-    @Transactional
     public UserDto insert(CreateUserDto request) {
         try {
             var user = new User();

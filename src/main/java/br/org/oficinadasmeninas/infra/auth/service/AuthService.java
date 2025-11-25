@@ -4,6 +4,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.org.oficinadasmeninas.domain.admin.dto.AdminDto;
 import br.org.oficinadasmeninas.domain.admin.service.IAdminService;
@@ -79,6 +80,7 @@ public class AuthService {
 		return null;
 	}
 
+	@Transactional
 	public UserDto createUserAccount(CreateUserDto user) {
 		UserDto userDto = userService.insert(user);
 		
