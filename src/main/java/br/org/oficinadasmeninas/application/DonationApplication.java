@@ -14,6 +14,7 @@ import br.org.oficinadasmeninas.domain.user.dto.UserDto;
 import br.org.oficinadasmeninas.infra.recaptcha.CaptchaService;
 import br.org.oficinadasmeninas.infra.shared.exception.ActiveSubscriptionAlreadyExistsException;
 import br.org.oficinadasmeninas.infra.user.service.UserService;
+import br.org.oficinadasmeninas.presentation.exceptions.NoContentException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 
@@ -114,11 +115,11 @@ public class DonationApplication {
         Optional<SponsorshipDto> sponsorshipDto = sponsorshipService.findActiveByUserId(userDto.getId());
 
         if (sponsorshipDto.isEmpty()) {
-            throw new ValidationException(Messages.DONATION_IS_NOT_RECURRING);
+            throw new NoContentException(Messages.DONATION_IS_NOT_RECURRING);
         }
 
         if (sponsorshipDto.get().subscriptionId() == null) {
-            throw new NotFoundException(Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND);
+            throw new NoContentException(Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND);
         }
 
         paymentGatewayService.cancelRecurringDonationSubscription(
@@ -133,11 +134,11 @@ public class DonationApplication {
         Optional<SponsorshipDto> sponsorshipDto = sponsorshipService.findActiveByUserId(userDto.getId());
 
         if (sponsorshipDto.isEmpty()) {
-            throw new NotFoundException(Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND);
+            throw new NoContentException(Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND);
         }
 
         if (!sponsorshipDto.get().isActive()) {
-            throw new NotFoundException(Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND);
+            throw new NoContentException(Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND);
         }
 
         return sponsorshipDto.get();

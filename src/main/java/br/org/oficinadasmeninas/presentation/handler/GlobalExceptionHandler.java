@@ -9,6 +9,7 @@ import br.org.oficinadasmeninas.infra.shared.exception.TokenValidationException;
 import br.org.oficinadasmeninas.infra.shared.exception.UserNotVerifiedException;
 import br.org.oficinadasmeninas.infra.shared.exception.PaymentGatewayException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
+import br.org.oficinadasmeninas.presentation.exceptions.NoContentException;
 import br.org.oficinadasmeninas.presentation.exceptions.UnauthorizedException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleNotFoundException(NotFoundException ex) {
 
         return buildResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(NoContentException.class)
+    public ResponseEntity<?> handleNoContentException(NoContentException ex) {
+
+        return buildResponse(ex.getMessage(), HttpStatus.NO_CONTENT);
     }
 
     @ExceptionHandler(ValidationException.class)
