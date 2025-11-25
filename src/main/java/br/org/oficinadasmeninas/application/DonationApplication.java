@@ -1,6 +1,7 @@
 package br.org.oficinadasmeninas.application;
 
 import br.org.oficinadasmeninas.domain.donation.dto.*;
+import br.org.oficinadasmeninas.domain.donation.mapper.DonationMapper;
 import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
 import br.org.oficinadasmeninas.domain.payment.dto.*;
 import br.org.oficinadasmeninas.domain.paymentgateway.PaymentGatewayEnum;
@@ -128,7 +129,7 @@ public class DonationApplication {
         sponsorshipService.cancelSponsorship(sponsorshipDto.get().id());
     }
 
-    public SponsorshipDto getRecurringDonationSubscriptionByUserSession() {
+    public RecurringDonationSubscriptionResponseDto getRecurringDonationSubscriptionByUserSession() {
         UserDto userDto = userService.findByUserSession();
         Optional<SponsorshipDto> sponsorshipDto = sponsorshipService.findActiveByUserId(userDto.getId());
 
@@ -140,7 +141,7 @@ public class DonationApplication {
             throw new NoContentException(Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND);
         }
 
-        return sponsorshipDto.get();
+        return DonationMapper.toRecurringDonationResponseDto(sponsorshipDto.get());
     }
 
     private void cancelPendingCheckouts(UUID userid) {
