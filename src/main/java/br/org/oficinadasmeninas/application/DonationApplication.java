@@ -128,6 +128,21 @@ public class DonationApplication {
         sponsorshipService.cancelSponsorship(sponsorshipDto.get().id());
     }
 
+    public SponsorshipDto getRecurringDonationSubscriptionByUserSession() {
+        UserDto userDto = userService.findByUserSession();
+        Optional<SponsorshipDto> sponsorshipDto = sponsorshipService.findActiveByUserId(userDto.getId());
+
+        if (sponsorshipDto.isEmpty()) {
+            throw new NotFoundException(Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND);
+        }
+
+        if (!sponsorshipDto.get().isActive()) {
+            throw new NotFoundException(Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND);
+        }
+
+        return sponsorshipDto.get();
+    }
+
     private void cancelPendingCheckouts(UUID userid) {
         List<DonationDto> donations = donationService.findPendingCheckoutsByUserId(userid);
         for (DonationDto donation : donations) {

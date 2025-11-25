@@ -74,8 +74,8 @@ public class DonationController extends BaseController {
 
     @Operation(summary = "Cancelar uma assinatura de doação recorrente")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Assinatura de doação recorrente cancelada com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Assinatura de doação recorrente não encontrada"),
+            @ApiResponse(responseCode = "200", description = Messages.RECURRING_DONATION_SUBSCRIPTION_CANCELED_SUCCESSFULLY),
+            @ApiResponse(responseCode = "404", description = Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND),
     })
     @DeleteMapping("/recurring")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
@@ -87,6 +87,22 @@ public class DonationController extends BaseController {
                     return null;
                 },
                 Messages.RECURRING_DONATION_SUBSCRIPTION_CANCELED_SUCCESSFULLY,
+                HttpStatus.OK
+        );
+    }
+
+    @Operation(summary = "Buscar a assinatura de doação recorrente do usuário autenticado")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = Messages.RECURRING_DONATION_SUBSCRIPTION_FOUND_SUCCESSFULLY),
+            @ApiResponse(responseCode = "404", description = Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND),
+    })
+    @GetMapping("/recurring")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER') || isAnonymous()")
+    public ResponseEntity<?> getRecurringDonationSubscription(
+    ) {
+        return handle(
+                donationApplication::getRecurringDonationSubscriptionByUserSession,
+                Messages.RECURRING_DONATION_SUBSCRIPTION_FOUND_SUCCESSFULLY,
                 HttpStatus.OK
         );
     }
