@@ -77,14 +77,13 @@ public class DonationController extends BaseController {
             @ApiResponse(responseCode = "200", description = "Assinatura de doação recorrente cancelada com sucesso"),
             @ApiResponse(responseCode = "404", description = "Assinatura de doação recorrente não encontrada"),
     })
-    @DeleteMapping("/recurring/{donationId}")
+    @DeleteMapping("/recurring")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> cancelRecurringDonationSubscription(
-            @PathVariable UUID donationId
     ) {
         return handle(
                 () -> {
-                    donationApplication.cancelRecurringDonationSubscription(donationId);
+                    donationApplication.cancelRecurringDonationSubscription();
                     return null;
                 },
                 Messages.RECURRING_DONATION_SUBSCRIPTION_CANCELED_SUCCESSFULLY,
