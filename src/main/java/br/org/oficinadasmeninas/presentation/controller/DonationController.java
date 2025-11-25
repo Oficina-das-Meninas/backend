@@ -22,6 +22,7 @@ import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/donations")
+@PreAuthorize("hasRole('ADMIN')")
 public class DonationController extends BaseController {
 
     private final DonationApplication donationApplication;
@@ -38,7 +39,6 @@ public class DonationController extends BaseController {
             @ApiResponse(responseCode = "400", description = "Parâmetros inválidos")
     })
     @GetMapping
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<?> findByFilter(@RequestParam(defaultValue = "0") @PositiveOrZero int page,
                                           @RequestParam(defaultValue = "10") @Positive @Max(100) int pageSize,
                                           @RequestParam @Nullable String donationType,
