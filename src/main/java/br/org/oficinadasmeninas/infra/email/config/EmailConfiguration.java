@@ -11,7 +11,6 @@ import java.util.Properties;
 
 @Configuration
 public class EmailConfiguration {
-
     @Bean
     JavaMailSender javaMailSender(
             @Value("${spring.mail.host:}") String host,
@@ -20,6 +19,7 @@ public class EmailConfiguration {
             @Value("${spring.mail.password:}") String password,
             Environment env) {
         JavaMailSenderImpl sender = new JavaMailSenderImpl();
+
         if (host != null && !host.isBlank()) sender.setHost(host);
         if (port > 0) sender.setPort(port);
         if (username != null && !username.isBlank()) sender.setUsername(username);
@@ -27,12 +27,14 @@ public class EmailConfiguration {
 
         Properties props = sender.getJavaMailProperties();
         props.put("mail.smtp.auth", env.getProperty("spring.mail.properties.mail.smtp.auth", "true"));
-        props.put("mail.smtp.starttls.enable", env.getProperty("spring.mail.properties.mail.smtp.starttls.enable", "true"));
-        props.put("mail.smtp.connectiontimeout", env.getProperty("spring.mail.properties.mail.smtp.connectiontimeout", "5000"));
-        props.put("mail.smtp.timeout", env.getProperty("spring.mail.properties.mail.smtp.timeout", "5000"));
-        props.put("mail.smtp.writetimeout", env.getProperty("spring.mail.properties.mail.smtp.writetimeout", "5000"));
-        String sslEnable = env.getProperty("spring.mail.properties.mail.smtp.ssl.enable");
-        if (sslEnable != null) props.put("mail.smtp.ssl.enable", sslEnable);
+        props.put("mail.smtp.starttls.enable", env.getProperty("spring.mail.properties.mail.smtp.starttls.enable", "false"));
+        props.put("mail.smtp.ssl.enable", env.getProperty("spring.mail.properties.mail.smtp.ssl.enable", "true"));
+        props.put("mail.smtp.connectiontimeout", env.getProperty("spring.mail.properties.mail.smtp.connectiontimeout", "10000"));
+        props.put("mail.smtp.timeout", env.getProperty("spring.mail.properties.mail.smtp.timeout", "10000"));
+        props.put("mail.smtp.writetimeout", env.getProperty("spring.mail.properties.mail.smtp.writetimeout", "10000"));
+        props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+        props.put("mail.smtp.socketFactory.fallback", "false");
+
         return sender;
     }
 }
