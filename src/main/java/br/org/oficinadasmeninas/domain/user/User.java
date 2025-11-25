@@ -11,6 +11,7 @@ public class User {
 	private String password;
 	private String phone;
 	private UUID accountId;
+	private boolean isActive;
 
 	public UUID getId() {
 		return id;
@@ -66,6 +67,14 @@ public class User {
 
 	public void setAccountId(UUID accountId) {
 		this.accountId = accountId;
+	}
+	
+	public boolean isActive() {
+		return isActive;
+	}
+
+	public void setIsActive(boolean isActive) {
+		this.isActive = isActive;
 	}
 
 }

@@ -16,5 +16,7 @@ public interface IAdminRepository {
 
     Optional<Admin> findByEmail(String email);
     
+    void updatePassword(UUID id, String encodedPassword);
+  
     PageDTO<Admin> findByFilter(String searchTerm, int page, int pageSize);
 }

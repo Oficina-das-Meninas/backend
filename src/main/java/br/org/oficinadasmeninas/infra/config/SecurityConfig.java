@@ -13,13 +13,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
+import br.org.oficinadasmeninas.presentation.handler.GlobalExceptionHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.org.oficinadasmeninas.domain.Response;
@@ -30,6 +31,8 @@ import br.org.oficinadasmeninas.domain.resources.Messages;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    private final GlobalExceptionHandler globalExceptionHandler;
+
 	private final AuthenticationProvider authenticationProvider;
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final ObjectMapper objectMapper;
@@ -38,10 +41,11 @@ public class SecurityConfig {
 		AuthenticationProvider authenticationProvider,
 		JwtAuthenticationFilter jwtAuthenticationFilter,
 		ObjectMapper objectMapper
-	) {
+	, GlobalExceptionHandler globalExceptionHandler) {
 		this.authenticationProvider = authenticationProvider;
 		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
 		this.objectMapper = objectMapper;
+		this.globalExceptionHandler = globalExceptionHandler;
 	}
 	
 	@Bean
@@ -54,7 +58,7 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/transparencies").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/partners").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/donations").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/donations/**").permitAll()
                 .requestMatchers(HttpMethod.DELETE, "/api/donations/**").permitAll()
 				.anyRequest().authenticated()
 	        )
@@ -64,13 +68,14 @@ public class SecurityConfig {
 	        .authenticationProvider(authenticationProvider)
 	        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 	        .exceptionHandling(ex -> ex
+	        		.authenticationEntryPoint(customAuthenticationEntryPoint())
 	                .accessDeniedHandler(customAccessDeniedHandler())
 	            )
 	        .cors(Customizer.withDefaults());
 
 	    return http.build();
 	}
-	
+
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
@@ -86,7 +91,7 @@ public class SecurityConfig {
                 "http://admin.oficinadasmeninas.org.br",
                 "http://oficinadasmeninas.org.br",
 				"https://admin-dev.oficinadasmeninas.org.br",
-				"https://admin.oficinadasmeninas.org.br\""));
+				"https://admin.oficinadasmeninas.org.br"));
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
 		configuration.setAllowedHeaders(List.of("*"));
 		configuration.setAllowCredentials(true);
@@ -108,5 +113,16 @@ public class SecurityConfig {
             response.getWriter().write(objectMapper.writeValueAsString(body));
         };
     }
+    
+    @Bean
+    AuthenticationEntryPoint customAuthenticationEntryPoint() {
+    	return (request, response, authException) -> {
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.setContentType("application/json");
+
+            var body = new Response<Void>(Messages.UNAUTHORIZED, null);
+            response.getWriter().write(objectMapper.writeValueAsString(body));
+        };
+	}
 
 }

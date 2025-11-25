@@ -56,7 +56,8 @@ public class ApplicationConfiguration {
         return config.getAuthenticationManager();
     }
 
-    @Bean
+    @SuppressWarnings("deprecation")
+	@Bean
     AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService());

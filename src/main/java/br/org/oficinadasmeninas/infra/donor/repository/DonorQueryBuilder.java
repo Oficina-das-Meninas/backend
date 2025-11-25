@@ -1,5 +1,7 @@
 package br.org.oficinadasmeninas.infra.donor.repository;
 
+import java.util.Map;
+
 public class DonorQueryBuilder {
 
     public static final String SELECT_COUNT = """
@@ -29,16 +31,23 @@ public class DonorQueryBuilder {
         );
    \s""";
 
+    public static final Map<String, String> ALLOWED_SORT_FIELDS = Map.of(
+            "name", "u.name",
+            "email", "u.email",
+            "points", "s.total_points",
+            "totalDonated", "s.total_donated_value"
+    );
+
     public static final String GET_DONORS = """
         WITH user_stats AS (
-            SELECT 
+            SELECT\s
                 p.user_id,
                 MAX(p.total_points) AS total_points,
                 SUM(p.donated_value) AS total_donated_value
             FROM pontuations p
             GROUP BY p.user_id
         )
-        SELECT 
+        SELECT\s
             u.id,
             u.name,
             u.email,
@@ -65,13 +74,7 @@ public class DonorQueryBuilder {
                 ELSE 'semente'
             END = ?
         )
-        ORDER BY
-            CASE WHEN ? = 'name' THEN u.name END,
-            CASE WHEN ? = 'email' THEN u.email END,
-            CASE WHEN ? = 'phone' THEN u.phone END,
-            CASE WHEN ? = 'total_points' THEN s.total_points END,
-            CASE WHEN ? = 'total_donated_value' THEN s.total_donated_value END
-        %s
+        %ORDER_BY%
         LIMIT ? OFFSET ?;
-    """;
+   \s""";
 }

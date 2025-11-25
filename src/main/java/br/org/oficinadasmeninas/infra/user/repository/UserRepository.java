@@ -44,6 +44,7 @@ public class UserRepository implements IUserRepository {
                 user.getId(),
                 user.getPhone(),
                 user.getDocument(),
+                user.isActive(),
                 accountId
         );
 
@@ -141,6 +142,23 @@ public class UserRepository implements IUserRepository {
 
         return count != null && count > 0;
     }
+    
+    @Override
+	public void markUserAsVerified(UUID id) {
+    	jdbc.update(
+                UserQueryBuilder.MARK_USER_AS_VERIFIED,
+                id
+        );
+	}
+    
+    @Override
+	public void updatePassword(UUID id, String encodedPassword) {
+		jdbc.update(
+                UserQueryBuilder.UPDATE_PASSWORD,
+                encodedPassword,
+                id
+        );
+	}
 
     private User mapRowUser(ResultSet rs, int rowNum) throws SQLException {
         var user = new User();
@@ -151,6 +169,9 @@ public class UserRepository implements IUserRepository {
         user.setPassword(rs.getString("password"));
         user.setPhone(rs.getString("phone"));
         user.setAccountId(UUID.fromString(rs.getString("account_id")));
+        user.setIsActive(rs.getBoolean("is_active"));
         return user;
     }
+	
+	
 }

@@ -28,6 +28,8 @@ public class AdminQueryBuilder {
 
     public static final String UPDATE_ACCOUNT = "UPDATE account SET name = ?, email = ?, password = ? WHERE id = ?";
     
+    public static final String UPDATE_PASSWORD = "UPDATE admin SET password = ? WHERE id = ?";
+  
     public static final String SELECT_COUNT = """
     		SELECT count(*) FROM admin
     		WHERE (

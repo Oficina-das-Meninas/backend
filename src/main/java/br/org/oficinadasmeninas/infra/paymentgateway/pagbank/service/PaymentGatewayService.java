@@ -165,17 +165,17 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
         List<PaymentDto> payments = paymentService.findByDonationId(donationId);
 
+        // Atualizar método de pagamento e gateway na donation
+        donationService.updateMethod(donationId, paymentMethod);
+
         if (payments == null || payments.isEmpty()) {
             throw new ValidationException("Não foi possível encontrar doação");
         }
 
         PaymentDto payment = payments.getLast();
 
-        paymentService.updateStatus(payment.id(), paymentStatus);
         paymentService.updatePaymentDate(payment.id(), LocalDateTime.now());
-
-        // Atualizar método de pagamento e gateway na donation
-        donationService.updateMethod(donationId, paymentMethod);
+        paymentService.updateStatus(payment.id(), paymentStatus);
 
         if (recurring) {
         	String subscriptionId = this.findSubscriptionId( new RequestSubscriptionIdCustomer(customer.name(), customer.tax_id()));
