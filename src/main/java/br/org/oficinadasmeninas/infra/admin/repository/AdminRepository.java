@@ -25,15 +25,23 @@ public class AdminRepository implements IAdminRepository {
     @Override
     public Admin insert(Admin admin) {
 
-        var id = UUID.randomUUID();
-        admin.setId(id);
-
+        var accountId = UUID.randomUUID();
+        
         jdbc.update(
-                AdminQueryBuilder.INSERT_ADMIN,
-                admin.getId(),
+                AdminQueryBuilder.INSERT_ACCOUNT,
+                accountId,
                 admin.getName(),
                 admin.getEmail(),
                 admin.getPassword()
+        );
+        
+        var adminId = UUID.randomUUID();
+        admin.setId(adminId);
+
+        jdbc.update(
+                AdminQueryBuilder.INSERT_ADMIN,
+                adminId,
+                accountId
         );
 
         return admin;
@@ -43,11 +51,11 @@ public class AdminRepository implements IAdminRepository {
     public Admin update(Admin admin) {
 
         jdbc.update(
-                AdminQueryBuilder.UPDATE_ADMIN,
+                AdminQueryBuilder.UPDATE_ACCOUNT,
                 admin.getName(),
                 admin.getEmail(),
                 admin.getPassword(),
-                admin.getId()
+                admin.getAccountId()
         );
 
         return admin;
@@ -112,6 +120,7 @@ public class AdminRepository implements IAdminRepository {
         admin.setName(rs.getString("name"));
         admin.setEmail(rs.getString("email"));
         admin.setPassword(rs.getString("password"));
+        admin.setAccountId(UUID.fromString(rs.getString("account_id")));
         return admin;
     }
 }
