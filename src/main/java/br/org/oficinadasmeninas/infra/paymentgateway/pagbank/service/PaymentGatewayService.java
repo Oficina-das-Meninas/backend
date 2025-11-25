@@ -1,12 +1,19 @@
 package br.org.oficinadasmeninas.infra.paymentgateway.pagbank.service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+import br.org.oficinadasmeninas.domain.donation.dto.DonationDto;
+import br.org.oficinadasmeninas.domain.payment.dto.CheckoutNotificationDto;
 import br.org.oficinadasmeninas.domain.payment.dto.PaymentDto;
+import br.org.oficinadasmeninas.domain.payment.dto.PaymentNotificationDto;
+import br.org.oficinadasmeninas.domain.paymentgateway.dto.PaymentChargesDto;
+import br.org.oficinadasmeninas.infra.logspagbank.dto.CreateLogPagbank;
+import br.org.oficinadasmeninas.infra.logspagbank.service.LogPagbankService;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -45,7 +52,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
     private final RequestCreateCheckoutPagbankMapper mapper;
 
     private final WebClient webClient;
-    
+
     private final WebClient webClientSubscription;
 
     private final IDonationService donationService;
@@ -53,6 +60,9 @@ public class PaymentGatewayService implements IPaymentGatewayService {
     private final IPaymentService paymentService;
 
     private final ISponsorshipService sponsorshipService;
+
+    private final LogPagbankService logService;
+
     private final UserService userService;
 
     @Value("${app.redirectCheckoutUrl}")
@@ -66,7 +76,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
     @Value("${app.url}")
     private String url;
-    
+
     @Value("${app.url_signature}")
     private String urlSignature;
 
@@ -75,7 +85,16 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
 
 
-    public PaymentGatewayService(RequestCreateCheckoutPagbankMapper mapper, WebClient.Builder builder, @Value("${app.url}") String url, IDonationService donationService, IPaymentService paymentService, ISponsorshipService sponsorshipService, UserService userService) {
+    public PaymentGatewayService (
+            RequestCreateCheckoutPagbankMapper mapper,
+            WebClient.Builder builder,
+            @Value("${app.url}") String url,
+            @Value("${app.url_signature}") String urlSignature,
+            IDonationService donationService, IPaymentService paymentService,
+            ISponsorshipService sponsorshipService,
+            UserService userService,
+            LogPagbankService logService
+    ) {
         this.mapper = mapper;
 		this.donationService = donationService;
         this.paymentService = paymentService;
@@ -83,8 +102,9 @@ public class PaymentGatewayService implements IPaymentGatewayService {
         this.webClient = builder.baseUrl(url)
                 .build();
         this.webClientSubscription = builder.baseUrl(urlSignature)
-				.build();
+                .build();
         this.userService = userService;
+        this.logService = logService;
     }
 
     @Override
@@ -101,8 +121,6 @@ public class PaymentGatewayService implements IPaymentGatewayService {
                     .retrieve()
                     .bodyToMono(ResponseSignatureCustomer.class)
                     .block();
-
-            System.out.println(response);
         } catch (WebClientResponseException e) {
             throw new PaymentGatewayException(e.getStatusCode() + " " + e.getStatusText() + e.getResponseBodyAs(String.class));
         }
@@ -112,7 +130,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
     @Override
     public ResponseCreateCheckoutDto createCheckout(RequestCreateCheckoutDto requestCreateCheckoutDto) {
 
-    	
+
         RequestCreateCheckoutConfig defaults = new RequestCreateCheckoutConfig(
                 IsoDateFormater.addHours(4),
                 redirectUrl,
@@ -147,24 +165,24 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
         List<PaymentDto> payments = paymentService.findByDonationId(donationId);
 
+        // Atualizar método de pagamento e gateway na donation
+        donationService.updateMethod(donationId, paymentMethod);
+
         if (payments == null || payments.isEmpty()) {
             throw new ValidationException("Não foi possível encontrar doação");
         }
 
         PaymentDto payment = payments.getLast();
 
-        paymentService.updateStatus(payment.id(), paymentStatus);
         paymentService.updatePaymentDate(payment.id(), LocalDateTime.now());
-
-        // Atualizar método de pagamento e gateway na donation
-        donationService.updateMethod(donationId, paymentMethod);
+        paymentService.updateStatus(payment.id(), paymentStatus);
 
         if (recurring) {
         	String subscriptionId = this.findSubscriptionId( new RequestSubscriptionIdCustomer(customer.name(), customer.tax_id()));
             UserDto userDto = userService.findByDocument(customer.tax_id());
-            
-            SponsorshipDto sponsor = sponsorshipService.findByUserId(userDto.getId()).getFirst();
-            
+
+            SponsorshipDto sponsor = sponsorshipService.findByUserId(userDto.getId()).getLast();
+
             sponsorshipService.update(new UpdateSponsorshipDto(sponsor.id(), null, true, subscriptionId));
         }
     }
@@ -205,7 +223,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 	@Override
 	public String findSubscriptionId(RequestSubscriptionIdCustomer customer) {
 		try {
-		
+
 			var response = webClientSubscription.get()
 					.uri("/subscriptions")
                     .header("Authorization", "Bearer " + token)
@@ -213,12 +231,63 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 					.header("q", customer.name())
 					.retrieve()
 					.bodyToMono(ResponseFindSubscriptionId.class)
-					.block();			
-			
-			return response.subscriptions().getFirst().id();			
-			
+					.block();
+
+			return response.subscriptions().getFirst().id();
+
 		} catch (Exception e) {
 			throw new PaymentGatewayException(e.toString());
 		}
 	}
+
+    @Override
+    public void cancelRecurringDonationSubscription(String subscriptionId) {
+        try {
+            String uriBuilder = "/subscriptions/" +
+                    subscriptionId +
+                    "/cancel";
+
+            webClientSubscription.put()
+                    .uri(uriBuilder)
+                    .header("Authorization", "Bearer " + token)
+                    .retrieve()
+                    .bodyToMono(ResponseSignatureCustomer.class)
+                    .block();
+
+
+        } catch (WebClientResponseException e) {
+            throw new PaymentGatewayException(e.getStatusCode() + " " + e.getStatusText() + e.getResponseBodyAs(String.class));
+        }
+    }
+
+
+    @Override
+    public void notifyPayment(PaymentNotificationDto request) {
+        PaymentChargesDto charge = request.charges().getFirst();
+        boolean recurring = charge.recurring() != null;
+        ResponseWebhookCustomer customer = request.customer();
+        updatePaymentStatus(request.reference_id(), charge.status(), charge.payment_method().type(), recurring, customer);
+
+
+        if (charge.status() == PaymentStatusEnum.PAID){
+            DonationDto donation = donationService.findById(request.reference_id());
+            if (donation.checkoutId() != null) {
+                cancelCheckout(donation.checkoutId());
+                paymentService.cancelPendingPaymentByDonationId(donation.id());
+            }
+        }
+    }
+
+    @Override
+    public void notifyCheckout(CheckoutNotificationDto request) {
+        updateCheckoutStatus(request.id(), request.reference_id(), request.status());
+    }
+
+    private void saveLog(Object object) throws IOException {
+        logService.createLogPagbank(new CreateLogPagbank(
+                "WEBHOOK NOTIFY BODY",
+                LocalDateTime.now(),
+                object
+        ));
+    }
 }

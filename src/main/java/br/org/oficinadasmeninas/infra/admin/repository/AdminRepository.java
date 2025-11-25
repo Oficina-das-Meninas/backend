@@ -9,9 +9,16 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+import br.org.oficinadasmeninas.domain.admin.Admin;
+import br.org.oficinadasmeninas.domain.admin.repository.IAdminRepository;
+import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 
 @Repository
 public class AdminRepository implements IAdminRepository {
@@ -54,11 +61,26 @@ public class AdminRepository implements IAdminRepository {
     }
 
     @Override
-    public List<Admin> findAll() {
-        return jdbc.query(
-                AdminQueryBuilder.FIND_ALL_ADMINS,
-                this::mapRowAdmin
+    public PageDTO<Admin> findByFilter(String searchTerm, int page, int pageSize){
+    	var admins = jdbc.query(
+                AdminQueryBuilder.GET_FILTERED_ADMINS,
+                this::mapRowAdmin,
+                searchTerm,
+                searchTerm
         );
+    	
+    	var total = jdbc.queryForObject(
+    			AdminQueryBuilder.SELECT_COUNT,
+                Integer.class,
+                searchTerm,
+                searchTerm
+        );
+    	
+        if (total == null) total = 0;
+
+        int totalPages = Math.toIntExact((total / pageSize) + (total % pageSize == 0 ? 0 : 1));
+
+        return new PageDTO<>(admins, total, totalPages);
     }
 
     @Override

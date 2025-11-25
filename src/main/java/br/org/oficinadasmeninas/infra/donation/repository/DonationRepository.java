@@ -126,6 +126,15 @@ public class DonationRepository implements IDonationRepository {
         }
     }
 
+    @Override
+    public List<Donation> findPendingCheckoutsByUserId(UUID id) {
+        try{
+            return jdbc.query(DonationQueryBuilder.SELECT_PENDING_CHECKOUTS_BY_USER_ID, this::mapRowDonation, id);
+        }catch (EmptyResultDataAccessException e){
+            return List.of();
+        }
+    }
+
 	private Donation mapRowDonation(ResultSet rs, int rowNum) throws SQLException {
 		Donation donation = new Donation();
 		donation.setId(rs.getObject("id", UUID.class));

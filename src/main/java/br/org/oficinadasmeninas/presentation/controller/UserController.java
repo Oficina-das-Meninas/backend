@@ -92,10 +92,14 @@ public class UserController extends BaseController {
     ) {
         return handle(() -> userService.findByUserId(id));
     }
+    
+	@GetMapping("/me")
+	public ResponseEntity<?> findByUserSession() {
+		return handle(() -> userService.findByUserSession());
+	}
 
-    @GetMapping("/{id}/pontuations")
+    @GetMapping("/pontuations")
     public ResponseEntity<?> getUserPontuations(
-            @PathVariable UUID id,
             @RequestParam(defaultValue = "0") @PositiveOrZero int page,
             @RequestParam(defaultValue = "10") @Positive @Max(100) int pageSize,
             @RequestParam @Nullable LocalDate startDate,
@@ -104,6 +108,6 @@ public class UserController extends BaseController {
     ) {
         var request = GetUserPontuationsDto.FromRequestParams(page, pageSize, startDate, endDate, donationType);
 
-        return handle(() -> pontuationService.getUserPontuations(id, request));
+        return handle(() -> pontuationService.getUserPontuations(request));
     }
 }

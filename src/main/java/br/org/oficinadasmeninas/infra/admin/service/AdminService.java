@@ -1,23 +1,23 @@
 package br.org.oficinadasmeninas.infra.admin.service;
 
+import static br.org.oficinadasmeninas.domain.admin.mapper.AdminMapper.toDto;
+
+import java.util.UUID;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import br.org.oficinadasmeninas.domain.admin.Admin;
 import br.org.oficinadasmeninas.domain.admin.dto.AdminDto;
 import br.org.oficinadasmeninas.domain.admin.dto.CreateAdminDto;
 import br.org.oficinadasmeninas.domain.admin.dto.UpdateAdminDto;
-import br.org.oficinadasmeninas.domain.admin.mapper.AdminMapper;
 import br.org.oficinadasmeninas.domain.admin.repository.IAdminRepository;
 import br.org.oficinadasmeninas.domain.admin.service.IAdminService;
 import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.UUID;
-
-import static br.org.oficinadasmeninas.domain.admin.mapper.AdminMapper.toDto;
+import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 
 @Service
 public class AdminService implements IAdminService {
@@ -71,14 +71,10 @@ public class AdminService implements IAdminService {
             throw new EmailAlreadyExistsException();
         }
     }
-
+    
     @Override
-    public List<AdminDto> findAll() {
-
-        return adminRepository
-                .findAll().stream()
-                .map(AdminMapper::toDto)
-                .toList();
+    public PageDTO<Admin> findByFilter(String searchTerm, int page, int pageSize){
+    	return adminRepository.findByFilter(searchTerm, page, pageSize);
     }
 
     @Override

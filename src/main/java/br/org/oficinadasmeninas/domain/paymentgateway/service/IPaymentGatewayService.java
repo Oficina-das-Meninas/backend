@@ -1,6 +1,8 @@
 package br.org.oficinadasmeninas.domain.paymentgateway.service;
 
 import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
+import br.org.oficinadasmeninas.domain.payment.dto.CheckoutNotificationDto;
+import br.org.oficinadasmeninas.domain.payment.dto.PaymentNotificationDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.ResponseCreateCheckoutDto;
  import br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum;
@@ -71,9 +73,20 @@ public interface IPaymentGatewayService {
 	 * Busca junto a plataforma de pagamentos o ID intenro da assinatura deles
 	 * <p>
 	 *	 *
-	 * @param document   identificador do assinante
+	 * @param customer objeto contendo os dados do cliente para busca da assinatura
 	 */
-	
 	String findSubscriptionId(RequestSubscriptionIdCustomer customer);
-	
+
+    void notifyPayment(PaymentNotificationDto request);
+
+    void notifyCheckout(CheckoutNotificationDto request);
+
+
+    /**
+     * Cancela uma assinatura de doação recorrente no gateway de pagamentos.
+     * <p>
+     * Essa operação interrompe futuras cobranças associadas à assinatura.
+     * @param subscriptionId identificador único da assinatura a ser cancelada
+     */
+    void cancelRecurringDonationSubscription(String subscriptionId);
 }

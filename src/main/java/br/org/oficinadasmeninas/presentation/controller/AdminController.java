@@ -8,7 +8,12 @@ import br.org.oficinadasmeninas.domain.resources.Messages;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -69,13 +74,15 @@ public class AdminController extends BaseController {
         );
     }
 
-    @Operation(summary = "Lista todos os administradores")
+    @Operation(summary = "Lista todos os administradores filtrados conforme os critérios de pesquisa.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Administradores listados com sucesso")
     })
     @GetMapping
-    public ResponseEntity<?> getAllAdmin() {
-        return handle(adminService::findAll);
+    public ResponseEntity<?> getAllAdminByFilter(@RequestParam @Nullable String searchTerm,
+            @RequestParam(defaultValue = "0") @PositiveOrZero int page,
+            @RequestParam(defaultValue = "10") @Positive @Max(100) int pageSize) {
+        return handle(() -> adminService.findByFilter(searchTerm, page, pageSize));
     }
 
     @Operation(summary = "Busca um administrador pelo ID")

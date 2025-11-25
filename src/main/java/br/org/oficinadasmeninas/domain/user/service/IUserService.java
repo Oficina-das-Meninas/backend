@@ -79,4 +79,13 @@ public interface IUserService {
      * @param encodedPassword nova senha encriptada
      */
     void updatePassword(UUID id, String encodedPassword);
+  
+    /**
+     * Busca um usuário pela sessão.
+     *
+     * @param token token de sessão
+     * @return objeto contendo os dados do usuário encontrado,
+     *         ou {@code null} se não existir
+     */
+    UserDto findByUserSession();
 }

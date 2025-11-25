@@ -81,4 +81,24 @@ public class DonationQueryBuilder {
             %ORDER_BY%
             LIMIT ? OFFSET ?;
     """;
+
+    public static final String SELECT_PENDING_CHECKOUTS_BY_USER_ID = """
+            SELECT
+                    d.id,
+                    d.donation_at,
+                    d.checkout_id,
+                    d.value,
+                    d.user_id,
+                    d.gateway,
+                    d.sponsorship_id,
+                    d.method,
+                    p.status
+            FROM donation d
+            LEFT JOIN payment p
+            ON d.id = p.donation_id
+            WHERE
+                d.user_id = ?
+                AND p.status = 'WAITING'
+                AND d.checkout_id IS NOT null;
+        """;
 }

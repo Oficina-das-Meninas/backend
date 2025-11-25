@@ -19,6 +19,13 @@ public class PaymentQueryBuilder {
 			    WHERE donation_id = ?
 			""";
 
+    public static final String CANCEL_PENDING_PAYMENT_BY_DONATION_ID = """
+            UPDATE payment
+            SET status = 'CANCELED'
+            WHERE donation_id = ?
+              AND status = 'WAITING';
+    """;
+
 	public static final String UPDATE_PAYMENT_STATUS = """
 			    UPDATE payment
 			    SET status = ?
@@ -30,5 +37,4 @@ public class PaymentQueryBuilder {
 		    SET payment_date = ?
 		    WHERE id = ?
 		""";
-
 }

@@ -7,6 +7,7 @@ import br.org.oficinadasmeninas.infra.shared.exception.EmailSendException;
 import br.org.oficinadasmeninas.infra.shared.exception.ObjectStorageException;
 import br.org.oficinadasmeninas.infra.shared.exception.TokenValidationException;
 import br.org.oficinadasmeninas.infra.shared.exception.UserNotVerifiedException;
+import br.org.oficinadasmeninas.infra.shared.exception.PaymentGatewayException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.exceptions.UnauthorizedException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
@@ -113,7 +114,6 @@ public class GlobalExceptionHandler {
     }
 
     private static ResponseEntity<?> buildResponse(String message, HttpStatus status) {
-
         var body = new Response<Void>(message, null);
         return ResponseEntity.status(status).body(body);
     }

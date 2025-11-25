@@ -7,10 +7,12 @@ import br.org.oficinadasmeninas.domain.paymentgateway.PaymentGatewayEnum;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.*;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
+import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.sponsorship.dto.SponsorshipDto;
 import br.org.oficinadasmeninas.domain.sponsorship.service.ISponsorshipService;
 import br.org.oficinadasmeninas.infra.recaptcha.CaptchaService;
 import br.org.oficinadasmeninas.infra.shared.exception.ActiveSubscriptionAlreadyExistsException;
+import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import br.org.oficinadasmeninas.domain.donation.service.IDonationService;
 import br.org.oficinadasmeninas.domain.payment.service.IPaymentService;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -44,6 +47,10 @@ public class DonationApplication {
 
         if(!this.captchaService.isCaptchaValid(donationCheckout.captchaToken())) {
             throw new ValidationException("Token Captcha inválido");
+        }
+
+        if (donationCheckout.donor().id() != null){
+            this.cancelPendingCheckouts(donationCheckout.donor().id());
         }
 
         UUID sponsorshipId = null;
@@ -86,7 +93,7 @@ public class DonationApplication {
         );
     }
     private UUID createSponsorship(CreateDonationCheckoutDto donationCheckout) {
-        var donor = donationCheckout.donor();
+       var donor = donationCheckout.donor();
        return sponsorshipService.insert(new SponsorshipDto(
                 null,
                 LocalDateTime.now().getDayOfMonth(),
@@ -96,5 +103,31 @@ public class DonationApplication {
                 donor.id(),
                 null
         ));
+    }
+
+    public void cancelRecurringDonationSubscription(UUID donationId) {
+        DonationDto donationDto = donationService.findById(donationId);
+
+        if (donationDto.sponsorshipId() == null) {
+            throw new ValidationException(Messages.DONATION_IS_NOT_RECURRING);
+        }
+
+        Optional<SponsorshipDto> sponsorshipDto = sponsorshipService.findById(donationDto.sponsorshipId());
+        if (sponsorshipDto.isEmpty() || sponsorshipDto.get().subscriptionId() == null) {
+            throw new NotFoundException(Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND);
+        }
+
+        paymentGatewayService.cancelRecurringDonationSubscription(
+                sponsorshipDto.get().subscriptionId()
+        );
+
+        sponsorshipService.cancelSponsorship(sponsorshipDto.get().id());
+    }
+    private void cancelPendingCheckouts(UUID userid) {
+        List<DonationDto> donations = donationService.findPendingCheckoutsByUserId(userid);
+        for (DonationDto donation : donations) {
+            paymentGatewayService.cancelCheckout(donation.checkoutId());
+            paymentService.cancelPendingPaymentByDonationId(donation.id());
+        }
     }
 }

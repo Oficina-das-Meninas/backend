@@ -50,4 +50,7 @@ public interface IDonationService {
      * @param method novo método {@link PaymentMethodEnum} a ser atribuído; não deve ser {@code null}
      */
     void updateMethod(UUID id, PaymentMethodEnum method);
+
+
+    List<DonationDto> findPendingCheckoutsByUserId(UUID userId);
 }

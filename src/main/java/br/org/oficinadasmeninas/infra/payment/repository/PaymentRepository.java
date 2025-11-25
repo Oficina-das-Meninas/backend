@@ -51,6 +51,14 @@ public class PaymentRepository implements IPaymentRepository {
         return payment;
     }
 
+    @Override
+    public void cancelPaymentByDonationId(UUID donationId) {
+        jdbc.update(
+               PaymentQueryBuilder.CANCEL_PENDING_PAYMENT_BY_DONATION_ID,
+                donationId
+        );
+    }
+
     public Optional<Payment> findById(UUID id) {
         try {
             var payment = jdbc.queryForObject(
@@ -83,6 +91,7 @@ public class PaymentRepository implements IPaymentRepository {
 
         return payment;
 	}
+
 
     private Payment mapRowPayment(ResultSet rs, int rowNum) throws SQLException {
         Timestamp ts = rs.getTimestamp("payment_date");
