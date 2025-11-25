@@ -40,7 +40,7 @@ public class UserService implements IUserService {
             user.setDocument(request.getDocument());
             user.setPhone(request.getPhone());
             user.setPassword(passwordEncoder.encode(request.getPassword()));
-            user.setInactive(true);
+            user.setIsActive(false);
 
             userRepository.insert(user);
             

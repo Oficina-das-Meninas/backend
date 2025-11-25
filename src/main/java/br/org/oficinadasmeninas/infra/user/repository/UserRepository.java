@@ -34,7 +34,7 @@ public class UserRepository implements IUserRepository {
                 user.getPassword(),
                 user.getPhone(),
                 user.getDocument(),
-                user.isInactive()
+                user.isActive()
         );
 
         return user;
@@ -157,7 +157,7 @@ public class UserRepository implements IUserRepository {
         user.setDocument(rs.getString("document"));
         user.setPassword(rs.getString("password"));
         user.setPhone(rs.getString("phone"));
-        user.setInactive(rs.getBoolean("is_inactive"));
+        user.setIsActive(rs.getBoolean("is_active"));
         return user;
     }
 	

@@ -37,7 +37,7 @@ public class EmailVerificationService {
             JwtService.PurposeTokenEnum.VERIFY_EMAIL
         );
         
-        if (verified && userDto != null && userDto.isInactive()) {
+        if (verified && userDto != null && !userDto.isActive()) {
         	userService.markUserAsVerified(userDto.getId());
             return null; 
         }

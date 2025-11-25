@@ -101,7 +101,7 @@ public class AuthService {
 
 		UserDto user = userService.findByEmail(loginUserDTO.getEmail());
 		
-		if(user.isInactive()) {
+		if(!user.isActive()) {
 			throw new EmailNotVerifiedException(Messages.EMAIL_NOT_VERIFIED);
 		}
 		

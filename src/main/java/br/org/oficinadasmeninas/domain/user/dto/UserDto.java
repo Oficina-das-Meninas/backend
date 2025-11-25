@@ -11,7 +11,7 @@ public class UserDto {
 	private String email;
 	private String document;
 	private String phone;
-	private boolean isInactive;
+	private boolean isActive;
 
 	public UserDto() {
 		super();
@@ -24,7 +24,7 @@ public class UserDto {
 		this.email = user.getEmail();
 		this.document = user.getDocument();
 		this.phone = user.getPhone();
-		this.isInactive = user.isInactive();
+		this.isActive = user.isActive();
 	}
 
 	public UserDto(UUID id, String name, String email, String document, String phone) {
@@ -76,11 +76,11 @@ public class UserDto {
 		this.phone = phone;
 	}
 
-	public boolean isInactive() {
-		return isInactive;
+	public boolean isActive() {
+		return isActive;
 	}
 
-	public void setInactive(boolean isInactive) {
-		this.isInactive = isInactive;
+	public void setIsActive(boolean isActive) {
+		this.isActive = isActive;
 	}
 }

@@ -96,8 +96,6 @@ public class JwtService {
 			}
 
 			return true;
-		} catch (JwtException e) {
-			return false;
 		} catch (Exception e) {
 			return false;
 		}
