@@ -7,7 +7,6 @@ import br.org.oficinadasmeninas.infra.shared.exception.EmailSendException;
 import br.org.oficinadasmeninas.infra.shared.exception.ObjectStorageException;
 import br.org.oficinadasmeninas.infra.shared.exception.TokenValidationException;
 import br.org.oficinadasmeninas.infra.shared.exception.UserNotVerifiedException;
-import br.org.oficinadasmeninas.infra.shared.exception.PaymentGatewayException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.exceptions.NoContentException;
 import br.org.oficinadasmeninas.presentation.exceptions.UnauthorizedException;
