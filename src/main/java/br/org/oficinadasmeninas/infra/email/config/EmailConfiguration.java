@@ -36,4 +36,3 @@ public class EmailConfiguration {
         return sender;
     }
 }
-
