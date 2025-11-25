@@ -101,4 +101,10 @@ public class DonationQueryBuilder {
                 AND p.status = 'WAITING'
                 AND d.checkout_id IS NOT null;
         """;
+    
+    public static final String SELECT_DONATION_BY_SPONSORSHIP_ID = """
+		    SELECT id, value, checkout_id, gateway, sponsorship_id, method, user_id, donation_at
+		    FROM donation
+		    WHERE sponsorship_id = ?
+		""";
 }

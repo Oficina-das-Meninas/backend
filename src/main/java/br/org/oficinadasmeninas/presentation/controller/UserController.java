@@ -110,4 +110,10 @@ public class UserController extends BaseController {
 
         return handle(() -> pontuationService.getUserPontuations(request));
     }
+    
+    @GetMapping("/me/sponsorship")
+	public ResponseEntity<?> findReccurencyActive() {
+		return handle(() -> userService.findActiveSponsorshipByUserSession());
+	}
+    
 }

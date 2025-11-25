@@ -22,4 +22,6 @@ public interface IDonationRepository {
 	Optional<Donation> findById(UUID id);
 
     List<Donation> findPendingCheckoutsByUserId(UUID userId);
+    
+    Optional<Donation> findBySponsorshipId(UUID id);
 }

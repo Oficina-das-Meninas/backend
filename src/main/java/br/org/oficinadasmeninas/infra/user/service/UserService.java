@@ -7,11 +7,14 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import br.org.oficinadasmeninas.domain.donation.service.IDonationService;
 import br.org.oficinadasmeninas.domain.resources.Messages;
+import br.org.oficinadasmeninas.domain.sponsorship.service.ISponsorshipService;
 import br.org.oficinadasmeninas.domain.user.User;
 import br.org.oficinadasmeninas.domain.user.dto.CreateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UpdateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
+import br.org.oficinadasmeninas.domain.user.dto.UserRecurrencyDto;
 import br.org.oficinadasmeninas.domain.user.repository.IUserRepository;
 import br.org.oficinadasmeninas.domain.user.service.IUserService;
 import br.org.oficinadasmeninas.infra.session.service.SessionService;
@@ -24,12 +27,16 @@ public class UserService implements IUserService {
 
     private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ISponsorshipService sponsorshipService;
+    private final IDonationService donationService;
     private final SessionService sessionService;
 
-    public UserService(IUserRepository userRepository, PasswordEncoder passwordEncoder, SessionService sessionService) {
+    public UserService(IUserRepository userRepository, PasswordEncoder passwordEncoder, SessionService sessionService, ISponsorshipService sponsorshipService, IDonationService donationService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.sessionService = sessionService;
+        this.sponsorshipService = sponsorshipService;
+        this.donationService = donationService;
     }
 
     @Override
@@ -133,5 +140,34 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new NotFoundException(Messages.USER_NOT_FOUND_BY_EMAIL + userEmail));
 
         return new UserDto(user);
+    }
+    
+    @Override
+    public UserRecurrencyDto findActiveSponsorshipByUserSession() {
+    	String userEmail = sessionService.getSession().getUsername();
+    	
+        var user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new NotFoundException(Messages.USER_NOT_FOUND_BY_EMAIL + userEmail));
+        
+        var sponsorship = sponsorshipService.findById(user.getId())
+        		.orElseThrow(() -> new NotFoundException(Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND));
+        
+        var donation = donationService.findBySponsorshipId(sponsorship.id());
+        
+        if(donation == null) {
+        	throw new NotFoundException(Messages.DONATION_NOT_FOUND);
+        }
+
+        return new UserRecurrencyDto(
+        			sponsorship.id(),
+        			sponsorship.billingDay(),
+        			sponsorship.startDate(),
+        			sponsorship.isActive(),
+        			sponsorship.subscriptionId(),
+        			sponsorship.userId(),
+        			sponsorship.cancelDate(),
+        			donation.id(),
+        			donation.value()
+        		);
     }
 }

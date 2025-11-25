@@ -53,4 +53,13 @@ public interface IDonationService {
 
 
     List<DonationDto> findPendingCheckoutsByUserId(UUID userId);
+    
+    /**
+     * Recupera os detalhes de uma doação específica com base no id do apadrinhamento.
+     *
+     * @param id identificador único ({@link UUID}) do apadrinhamento a ser consultada; não deve ser {@code null}
+     * @return um {@link DonationDto} com os dados da doação, ou {@code null} se não encontrada
+     * @throws IllegalArgumentException se {@code id} for {@code null}
+     */
+    DonationDto findBySponsorshipId(UUID id);
 }

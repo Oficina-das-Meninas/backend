@@ -134,6 +134,21 @@ public class DonationRepository implements IDonationRepository {
             return List.of();
         }
     }
+    
+    @Override
+    public Optional<Donation> findBySponsorshipId(UUID id) {
+        try {
+            var donation = jdbc.queryForObject(
+                    DonationQueryBuilder.SELECT_DONATION_BY_SPONSORSHIP_ID,
+                    this::mapRowDonation,
+                    id
+            );
+
+            return Optional.ofNullable(donation);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
 
 	private Donation mapRowDonation(ResultSet rs, int rowNum) throws SQLException {
 		Donation donation = new Donation();

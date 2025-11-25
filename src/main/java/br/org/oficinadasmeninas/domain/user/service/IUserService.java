@@ -1,11 +1,12 @@
 package br.org.oficinadasmeninas.domain.user.service;
 
+import java.util.List;
+import java.util.UUID;
+
 import br.org.oficinadasmeninas.domain.user.dto.CreateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UpdateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
-
-import java.util.List;
-import java.util.UUID;
+import br.org.oficinadasmeninas.domain.user.dto.UserRecurrencyDto;
 
 /**
  * Interface para operações relacionadas à gestão de usuários.
@@ -68,9 +69,16 @@ public interface IUserService {
     /**
      * Busca um usuário pela sessão.
      *
-     * @param token token de sessão
      * @return objeto contendo os dados do usuário encontrado,
      *         ou {@code null} se não existir
      */
     UserDto findByUserSession();
+    
+    /**
+     * Busca o apadrinhamento ativo do usuário da sessão
+     * 
+     * @return objeto contendo os dados do usuário encontrado,
+     *         ou {@code null} se não existir
+     */
+    UserRecurrencyDto findActiveSponsorshipByUserSession();
 }
