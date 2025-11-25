@@ -3,7 +3,7 @@ package br.org.oficinadasmeninas.infra.admin.repository;
 public class AdminQueryBuilder {
 
     public static final String FIND_ADMIN_BY_ID = """
-				SELECT 
+				SELECT
 					adm.id, 
 					adm.account_id,
 					acc.name, 
@@ -24,7 +24,7 @@ public class AdminQueryBuilder {
 			FROM admin adm
 			LEFT JOIN account acc on acc.id = adm.account_id
 			WHERE acc.email = ?
-	""";
+    	""";
 
     public static final String UPDATE_ACCOUNT = "UPDATE account SET name = ?, email = ?, password = ? WHERE id = ?";
     

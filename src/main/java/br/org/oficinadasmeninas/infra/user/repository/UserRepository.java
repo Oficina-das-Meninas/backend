@@ -2,6 +2,8 @@ package br.org.oficinadasmeninas.infra.user.repository;
 
 import br.org.oficinadasmeninas.domain.user.User;
 import br.org.oficinadasmeninas.domain.user.repository.IUserRepository;
+import br.org.oficinadasmeninas.infra.admin.repository.AdminQueryBuilder;
+
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -23,17 +25,26 @@ public class UserRepository implements IUserRepository {
 
     @Override
     public User insert(User user) {
-        var id = UUID.randomUUID();
-        user.setId(id);
+    	
+    	var accountId = UUID.randomUUID();
+        
+        jdbc.update(
+                AdminQueryBuilder.INSERT_ACCOUNT,
+                accountId,
+                user.getName(),
+                user.getEmail(),
+                user.getPassword()
+        );
+    	
+        var userId = UUID.randomUUID();
+        user.setId(userId);
 
         jdbc.update(
                 UserQueryBuilder.INSERT_USER,
                 user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getPassword(),
                 user.getPhone(),
-                user.getDocument()
+                user.getDocument(),
+                accountId
         );
 
         return user;
@@ -139,6 +150,7 @@ public class UserRepository implements IUserRepository {
         user.setDocument(rs.getString("document"));
         user.setPassword(rs.getString("password"));
         user.setPhone(rs.getString("phone"));
+        user.setAccountId(UUID.fromString(rs.getString("account_id")));
         return user;
     }
 }
