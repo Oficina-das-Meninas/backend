@@ -4,6 +4,7 @@ import br.org.oficinadasmeninas.domain.Response;
 import br.org.oficinadasmeninas.infra.shared.exception.DocumentAlreadyExistsException;
 import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsException;
 import br.org.oficinadasmeninas.infra.shared.exception.ObjectStorageException;
+import br.org.oficinadasmeninas.infra.shared.exception.PaymentGatewayException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.exceptions.UnauthorizedException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
@@ -87,6 +88,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DocumentAlreadyExistsException.class)
     public ResponseEntity<String> handleDocumentAlreadyExists(DocumentAlreadyExistsException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+    
+    @ExceptionHandler(PaymentGatewayException.class)
+    public ResponseEntity<String> handleDocumentAlreadyExists(PaymentGatewayException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     }
 
     private static ResponseEntity<?> buildResponse(String message, HttpStatus status) {

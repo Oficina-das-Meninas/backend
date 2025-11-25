@@ -174,8 +174,8 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
         PaymentDto payment = payments.getLast();
 
-        paymentService.updateStatus(payment.id(), paymentStatus);
         paymentService.updatePaymentDate(payment.id(), LocalDateTime.now());
+        paymentService.updateStatus(payment.id(), paymentStatus);
 
         if (recurring) {
         	String subscriptionId = this.findSubscriptionId( new RequestSubscriptionIdCustomer(customer.name(), customer.tax_id()));
