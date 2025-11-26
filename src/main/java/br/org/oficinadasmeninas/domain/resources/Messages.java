@@ -66,6 +66,8 @@ public final class Messages {
 
     public static final String RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND = "Assinatura de doação recorrente não encontrada.";
 
+    public static final String RECURRING_DONATION_SUBSCRIPTION_FOUND_SUCCESSFULLY = "Assinatura de doação recorrente encontrada com sucesso.";
+
     public static final String EVENT_CREATED_SUCCESSFULLY = "Evento criado com sucesso.";
 
     public static final String EVENT_UPDATED_SUCCESSFULLY = "Evento atualizado com sucesso.";
