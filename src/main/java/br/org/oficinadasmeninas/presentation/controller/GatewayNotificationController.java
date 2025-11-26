@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -25,51 +24,19 @@ import java.time.LocalDateTime;
 public class GatewayNotificationController {
 
 	private final IPaymentGatewayService paymentGatewayService;
-    private final IDonationService donationService;
-    private final LogPagbankService logService;
 
-    public GatewayNotificationController(IPaymentGatewayService paymentGatewayService, IDonationService donationService, LogPagbankService logService) {
+    public GatewayNotificationController(IPaymentGatewayService paymentGatewayService, IDonationService donationService) {
 		super();
         this.paymentGatewayService = paymentGatewayService;
-        this.donationService = donationService;
-        this.logService = logService;
     }
 	
 	@PostMapping("/checkout")
     public void notifyCheckout(@RequestBody CheckoutNotificationDto request) {
-		paymentGatewayService.updateCheckoutStatus(request.id(), request.reference_id(), request.status());
+		paymentGatewayService.notifyCheckout(request);
     }
 
     @PostMapping("/payment")
     public void notifyPayment(@RequestBody PaymentNotificationDto request) throws IOException {
-        PaymentChargesDto charge = request.charges().getFirst();
-        saveLog(request);
-        boolean recurring = charge.recurring() != null;
-        ResponseWebhookCustomer customer = request.customer();
-
-        String cardBrand = charge.payment_method().card() != null 
-            ? charge.payment_method().card().brand() 
-            : null;
-        
-    	paymentGatewayService.updatePaymentStatus(request.reference_id(), charge.status(), charge.payment_method().type(), cardBrand, recurring, customer);
-    	
-
-        if (charge.status() == PaymentStatusEnum.PAID){
-            DonationDto donation = donationService.findById(request.reference_id());
-
-            paymentGatewayService.calculateAndUpdateLiquidValue(donation, charge.payment_method().type());
-            
-            if (donation.checkoutId() != null) {
-                paymentGatewayService.cancelCheckout(donation.checkoutId());
-            }
-        }
-    }
-
-    private void saveLog(Object object) throws IOException {
-    	logService.createLogPagbank(new CreateLogPagbank(
-    				"WEBHOOK NOTIFY BODY",
-    				LocalDateTime.now(),
-    				object
-    			));
+       paymentGatewayService.notifyPayment(request);
     }
 }

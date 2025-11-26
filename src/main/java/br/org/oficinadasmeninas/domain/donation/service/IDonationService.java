@@ -51,6 +51,9 @@ public interface IDonationService {
      */
     void updateMethod(UUID id, PaymentMethodEnum method);
 
+
+    List<DonationDto> findPendingCheckoutsByUserId(UUID userId);
+
     /**
      * Atualiza a taxa e o valor líquido de uma doação.
      *

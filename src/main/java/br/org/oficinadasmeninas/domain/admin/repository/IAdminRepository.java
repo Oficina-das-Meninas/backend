@@ -1,10 +1,10 @@
 package br.org.oficinadasmeninas.domain.admin.repository;
 
-import br.org.oficinadasmeninas.domain.admin.Admin;
-
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import br.org.oficinadasmeninas.domain.admin.Admin;
+import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 
 public interface IAdminRepository {
 
@@ -12,9 +12,11 @@ public interface IAdminRepository {
 
     Admin update(Admin admin);
 
-    List<Admin> findAll();
-
     Optional<Admin> findById(UUID id);
 
     Optional<Admin> findByEmail(String email);
+    
+    void updatePassword(UUID id, String encodedPassword);
+  
+    PageDTO<Admin> findByFilter(String searchTerm, int page, int pageSize);
 }

@@ -64,4 +64,28 @@ public interface IUserService {
      *         ou {@code null} se não existir
      */
     UserDto findByDocument(String document);
+    
+    /**
+     * Ativa o usuário.
+     *
+     * @param id identificador único do usuário
+     */
+    void markUserAsVerified(UUID id);
+    
+    /**
+     * Atualiza a senha do usuário.
+     *
+     * @param id identificador único do usuário
+     * @param encodedPassword nova senha encriptada
+     */
+    void updatePassword(UUID id, String encodedPassword);
+  
+    /**
+     * Busca um usuário pela sessão.
+     *
+     * @param token token de sessão
+     * @return objeto contendo os dados do usuário encontrado,
+     *         ou {@code null} se não existir
+     */
+    UserDto findByUserSession();
 }

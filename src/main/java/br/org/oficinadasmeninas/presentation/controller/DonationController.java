@@ -70,4 +70,41 @@ public class DonationController extends BaseController {
                 HttpStatus.CREATED
         );
     }
+
+    @Operation(summary = "Cancelar uma assinatura de doação recorrente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = Messages.RECURRING_DONATION_SUBSCRIPTION_CANCELED_SUCCESSFULLY),
+            @ApiResponse(responseCode = "204", description = Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND),
+            @ApiResponse(responseCode = "404", description = Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND),
+    })
+    @DeleteMapping("/recurring")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> cancelRecurringDonationSubscription(
+    ) {
+        return handle(
+                () -> {
+                    donationApplication.cancelRecurringDonationSubscription();
+                    return null;
+                },
+                Messages.RECURRING_DONATION_SUBSCRIPTION_CANCELED_SUCCESSFULLY,
+                HttpStatus.OK
+        );
+    }
+
+    @Operation(summary = "Buscar a assinatura de doação recorrente do usuário autenticado")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = Messages.RECURRING_DONATION_SUBSCRIPTION_FOUND_SUCCESSFULLY),
+            @ApiResponse(responseCode = "204", description = Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND),
+            @ApiResponse(responseCode = "404", description = Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND),
+    })
+    @GetMapping("/recurring")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> getRecurringDonationSubscription(
+    ) {
+        return handle(
+                donationApplication::getRecurringDonationSubscriptionByUserSession,
+                Messages.RECURRING_DONATION_SUBSCRIPTION_FOUND_SUCCESSFULLY,
+                HttpStatus.OK
+        );
+    }
 }

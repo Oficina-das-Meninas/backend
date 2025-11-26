@@ -10,6 +10,7 @@ public class User {
 	private String document;
 	private String password;
 	private String phone;
+	private boolean isActive;
 
 	public UUID getId() {
 		return id;
@@ -57,6 +58,14 @@ public class User {
 
 	public void setPhone(String phone) {
 		this.phone = phone;
+	}
+
+	public boolean isActive() {
+		return isActive;
+	}
+
+	public void setIsActive(boolean isInactive) {
+		this.isActive = isInactive;
 	}
 
 }

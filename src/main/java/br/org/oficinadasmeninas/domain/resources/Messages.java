@@ -60,6 +60,14 @@ public final class Messages {
 
     public static final String DONATION_CREATED_SUCCESSFULLY = "Doação criada com sucesso.";
 
+    public static final String DONATION_IS_NOT_RECURRING = "A doação informada não é recorrente.";
+
+    public static final String RECURRING_DONATION_SUBSCRIPTION_CANCELED_SUCCESSFULLY = "Assinatura de doação recorrente cancelada com sucesso.";
+
+    public static final String RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND = "Assinatura de doação recorrente não encontrada.";
+
+    public static final String RECURRING_DONATION_SUBSCRIPTION_FOUND_SUCCESSFULLY = "Assinatura de doação recorrente encontrada com sucesso.";
+
     public static final String EVENT_CREATED_SUCCESSFULLY = "Evento criado com sucesso.";
 
     public static final String EVENT_UPDATED_SUCCESSFULLY = "Evento atualizado com sucesso.";
@@ -80,6 +88,22 @@ public final class Messages {
 
     public static final String SESSION_USER_SUCCESSFULLY = "Sessão recuperada com sucesso.";
     
-    public static final String ACCESS_DENIED = "Você não ter permissão para acessar este recurso.";
+    public static final String ACCESS_DENIED = "Você não tem permissão para acessar este recurso.";
+    
+    public static final String UNAUTHORIZED = "Autenticação necessária para acessar este recurso.";
+    
+    public static final String INVALID_EMAIL_TOKEN = "Token de confirmação de e-mail inválido ou expirado.";
+    
+    public static final String INVALID_PASSWORD_TOKEN = "Token de recuperação de senha inválido ou expirado.";
+    
+    public static final String EMAIL_NOT_VERIFIED = "E-mail não verificado.";
+    
+    public static final String EMAIL_VERIFIED_SUCCESSFULLY = "E-mail confirmado com sucesso.";
+    
+    public static final String PASSWORD_CHANGED_SUCCESSFULLY = "Senha alterada com sucesso.";
+    
+    public static final String EMAIL_SENDED_SUCCESSFULLY = "E-mail enviado com sucesso.";
+
+	public static final String USER_NOT_VERIFIED = "Usuário não verificado.";
     
 }

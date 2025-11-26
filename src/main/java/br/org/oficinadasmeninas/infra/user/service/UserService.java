@@ -1,5 +1,13 @@
 package br.org.oficinadasmeninas.infra.user.service;
 
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.user.User;
 import br.org.oficinadasmeninas.domain.user.dto.CreateUserDto;
@@ -7,25 +15,22 @@ import br.org.oficinadasmeninas.domain.user.dto.UpdateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
 import br.org.oficinadasmeninas.domain.user.repository.IUserRepository;
 import br.org.oficinadasmeninas.domain.user.service.IUserService;
+import br.org.oficinadasmeninas.infra.session.service.SessionService;
 import br.org.oficinadasmeninas.infra.shared.exception.DocumentAlreadyExistsException;
 import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.UUID;
 
 @Service
 public class UserService implements IUserService {
-
+	
     private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SessionService sessionService;
 
-    public UserService(IUserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(IUserRepository userRepository, PasswordEncoder passwordEncoder, SessionService sessionService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.sessionService = sessionService;
     }
 
     @Override
@@ -37,8 +42,10 @@ public class UserService implements IUserService {
             user.setDocument(request.getDocument());
             user.setPhone(request.getPhone());
             user.setPassword(passwordEncoder.encode(request.getPassword()));
+            user.setIsActive(false);
 
             userRepository.insert(user);
+            
             return new UserDto(user);
 
         } catch (DataIntegrityViolationException e) {
@@ -117,6 +124,26 @@ public class UserService implements IUserService {
 
         var user = userRepository.findByDocument(document)
                 .orElseThrow(() -> new NotFoundException(Messages.USER_NOT_FOUND_BY_DOCUMENT + document));
+
+        return new UserDto(user);
+    }
+    
+    @Override
+    public void markUserAsVerified(UUID id) {
+      userRepository.markUserAsVerified(id);
+    }
+
+    @Override
+    public void updatePassword(UUID id, String encodedPassword) {
+      userRepository.updatePassword(id, encodedPassword);
+    }
+
+    @Override
+    public UserDto findByUserSession() {
+    	String userEmail = sessionService.getSession().getUsername();
+    	
+        var user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new NotFoundException(Messages.USER_NOT_FOUND_BY_EMAIL + userEmail));
 
         return new UserDto(user);
     }

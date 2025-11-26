@@ -24,4 +24,6 @@ public interface IDonationRepository {
     PageDTO<DonationWithDonorDto> findByFilter(GetDonationDto getDonationDto);
 
 	Optional<Donation> findById(UUID id);
+
+    List<Donation> findPendingCheckoutsByUserId(UUID userId);
 }

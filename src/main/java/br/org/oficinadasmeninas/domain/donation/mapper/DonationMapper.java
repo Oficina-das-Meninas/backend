@@ -3,6 +3,8 @@ package br.org.oficinadasmeninas.domain.donation.mapper;
 import br.org.oficinadasmeninas.domain.donation.Donation;
 import br.org.oficinadasmeninas.domain.donation.dto.CreateDonationDto;
 import br.org.oficinadasmeninas.domain.donation.dto.DonationDto;
+import br.org.oficinadasmeninas.domain.donation.dto.RecurringDonationSubscriptionResponseDto;
+import br.org.oficinadasmeninas.domain.sponsorship.dto.SponsorshipDto;
 
 import java.time.LocalDateTime;
 
@@ -34,6 +36,16 @@ public final class DonationMapper {
                 donation.getCardBrand(),
                 donation.getUserId(),
                 donation.getDonationAt()
+        );
+    }
+
+    public static RecurringDonationSubscriptionResponseDto toRecurringDonationResponseDto(SponsorshipDto sponsorshipDto) {
+        return new RecurringDonationSubscriptionResponseDto(
+                sponsorshipDto.id(),
+                sponsorshipDto.billingDay(),
+                sponsorshipDto.isActive(),
+                sponsorshipDto.startDate(),
+                sponsorshipDto.cancelDate()
         );
     }
 }

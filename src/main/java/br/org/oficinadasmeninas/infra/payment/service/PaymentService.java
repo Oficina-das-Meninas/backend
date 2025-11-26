@@ -68,7 +68,12 @@ public class PaymentService implements IPaymentService {
         paymentRepository.updateStatus(payment);
     }
 
-	@Override
+    @Override
+    public void cancelPendingPaymentByDonationId(UUID donationId) {
+        paymentRepository.cancelPaymentByDonationId(donationId);
+    }
+
+    @Override
 	public void updatePaymentDate(UUID id, LocalDateTime date) {
 	   var payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.PAYMENT_NOT_FOUND + id));

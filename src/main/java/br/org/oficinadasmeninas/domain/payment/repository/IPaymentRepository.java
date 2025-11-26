@@ -48,6 +48,8 @@ public interface IPaymentRepository {
      */
     Payment updateStatus(Payment payment);
 
+    void cancelPaymentByDonationId(UUID donationId);
+
     /**
      * Atualiza a data de um pagamento existente.
      *

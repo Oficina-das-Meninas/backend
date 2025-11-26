@@ -68,6 +68,14 @@ public class DonationService implements IDonationService {
     }
 
     @Override
+    public List<DonationDto> findPendingCheckoutsByUserId(UUID userId) {
+        return donationRepository
+                .findPendingCheckoutsByUserId(userId).stream()
+                .map(DonationMapper::toDto)
+                .toList();
+    }
+
+    @Override
     public void updateFeeAndLiquidValue(UUID id, Double fee, Double valueLiquid) {
         var donation = donationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.DONATION_NOT_FOUND + id));
