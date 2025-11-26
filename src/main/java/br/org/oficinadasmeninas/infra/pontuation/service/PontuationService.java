@@ -48,11 +48,7 @@ public class PontuationService implements IPontuationService {
         Bonuses bonuses = new Bonuses();
 
         bonuses.setFirstDonationBonus(pontuation.isFirstDonation() ? 100L : 0L);
-        bonuses.setRecurrenceBonus(
-                pontuation.getRecurrenceSequence() > 1
-                        ? (long) Math.floor(pontuation.getDonatedValue() * (pontuation.getRecurrenceSequence() / 20.0))
-                        : 0L
-        );
+        bonuses.setRecurrenceBonus(pontuation.getEarnedPoints() - pontuation.getDonatedValue());
         bonuses.setValueBonus(pontuation.getDonatedValue());
 
         return bonuses;
