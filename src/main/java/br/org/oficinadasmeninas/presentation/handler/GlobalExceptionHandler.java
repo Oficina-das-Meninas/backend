@@ -5,12 +5,8 @@ import br.org.oficinadasmeninas.infra.shared.exception.DocumentAlreadyExistsExce
 import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsException;
 import br.org.oficinadasmeninas.infra.shared.exception.EmailSendException;
 import br.org.oficinadasmeninas.infra.shared.exception.ObjectStorageException;
-import br.org.oficinadasmeninas.infra.shared.exception.TokenValidationException;
 import br.org.oficinadasmeninas.infra.shared.exception.UserNotVerifiedException;
-import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
-import br.org.oficinadasmeninas.presentation.exceptions.NoContentException;
-import br.org.oficinadasmeninas.presentation.exceptions.UnauthorizedException;
-import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
+import br.org.oficinadasmeninas.presentation.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
@@ -94,9 +90,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
     
-    @ExceptionHandler(TokenValidationException.class)
-    public ResponseEntity<String> handleTokenValidation(TokenValidationException ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<?> handleForbidden(ForbiddenException ex) {
+
+        return buildResponse(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
     
     @ExceptionHandler(EmailSendException.class)
