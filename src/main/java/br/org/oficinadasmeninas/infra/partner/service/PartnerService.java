@@ -12,7 +12,6 @@ import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -69,8 +68,12 @@ public class PartnerService implements IPartnerService {
 
     @Transactional
     public UUID deleteById(UUID id) {
-    	partnerRepository.deleteById(id);
-        return id;
+        var partner = findById(id);
+
+    	partnerRepository.deleteById(partner.getId());
+        storageService.deleteFileByPath(partner.getPreviewImageUrl());
+
+        return partner.getId();
     }
 
     public PageDTO<Partner> findAll(String searchTerm, int page, int pageSize) {

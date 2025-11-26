@@ -69,7 +69,11 @@ public class EventService implements IEventService {
     @Override
     @Transactional
     public UUID deleteById(UUID id) {
-    	eventRepository.deleteById(id);
+        var event = findById(id);
+
+    	eventRepository.deleteById(event.getId());
+        storageService.deleteFileByPath(event.getPreviewImageUrl());
+
         return id;
     }
 
