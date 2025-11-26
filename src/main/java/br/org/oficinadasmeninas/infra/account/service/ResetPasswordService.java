@@ -1,5 +1,6 @@
 package br.org.oficinadasmeninas.infra.account.service;
 
+import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,6 @@ import br.org.oficinadasmeninas.infra.auth.UserDetailsCustom;
 import br.org.oficinadasmeninas.infra.auth.service.JwtService;
 import br.org.oficinadasmeninas.infra.email.service.EmailService;
 import br.org.oficinadasmeninas.infra.shared.exception.TokenValidationException;
-import br.org.oficinadasmeninas.infra.shared.exception.UserNotVerifiedException;
 import br.org.oficinadasmeninas.infra.user.service.UserService;
 
 @Service
@@ -62,7 +62,7 @@ public class ResetPasswordService {
 	    	UserDto user = userService.findByEmail(email);
             
             if(!user.isActive()) {
-            	throw new UserNotVerifiedException(Messages.USER_NOT_VERIFIED);
+            	throw new ValidationException(Messages.USER_NOT_VERIFIED);
             }
             
             emailService.sendResetPasswordEmail(user.getEmail(), user.getName(), false);

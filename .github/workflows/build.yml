@@ -37,9 +37,9 @@ jobs:
           mkdir -p src/main/resources
 
           if [[ "${{ github.event.inputs.ENVIRONMENT }}" == "development" ]]; then
-            echo "${{ secrets.APPLICATION_DEVELOPMENT_PROPERTIES }}" > src/main/resources/application.properties
+            echo "${{ vars.APPLICATION_DEVELOPMENT_PROPERTIES }}" > src/main/resources/application.properties
           else
-            echo "${{ secrets.APPLICATION_PRODUCTION_PROPERTIES }}" > src/main/resources/application.properties
+            echo "${{ vars.APPLICATION_PRODUCTION_PROPERTIES }}" > src/main/resources/application.properties
           fi
 
       # Debug opcional
