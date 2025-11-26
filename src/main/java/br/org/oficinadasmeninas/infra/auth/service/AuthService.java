@@ -27,6 +27,7 @@ public class AuthService {
 	
 	private static final boolean IS_ADMIN = true;
 	private static final String ACCESS_TOKEN = "access_token";
+	private static final String ADMIN_DOMAIN_KEYWORD = "admin";
 
 	private final IAdminService adminService;
 	private final IUserService userService;
@@ -48,8 +49,13 @@ public class AuthService {
 		this.emailService = emailService;
 	}
 	
-	public LoginResponseDto login(LoginUserDto loginUserDto, HttpServletResponse response) {
-		UserDetailsCustom authenticatedUser = authenticate(loginUserDto);
+	public LoginResponseDto login(LoginUserDto loginUserDto,  HttpServletRequest request, HttpServletResponse response) {
+		String origin = request.getHeader("Origin");
+	    if (origin == null) {
+	        origin = request.getHeader("Host");
+	    }
+		
+		UserDetailsCustom authenticatedUser = authenticate(loginUserDto, origin);
 		
 		String jwtToken  = jwtService.generateUserSessionToken(authenticatedUser);
 		long expirationTime = jwtService.getTokenExpirationProperties().getUserSession();
@@ -89,20 +95,17 @@ public class AuthService {
 		return userDto;
 	}
 
-	private UserDetailsCustom authenticate(LoginUserDto loginUserDTO) {
+	private UserDetailsCustom authenticate(LoginUserDto loginUserDTO, String origin) {
 		authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(loginUserDTO.getEmail(), loginUserDTO.getPassword()));
 
-		try {
+		boolean isRequestFromAdminDomain = origin != null && origin.contains(ADMIN_DOMAIN_KEYWORD);
+		if(isRequestFromAdminDomain) {
 			AdminDto admin = adminService.findByEmail(loginUserDTO.getEmail());
-
-			if (admin != null) {
-				return createUserDetailsCustom(admin, loginUserDTO.getPassword());
-			}
-		}catch(Exception e) {}
-
-		UserDto user = userService.findByEmail(loginUserDTO.getEmail());
+			return createUserDetailsCustom(admin, loginUserDTO.getPassword());
+		}
 		
+		UserDto user = userService.findByEmail(loginUserDTO.getEmail());
 		if(!user.isActive()) {
 			throw new EmailNotVerifiedException(Messages.EMAIL_NOT_VERIFIED);
 		}
