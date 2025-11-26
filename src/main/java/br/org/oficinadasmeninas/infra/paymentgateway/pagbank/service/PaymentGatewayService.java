@@ -275,8 +275,9 @@ public class PaymentGatewayService implements IPaymentGatewayService {
         PaymentChargesDto charge = request.charges().getFirst();
         boolean recurring = charge.recurring() != null;
         ResponseWebhookCustomer customer = request.customer();
-        updatePaymentStatus(request.reference_id(), charge.status(), charge.payment_method().type(), recurring, customer);
-
+        updatePaymentStatus(request.reference_id(), charge.status(), charge.payment_method().type(),
+                charge.payment_method().card().brand(),recurring,
+                customer);
 
         if (charge.status() == PaymentStatusEnum.PAID){
             DonationDto donation = donationService.findById(request.reference_id());
