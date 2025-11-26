@@ -3,6 +3,7 @@ package br.org.oficinadasmeninas.infra.user.service;
 import java.util.List;
 import java.util.UUID;
 
+import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -35,28 +36,23 @@ public class UserService implements IUserService {
 
     @Override
     public UserDto insert(CreateUserDto request) {
-        try {
-            var user = new User();
-            user.setName(request.getName());
-            user.setEmail(request.getEmail());
-            user.setDocument(request.getDocument());
-            user.setPhone(request.getPhone());
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
-            user.setIsActive(false);
 
-            userRepository.insert(user);
-            
-            return new UserDto(user);
+        if (userRepository.existsByEmail(request.getEmail()))
+            throw new ValidationException(Messages.EMAIL_ALREADY_EXISTS);
 
-        } catch (DataIntegrityViolationException e) {
-            if (userRepository.existsByEmail(request.getEmail())) {
-                throw new EmailAlreadyExistsException();
-            }
-            if (userRepository.existsByDocument(request.getDocument())) {
-                throw new DocumentAlreadyExistsException();
-            }
-            throw e;
-        }
+        if (userRepository.existsByDocument(request.getDocument()))
+            throw new ValidationException(Messages.DOCUMENT_ALREADY_EXISTS);
+
+        var user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setDocument(request.getDocument());
+        user.setPhone(request.getPhone());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setIsActive(false);
+
+        userRepository.insert(user);
+        return new UserDto(user);
     }
 
     @Override
