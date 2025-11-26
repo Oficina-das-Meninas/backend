@@ -54,7 +54,7 @@ public class PontuationRepository implements IPontuationRepository {
                 rs.getObject("id", java.util.UUID.class),
                 rs.getObject("user_id", java.util.UUID.class),
                 rs.getObject("payment_id", java.util.UUID.class),
-                rs.getLong("donated_value"),
+                rs.getDouble("donated_value"),
                 rs.getObject("donated_date", LocalDateTime.class),
                 rs.getLong("earned_points"),
                 rs.getLong("total_points"),
