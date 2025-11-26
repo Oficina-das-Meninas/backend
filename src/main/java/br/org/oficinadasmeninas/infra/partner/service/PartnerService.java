@@ -11,6 +11,8 @@ import br.org.oficinadasmeninas.infra.shared.exception.ObjectStorageException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -26,6 +28,7 @@ public class PartnerService implements IPartnerService {
         this.storageService = storageService;
     }
 
+    @Transactional
     public UUID insert(CreatePartnerDto request) {
 
         try {
@@ -36,6 +39,7 @@ public class PartnerService implements IPartnerService {
             partner.setName(request.name());
 
             partnerRepository.insert(partner);
+
             return partner.getId();
 
         } catch (IOException e) {
@@ -43,6 +47,7 @@ public class PartnerService implements IPartnerService {
         }
     }
 
+    @Transactional
     public UUID update(UUID id, UpdatePartnerDto request) {
 
         var partner = partnerRepository.findById(id)
@@ -62,6 +67,7 @@ public class PartnerService implements IPartnerService {
         }
     }
 
+    @Transactional
     public UUID deleteById(UUID id) {
     	partnerRepository.deleteById(id);
         return id;
