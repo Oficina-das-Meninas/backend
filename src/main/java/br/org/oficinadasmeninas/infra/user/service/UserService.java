@@ -6,7 +6,6 @@ import java.util.UUID;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.user.User;
@@ -134,8 +133,8 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void updatePassword(UUID id, String encodedPassword) {
-      userRepository.updatePassword(id, encodedPassword);
+    public void updatePassword(UUID accountId, String encodedPassword) {
+      userRepository.updatePassword(accountId, encodedPassword);
     }
 
     @Override

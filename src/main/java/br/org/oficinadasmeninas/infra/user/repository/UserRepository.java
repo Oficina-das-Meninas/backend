@@ -1,18 +1,17 @@
 package br.org.oficinadasmeninas.infra.user.repository;
 
-import br.org.oficinadasmeninas.domain.user.User;
-import br.org.oficinadasmeninas.domain.user.repository.IUserRepository;
-import br.org.oficinadasmeninas.infra.admin.repository.AdminQueryBuilder;
-
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+import br.org.oficinadasmeninas.domain.user.User;
+import br.org.oficinadasmeninas.domain.user.repository.IUserRepository;
 
 @Repository
 public class UserRepository implements IUserRepository {
@@ -27,9 +26,8 @@ public class UserRepository implements IUserRepository {
     public User insert(User user) {
     	
     	var accountId = UUID.randomUUID();
-        
         jdbc.update(
-                AdminQueryBuilder.INSERT_ACCOUNT,
+        		UserQueryBuilder.INSERT_ACCOUNT,
                 accountId,
                 user.getName(),
                 user.getEmail(),
@@ -38,6 +36,7 @@ public class UserRepository implements IUserRepository {
     	
         var userId = UUID.randomUUID();
         user.setId(userId);
+        user.setAccountId(accountId);
 
         jdbc.update(
                 UserQueryBuilder.INSERT_USER,
@@ -55,13 +54,18 @@ public class UserRepository implements IUserRepository {
     public User update(User user) {
 
         jdbc.update(
-                UserQueryBuilder.UPDATE_USER,
-                user.getName(),
-                user.getEmail(),
-                user.getPassword(),
-                user.getPhone(),
-                user.getDocument(),
-                user.getId()
+            UserQueryBuilder.UPDATE_ACCOUNT,
+            user.getName(),
+            user.getEmail(),
+            user.getPassword(),
+            user.getAccountId()
+        );
+        
+        jdbc.update(
+            UserQueryBuilder.UPDATE_USER,
+            user.getPhone(),
+            user.getDocument(),
+            user.getId()
         );
 
         return user;
@@ -106,12 +110,12 @@ public class UserRepository implements IUserRepository {
     }
 
     @Override
-    public Optional<User> findByDocument(String email) {
+    public Optional<User> findByDocument(String document) {
         try {
             var user = jdbc.queryForObject(
                     UserQueryBuilder.FIND_USER_BY_DOCUMENT,
                     this::mapRowUser,
-                    email
+                    document
             );
 
             return Optional.ofNullable(user);
@@ -152,11 +156,11 @@ public class UserRepository implements IUserRepository {
 	}
     
     @Override
-	public void updatePassword(UUID id, String encodedPassword) {
+	public void updatePassword(UUID accountId, String encodedPassword) {
 		jdbc.update(
                 UserQueryBuilder.UPDATE_PASSWORD,
                 encodedPassword,
-                id
+                accountId
         );
 	}
 
@@ -172,6 +176,5 @@ public class UserRepository implements IUserRepository {
         user.setIsActive(rs.getBoolean("is_active"));
         return user;
     }
-	
 	
 }

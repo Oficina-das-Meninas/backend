@@ -1,18 +1,12 @@
 package br.org.oficinadasmeninas.infra.admin.repository;
 
-import br.org.oficinadasmeninas.domain.admin.Admin;
-import br.org.oficinadasmeninas.domain.admin.repository.IAdminRepository;
-
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -116,7 +110,7 @@ public class AdminRepository implements IAdminRepository {
             );
 
             return Optional.ofNullable(admin);
-        } catch (EmptyResultDataAccessException e) {
+        } catch (IncorrectResultSizeDataAccessException e) {
             return Optional.empty();
         }
     }

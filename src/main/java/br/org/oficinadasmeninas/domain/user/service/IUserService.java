@@ -75,10 +75,10 @@ public interface IUserService {
     /**
      * Atualiza a senha do usuário.
      *
-     * @param id identificador único do usuário
+     * @param accountId identificador único da conta do usuário
      * @param encodedPassword nova senha encriptada
      */
-    void updatePassword(UUID id, String encodedPassword);
+    void updatePassword(UUID accountId, String encodedPassword);
   
     /**
      * Busca um usuário pela sessão.
