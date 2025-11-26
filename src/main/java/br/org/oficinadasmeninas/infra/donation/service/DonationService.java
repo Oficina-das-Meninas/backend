@@ -66,4 +66,23 @@ public class DonationService implements IDonationService {
         donation.setMethod(method);
         donationRepository.updateMethod(donation);
     }
+
+    @Override
+    public void updateFeeAndLiquidValue(UUID id, Double fee, Double valueLiquid) {
+        var donation = donationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Messages.DONATION_NOT_FOUND + id));
+
+        donation.setFee(fee);
+        donation.setValueLiquid(valueLiquid);
+        donationRepository.updateFeeAndLiquidValue(donation);
+    }
+
+    @Override
+    public void updateCardBrand(UUID id, String cardBrand) {
+        var donation = donationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Messages.DONATION_NOT_FOUND + id));
+
+        donation.setCardBrand(cardBrand);
+        donationRepository.updateCardBrand(donation);
+    }
 }

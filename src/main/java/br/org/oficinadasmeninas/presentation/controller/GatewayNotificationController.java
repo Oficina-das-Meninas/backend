@@ -46,11 +46,19 @@ public class GatewayNotificationController {
         saveLog(request);
         boolean recurring = charge.recurring() != null;
         ResponseWebhookCustomer customer = request.customer();
-    	paymentGatewayService.updatePaymentStatus(request.reference_id(), charge.status(), charge.payment_method().type(), recurring, customer);
+
+        String cardBrand = charge.payment_method().card() != null 
+            ? charge.payment_method().card().brand() 
+            : null;
+        
+    	paymentGatewayService.updatePaymentStatus(request.reference_id(), charge.status(), charge.payment_method().type(), cardBrand, recurring, customer);
     	
 
         if (charge.status() == PaymentStatusEnum.PAID){
             DonationDto donation = donationService.findById(request.reference_id());
+
+            paymentGatewayService.calculateAndUpdateLiquidValue(donation, charge.payment_method().type());
+            
             if (donation.checkoutId() != null) {
                 paymentGatewayService.cancelCheckout(donation.checkoutId());
             }

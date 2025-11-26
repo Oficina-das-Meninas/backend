@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+import br.org.oficinadasmeninas.domain.donation.dto.DonationDto;
 import br.org.oficinadasmeninas.domain.payment.dto.PaymentDto;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,20 +20,20 @@ import br.org.oficinadasmeninas.domain.payment.service.IPaymentService;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.ResponseCreateCheckoutDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
-import br.org.oficinadasmeninas.domain.sponsorship.Sponsorship;
 import br.org.oficinadasmeninas.domain.sponsorship.dto.SponsorshipDto;
 import br.org.oficinadasmeninas.domain.sponsorship.dto.UpdateSponsorshipDto;
 import br.org.oficinadasmeninas.domain.sponsorship.service.ISponsorshipService;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
 import br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCalculateFeesDto;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutConfig;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutPagbank;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutRecurrenceInterval;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestSubscriptionIdCustomer;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseCalculateFeesDto;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseCreateCheckoutLink;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseCreateCheckoutPagbank;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseFindSubscriptionId;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseFindSubscriptionIdSubscription;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseSignatureCustomer;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseWebhookCustomer;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.mappers.RequestCreateCheckoutPagbankMapper;
@@ -143,7 +144,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
     }
 
     @Override
-    public void updatePaymentStatus(UUID donationId, PaymentStatusEnum paymentStatus, PaymentMethodEnum paymentMethod, boolean recurring, ResponseWebhookCustomer customer) {
+    public void updatePaymentStatus(UUID donationId, PaymentStatusEnum paymentStatus, PaymentMethodEnum paymentMethod, String cardBrand, boolean recurring, ResponseWebhookCustomer customer) {
 
         List<PaymentDto> payments = paymentService.findByDonationId(donationId);
 
@@ -158,6 +159,11 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
         // Atualizar método de pagamento e gateway na donation
         donationService.updateMethod(donationId, paymentMethod);
+        
+        // Atualizar bandeira do cartão se disponível
+        if (cardBrand != null && !cardBrand.isBlank()) {
+            donationService.updateCardBrand(donationId, cardBrand);
+        }
 
         if (recurring) {
         	String subscriptionId = this.findSubscriptionId( new RequestSubscriptionIdCustomer(customer.name(), customer.tax_id()));
@@ -220,5 +226,141 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 		} catch (Exception e) {
 			throw new PaymentGatewayException(e.toString());
 		}
+	}
+
+	@Override
+	public ResponseCalculateFeesDto calculateTransactionFees(RequestCalculateFeesDto request) {
+		try {
+			StringBuilder uriBuilder = new StringBuilder("/charges/fees/calculate?");
+
+			if (request.paymentMethods() != null && !request.paymentMethods().isEmpty()) {
+				for (String method : request.paymentMethods()) {
+					uriBuilder.append("payment_methods[]=").append(method).append("&");
+				}
+			}
+
+			if (request.value() != null) {
+				uriBuilder.append("value=").append(request.value()).append("&");
+			}
+
+			if (request.maxInstallments() != null) {
+				uriBuilder.append("max_installments=").append(request.maxInstallments()).append("&");
+			}
+
+			String uri = uriBuilder.toString();
+			if (uri.endsWith("&")) {
+				uri = uri.substring(0, uri.length() - 1);
+			}
+
+            return webClient.get()
+                    .uri(uri)
+                    .header("Authorization", "Bearer " + token)
+                    .header("Content-Type", "application/json")
+                    .retrieve()
+                    .bodyToMono(ResponseCalculateFeesDto.class)
+                    .block();
+			
+		} catch (WebClientResponseException e) {
+			throw new PaymentGatewayException(e.getStatusCode() + " " + e.getStatusText() + " " + e.getResponseBodyAsString());
+		} catch (Exception e) {
+			throw new PaymentGatewayException("Erro ao calcular taxas: " + e.getMessage());
+		}
+	}
+
+	@Override
+	public void calculateAndUpdateLiquidValue(DonationDto donation, PaymentMethodEnum paymentMethod) {
+		try {
+			if (paymentMethod == PaymentMethodEnum.DEBIT_CARD) {
+				donationService.updateFeeAndLiquidValue(donation.id(), 0.0, donation.value());
+				return;
+			}
+
+			int valueInCents = (int) (donation.value() * 100);
+
+			String paymentMethodString = switch (paymentMethod) {
+				case CREDIT_CARD -> "CREDIT_CARD";
+				case PIX -> "PIX";
+				case BOLETO -> "BOLETO";
+				default -> null;
+			};
+
+			if (paymentMethodString == null) {
+				return;
+			}
+
+			RequestCalculateFeesDto request = new RequestCalculateFeesDto(
+				List.of(paymentMethodString),
+				valueInCents,
+				null
+			);
+
+			ResponseCalculateFeesDto feesResponse = calculateTransactionFees(request);
+
+			Double feeInCents = extractFeeFromResponse(feesResponse, paymentMethod, donation.cardBrand());
+
+			if (feeInCents != null) {
+				double feeInReais = feeInCents / 100.0;
+				double liquidValue = donation.value() - feeInReais;
+
+				donationService.updateFeeAndLiquidValue(donation.id(), feeInReais, liquidValue);
+			}
+
+		} catch (Exception e) {
+			System.err.println("Erro ao calcular valor líquido: " + e.getMessage());
+		}
+	}
+
+	private Double extractFeeFromResponse(ResponseCalculateFeesDto response, PaymentMethodEnum paymentMethod, String cardBrand) {
+		if (response.paymentMethods() == null) {
+			return null;
+		}
+
+		return switch (paymentMethod) {
+			case CREDIT_CARD -> extractCreditCardFee(response, cardBrand);
+			case PIX -> response.paymentMethods().pix() != null && response.paymentMethods().pix().amount() != null
+				? response.paymentMethods().pix().amount().value().doubleValue()
+				: null;
+			case BOLETO -> response.paymentMethods().boleto() != null && response.paymentMethods().boleto().amount() != null
+				? response.paymentMethods().boleto().amount().value().doubleValue()
+				: null;
+			default -> null;
+		};
+	}
+
+	private Double extractCreditCardFee(ResponseCalculateFeesDto response, String cardBrand) {
+		if (response.paymentMethods().creditCard() == null || cardBrand == null) {
+			return null;
+		}
+
+		var creditCard = response.paymentMethods().creditCard();
+		String normalizedBrand = cardBrand.toLowerCase();
+
+		var brandData = creditCard.getBrand(normalizedBrand);
+
+		if (brandData != null && brandData.installmentPlans() != null) {
+			return extractFeeFromInstallmentPlan(brandData.installmentPlans());
+		}
+
+		return null;
+	}
+
+	private Double extractFeeFromInstallmentPlan(List<br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseCalculateFeesInstallmentPlan> installmentPlans) {
+		if (installmentPlans == null || installmentPlans.isEmpty()) {
+			return null;
+		}
+
+		// Buscar o plano de 1x (à vista) para pegar o valor total com taxas
+		var firstInstallment = installmentPlans.stream()
+			.filter(plan -> plan.installments() != null && plan.installments() == 1)
+			.findFirst()
+			.orElse(installmentPlans.getFirst());
+
+		if (firstInstallment == null || firstInstallment.amount() == null) {
+			return null;
+		}
+
+		// Calcular a taxa: valor total - valor original
+		// O amount.value() contém o valor total (original + taxas)
+		return firstInstallment.amount().value().doubleValue();
 	}
 }

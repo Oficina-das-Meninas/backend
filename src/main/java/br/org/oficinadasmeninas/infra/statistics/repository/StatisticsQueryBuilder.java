@@ -3,8 +3,8 @@ package br.org.oficinadasmeninas.infra.statistics.repository;
 public class StatisticsQueryBuilder {
 
     public static final String GET_INDICATORS = """
-            SELECT ROUND(COALESCE(SUM(d.value), 0) ::numeric, 2) as total_donation
-                  ,ROUND(COALESCE(AVG(d.value), 0)::numeric, 2) as average_donation_value
+            SELECT ROUND(COALESCE(SUM(d.value - COALESCE(d.fee, 0)), 0) ::numeric, 2) as total_donation
+                  ,ROUND(COALESCE(AVG(d.value - COALESCE(d.fee, 0)), 0)::numeric, 2) as average_donation_value
             	  ,COUNT(DISTINCT d.user_id) as total_donors
             	  ,(SELECT COUNT(*) FROM sponsorships WHERE is_active = true) as active_sponsorships
             FROM donation d
@@ -13,9 +13,9 @@ public class StatisticsQueryBuilder {
             """;
 
     public static final String GET_DONATION_TYPE_DISTRIBUTION = """
-            SELECT ROUND(COALESCE(SUM(CASE WHEN d.sponsorship_id IS NULL THEN d.value ELSE 0 END), 0)::numeric, 2) as one_time_donation
-                  ,ROUND(COALESCE(SUM(CASE WHEN d.sponsorship_id IS NOT NULL THEN d.value ELSE 0 END), 0)::numeric, 2) as recurring_donation
-                  ,ROUND(COALESCE(SUM(d.value), 0)::numeric, 2) as total_donation
+            SELECT ROUND(COALESCE(SUM(CASE WHEN d.sponsorship_id IS NULL THEN d.value - COALESCE(d.fee, 0) ELSE 0 END), 0)::numeric, 2) as one_time_donation
+                  ,ROUND(COALESCE(SUM(CASE WHEN d.sponsorship_id IS NOT NULL THEN d.value - COALESCE(d.fee, 0) ELSE 0 END), 0)::numeric, 2) as recurring_donation
+                  ,ROUND(COALESCE(SUM(d.value - COALESCE(d.fee, 0)), 0)::numeric, 2) as total_donation
             FROM donation d
             WHERE (?::timestamp IS NULL OR d.donation_at >= ?)
               AND (?::timestamp IS NULL OR d.donation_at <= ?)
@@ -24,7 +24,7 @@ public class StatisticsQueryBuilder {
     public static final String GET_DONATIONS_BY_MONTH = """
             SELECT TO_CHAR(d.donation_at, 'YYYY-MM') as period
                   ,CASE WHEN d.sponsorship_id IS NULL THEN 'ONE_TIME' ELSE 'RECURRING' END as donation_type
-                  ,COALESCE(SUM(d.value), 0) as total_value
+                  ,COALESCE(SUM(d.value - COALESCE(d.fee, 0)), 0) as total_value
             FROM donation d
             WHERE (?::timestamp IS NULL OR d.donation_at >= ?)
               AND (?::timestamp IS NULL OR d.donation_at <= ?)
@@ -35,7 +35,7 @@ public class StatisticsQueryBuilder {
     public static final String GET_DONATIONS_BY_DAY = """
             SELECT TO_CHAR(d.donation_at, 'YYYY-MM-DD') as period
                   ,CASE WHEN d.sponsorship_id IS NULL THEN 'ONE_TIME' ELSE 'RECURRING' END as donation_type
-                  ,COALESCE(SUM(d.value), 0) as total_value
+                  ,COALESCE(SUM(d.value - COALESCE(d.fee, 0)), 0) as total_value
             FROM donation d
             WHERE (?::timestamp IS NULL OR d.donation_at >= ?)
               AND (?::timestamp IS NULL OR d.donation_at <= ?)

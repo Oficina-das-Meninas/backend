@@ -1,10 +1,13 @@
 package br.org.oficinadasmeninas.domain.paymentgateway.service;
 
+import br.org.oficinadasmeninas.domain.donation.dto.DonationDto;
 import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.ResponseCreateCheckoutDto;
  import br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCalculateFeesDto;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestSubscriptionIdCustomer;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseCalculateFeesDto;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseWebhookCustomer;
 
 import java.util.UUID;
@@ -49,11 +52,12 @@ public interface IPaymentGatewayService {
 	 * @param paymentId     identificador único do pagamento no sistema interno
 	 * @param paymentStatus novo status do pagamento ({@link PaymentStatusEnum})
 	 * @param paymentMethod método de pagamento utilizado ({@link PaymentMethodEnum})
+	 * @param cardBrand     bandeira do cartão (se aplicável)
 	 * @param recurring     indica se o pagamento faz parte de uma recorrência
 	 * @param customer      informações do cliente associadas ao pagamento
 	 */
 	void updatePaymentStatus(UUID paymentId, PaymentStatusEnum paymentStatus, PaymentMethodEnum paymentMethod,
-							 boolean recurring, ResponseWebhookCustomer customer);
+							 String cardBrand, boolean recurring, ResponseWebhookCustomer customer);
 
 	/**
 	 * Atualiza o status de um checkout existente no gateway de pagamentos.
@@ -71,9 +75,33 @@ public interface IPaymentGatewayService {
 	 * Busca junto a plataforma de pagamentos o ID intenro da assinatura deles
 	 * <p>
 	 *	 *
-	 * @param document   identificador do assinante
+	 * @param customer   informações do assinante
 	 */
-	
 	String findSubscriptionId(RequestSubscriptionIdCustomer customer);
+	
+	/**
+	 * Calcula as taxas de transação para diferentes métodos de pagamento.
+	 * <p>
+	 * Este método permite consultar as taxas e simular o cálculo de valores
+	 * com parcelamento, incluindo informações sobre juros e valores de parcelas.
+	 *
+	 * @param request objeto contendo os parâmetros para cálculo de taxas,
+	 *                incluindo valor da transação, número de parcelas e
+	 *                opções de parcelamento sem juros
+	 * @return objeto {@link ResponseCalculateFeesDto} contendo as taxas
+	 *         e planos de parcelamento disponíveis para cada bandeira de cartão
+	 */
+	ResponseCalculateFeesDto calculateTransactionFees(RequestCalculateFeesDto request);
+	
+	/**
+	 * Calcula as taxas e atualiza o valor líquido de uma doação.
+	 * <p>
+	 * Este método calcula as taxas do gateway de pagamento e atualiza
+	 * o valor líquido (valor da doação - taxas) no banco de dados.
+	 *
+	 * @param donation objeto contendo os dados da doação
+	 * @param paymentMethod método de pagamento utilizado
+	 */
+	void calculateAndUpdateLiquidValue(DonationDto donation, PaymentMethodEnum paymentMethod);
 	
 }

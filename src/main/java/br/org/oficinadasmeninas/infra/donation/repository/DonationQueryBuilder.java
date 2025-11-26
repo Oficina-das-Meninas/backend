@@ -19,24 +19,24 @@ public class DonationQueryBuilder {
         """;
 
     public static final String INSERT_DONATION = """
-			    INSERT INTO donation (id, value, checkout_id, gateway, sponsorship_id, method, user_id, donation_at)
-			    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+			    INSERT INTO donation (id, value, fee, checkout_id, gateway, sponsorship_id, method, user_id, donation_at)
+			    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 			""";
 
 	public static final String SELECT_DONATION_BY_ID = """
-			    SELECT id, value, checkout_id, gateway, sponsorship_id, method, user_id, donation_at
+			    SELECT id, value, fee, checkout_id, gateway, sponsorship_id, method, user_id, donation_at
 			    FROM donation
 			    WHERE id = ?
 			""";
 	
 	public static final String SELECT_DONATION_BY_USER_ID = """
-		    SELECT id, value, checkout_id, gateway, sponsorship_id, method, user_id, donation_at
+		    SELECT id, value, fee, checkout_id, gateway, sponsorship_id, method, user_id, donation_at
 		    FROM donation
 		    WHERE user_id = ?
 		""";
 
 	public static final String SELECT_ALL_DONATIONS = """
-			    SELECT id, value, checkout_id, gateway, sponsorship_id, method, user_id, donation_at
+			    SELECT id, value, fee, checkout_id, gateway, sponsorship_id, method, user_id, donation_at
 			    FROM donation
 			""";
 
@@ -44,6 +44,18 @@ public class DonationQueryBuilder {
 	public static final String UPDATE_DONATION_METHOD = """
 			    UPDATE donation
 			    SET method = ?
+			    WHERE id = ?
+			""";
+
+	public static final String UPDATE_FEE_AND_LIQUID_VALUE = """
+			    UPDATE donation
+			    SET fee = ?, value_liquid = ?
+			    WHERE id = ?
+			""";
+
+	public static final String UPDATE_CARD_BRAND = """
+			    UPDATE donation
+			    SET card_brand = ?
 			    WHERE id = ?
 			""";
 

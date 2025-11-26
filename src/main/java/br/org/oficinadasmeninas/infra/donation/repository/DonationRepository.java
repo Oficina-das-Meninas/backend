@@ -37,6 +37,7 @@ public class DonationRepository implements IDonationRepository {
                 DonationQueryBuilder.INSERT_DONATION,
                 id,
                 donation.getValue(),
+                donation.getFee(),
                 donation.getCheckoutId(),
                 donation.getGateway() != null ? donation.getGateway().name() : null,
                 donation.getSponsorshipId(),
@@ -55,6 +56,31 @@ public class DonationRepository implements IDonationRepository {
         jdbc.update(
                 DonationQueryBuilder.UPDATE_DONATION_METHOD,
                 donation.getMethod() != null ? donation.getMethod().name() : null,
+                donation.getId()
+        );
+
+        return donation;
+    }
+
+    @Override
+    public Donation updateFeeAndLiquidValue(Donation donation) {
+
+        jdbc.update(
+                DonationQueryBuilder.UPDATE_FEE_AND_LIQUID_VALUE,
+                donation.getFee(),
+                donation.getValueLiquid(),
+                donation.getId()
+        );
+
+        return donation;
+    }
+
+    @Override
+    public Donation updateCardBrand(Donation donation) {
+
+        jdbc.update(
+                DonationQueryBuilder.UPDATE_CARD_BRAND,
+                donation.getCardBrand(),
                 donation.getId()
         );
 
@@ -130,6 +156,7 @@ public class DonationRepository implements IDonationRepository {
 		Donation donation = new Donation();
 		donation.setId(rs.getObject("id", UUID.class));
 		donation.setValue(rs.getDouble("value"));
+		donation.setFee(rs.getObject("fee", Double.class));
 		donation.setCheckoutId(rs.getString("checkout_id"));
 
 		String gateway = rs.getString("gateway");
