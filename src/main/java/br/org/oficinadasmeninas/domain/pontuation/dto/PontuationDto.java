@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public record PontuationDto(
     UUID id,
-    Long donatedValue,
+    double donatedValue,
     LocalDateTime donatedDate,
     Long earnedPoints,
     Long totalPoints,

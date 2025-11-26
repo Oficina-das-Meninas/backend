@@ -48,10 +48,10 @@ public class AuthController extends BaseController {
 
 	@PostMapping("/login")
 	public ResponseEntity<?> authenticate(
-		@RequestBody LoginUserDto loginUserDto, HttpServletResponse response
+		@RequestBody LoginUserDto loginUserDto, HttpServletRequest request, HttpServletResponse response
 	) {
 		return handle(
-			() -> authService.login(loginUserDto, response),
+			() -> authService.login(loginUserDto, request, response),
 			Messages.AUTH_LOGIN_SUCCESSFULLY
 		);
 	}

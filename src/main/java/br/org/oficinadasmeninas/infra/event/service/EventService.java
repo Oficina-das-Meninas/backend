@@ -11,6 +11,7 @@ import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
@@ -28,6 +29,7 @@ public class EventService implements IEventService {
     }
 
     @Override
+    @Transactional
     public UUID insert(CreateEventDto request) {
 
         var previewFileName = uploadMultipartFile(request.previewImage());
@@ -42,6 +44,7 @@ public class EventService implements IEventService {
     }
 
     @Override
+    @Transactional
     public UUID update(UUID id, UpdateEventDto request) {
 
         var event = eventRepository.findById(id)
@@ -64,6 +67,7 @@ public class EventService implements IEventService {
     }
 
     @Override
+    @Transactional
     public UUID deleteById(UUID id) {
     	eventRepository.deleteById(id);
         return id;
