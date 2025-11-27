@@ -8,7 +8,7 @@ public class Pontuation {
     private UUID id;
     private UUID userId;
     private UUID paymentId;
-    private Long donatedValue;
+    private double donatedValue;
     private LocalDateTime donatedDate;
     private Long earnedPoints;
     private Long totalPoints;
@@ -20,7 +20,7 @@ public class Pontuation {
             UUID id,
             UUID userId,
             UUID paymentId,
-            Long donatedValue,
+            double donatedValue,
             LocalDateTime donatedDate,
             Long earnedPoints,
             Long totalPoints,
@@ -56,7 +56,7 @@ public class Pontuation {
         this.userId = userId;
     }
 
-    public Long getDonatedValue() {
+    public double getDonatedValue() {
         return donatedValue;
     }
 

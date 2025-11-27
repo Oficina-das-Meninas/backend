@@ -32,7 +32,7 @@ public class AdminRepository implements IAdminRepository {
                 admin.getEmail(),
                 admin.getPassword()
         );
-        
+
         var adminId = UUID.randomUUID();
         admin.setId(adminId);
 
@@ -60,21 +60,40 @@ public class AdminRepository implements IAdminRepository {
     }
 
     @Override
-    public PageDTO<Admin> findByFilter(String searchTerm, int page, int pageSize){
-    	var admins = jdbc.query(
+    public void deleteById(UUID id) {
+        jdbc.update(AdminQueryBuilder.DELETE_ADMIN, id);
+    }
+
+    @Override
+    public boolean existsById(UUID id) {
+
+        return Boolean.TRUE.equals(
+                jdbc.queryForObject(
+                        AdminQueryBuilder.EXISTS_ADMIN_BY_ID,
+                        Boolean.class,
+                        id
+                )
+        );
+    }
+
+    @Override
+    public PageDTO<Admin> findByFilter(String searchTerm, int page, int pageSize) {
+        var admins = jdbc.query(
                 AdminQueryBuilder.GET_FILTERED_ADMINS,
                 this::mapRowAdmin,
                 searchTerm,
-                searchTerm
+                searchTerm,
+                pageSize,
+                page * pageSize
         );
-    	
-    	var total = jdbc.queryForObject(
-    			AdminQueryBuilder.SELECT_COUNT,
+
+        var total = jdbc.queryForObject(
+                AdminQueryBuilder.SELECT_COUNT,
                 Integer.class,
                 searchTerm,
                 searchTerm
         );
-    	
+
         if (total == null) total = 0;
 
         int totalPages = Math.toIntExact((total / pageSize) + (total % pageSize == 0 ? 0 : 1));

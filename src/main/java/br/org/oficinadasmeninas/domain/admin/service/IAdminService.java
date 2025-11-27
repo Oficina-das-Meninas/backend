@@ -30,6 +30,14 @@ public interface IAdminService {
      * @param admin objeto contendo os novos dados do administrador
      */
     UUID update(UUID id, UpdateAdminDto admin);
+
+    /**
+     * Exclui um admin com base no seu identificador.
+     *
+     * @param id identificador único ({@link UUID}) do admin a ser removida; não deve ser {@code null}
+     * @return o identificador único ({@link UUID}) do admin excluída
+     */
+    UUID deleteById(UUID id);
     
     /**
      * Retorna os administradores filtrados conforme os critérios de pesquisa.
