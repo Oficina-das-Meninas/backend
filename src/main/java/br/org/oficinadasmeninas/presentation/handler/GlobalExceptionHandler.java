@@ -1,13 +1,9 @@
 package br.org.oficinadasmeninas.presentation.handler;
 
 import br.org.oficinadasmeninas.domain.Response;
-import br.org.oficinadasmeninas.infra.shared.exception.DocumentAlreadyExistsException;
-import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsException;
 import br.org.oficinadasmeninas.infra.shared.exception.EmailSendException;
 import br.org.oficinadasmeninas.infra.shared.exception.ObjectStorageException;
-import br.org.oficinadasmeninas.infra.shared.exception.UserNotVerifiedException;
 import br.org.oficinadasmeninas.presentation.exceptions.*;
-import io.netty.channel.ConnectTimeoutException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -89,11 +85,6 @@ public class GlobalExceptionHandler {
         return buildResponse("Mapeamento inválido: verifique os campos.", HttpStatus.BAD_REQUEST, errors);
     }
 
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<String> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
-    }
-    
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<?> handleForbidden(ForbiddenException ex) {
 
@@ -103,16 +94,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EmailSendException.class)
     public ResponseEntity<String> handleEmailSend(EmailSendException ex) {
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(DocumentAlreadyExistsException.class)
-    public ResponseEntity<String> handleDocumentAlreadyExists(DocumentAlreadyExistsException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
-    }
-    
-    @ExceptionHandler(UserNotVerifiedException.class)
-    public ResponseEntity<String> handleUserNotVerified(UserNotVerifiedException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
