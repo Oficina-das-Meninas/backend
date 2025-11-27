@@ -24,6 +24,8 @@ public final class Messages {
 
     public static final String DOCUMENT_NOT_FOUND = "Documento não encontrado.";
 
+    public static final String DOCUMENT_ALREADY_EXISTS = "Documento já cadastrado no sistema.";
+
     public static final String OBJECT_STORAGE_ERROR = "Ocorreu um erro ao executar o Bucket.";
 
     public static final String PAYMENT_NOT_FOUND = "Pagamento não encontrado com id: ";
@@ -99,11 +101,17 @@ public final class Messages {
     public static final String EMAIL_NOT_VERIFIED = "E-mail não verificado.";
     
     public static final String EMAIL_VERIFIED_SUCCESSFULLY = "E-mail confirmado com sucesso.";
+
+    public static final String ERROR_SENDING_EMAIL = "Erro ao enviar e-mail.";
     
     public static final String PASSWORD_CHANGED_SUCCESSFULLY = "Senha alterada com sucesso.";
     
     public static final String EMAIL_SENDED_SUCCESSFULLY = "E-mail enviado com sucesso.";
 
+    public static final String EMAIL_ALREADY_EXISTS = "E-mail já cadastrado no sistema.";
+
 	public static final String USER_NOT_VERIFIED = "Usuário não verificado.";
+
+    public static final String ACTIVE_SUBSCRIPTION_ALREADY_EXISTS = "Usuário já possui assinatura ativa.";
     
 }

@@ -4,6 +4,7 @@ import static br.org.oficinadasmeninas.domain.admin.mapper.AdminMapper.toDto;
 
 import java.util.UUID;
 
+import br.org.oficinadasmeninas.presentation.exceptions.ConflictException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,6 @@ import br.org.oficinadasmeninas.domain.admin.dto.UpdateAdminDto;
 import br.org.oficinadasmeninas.domain.admin.repository.IAdminRepository;
 import br.org.oficinadasmeninas.domain.admin.service.IAdminService;
 import br.org.oficinadasmeninas.domain.resources.Messages;
-import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 
@@ -43,7 +43,7 @@ public class AdminService implements IAdminService {
             adminRepository.insert(admin);
             return admin.getId();
         } catch (DataIntegrityViolationException e) {
-            throw new EmailAlreadyExistsException();
+            throw new ConflictException(Messages.EMAIL_ALREADY_EXISTS);
         }
     }
 
@@ -68,7 +68,7 @@ public class AdminService implements IAdminService {
             adminRepository.update(existingAdmin);
             return existingAdmin.getId();
         } catch (DataIntegrityViolationException e) {
-            throw new EmailAlreadyExistsException();
+            throw new ConflictException(Messages.EMAIL_ALREADY_EXISTS);
         }
     }
     

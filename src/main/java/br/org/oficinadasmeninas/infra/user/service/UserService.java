@@ -3,10 +3,10 @@ package br.org.oficinadasmeninas.infra.user.service;
 import java.util.List;
 import java.util.UUID;
 
+import br.org.oficinadasmeninas.presentation.exceptions.ConflictException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.user.User;
@@ -16,8 +16,6 @@ import br.org.oficinadasmeninas.domain.user.dto.UserDto;
 import br.org.oficinadasmeninas.domain.user.repository.IUserRepository;
 import br.org.oficinadasmeninas.domain.user.service.IUserService;
 import br.org.oficinadasmeninas.infra.session.service.SessionService;
-import br.org.oficinadasmeninas.infra.shared.exception.DocumentAlreadyExistsException;
-import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 
 @Service
@@ -50,10 +48,10 @@ public class UserService implements IUserService {
 
         } catch (DataIntegrityViolationException e) {
             if (userRepository.existsByEmail(request.getEmail())) {
-                throw new EmailAlreadyExistsException();
+                throw new ConflictException(Messages.EMAIL_ALREADY_EXISTS);
             }
             if (userRepository.existsByDocument(request.getDocument())) {
-                throw new DocumentAlreadyExistsException();
+                throw new ConflictException(Messages.DOCUMENT_ALREADY_EXISTS);
             }
             throw e;
         }
@@ -89,7 +87,7 @@ public class UserService implements IUserService {
             userRepository.update(existingUser);
             return existingUser.getId();
         } catch (DataIntegrityViolationException e) {
-            throw new EmailAlreadyExistsException();
+            throw new ConflictException(Messages.EMAIL_ALREADY_EXISTS);
         }
     }
 

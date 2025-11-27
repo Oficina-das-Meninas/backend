@@ -5,6 +5,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import br.org.oficinadasmeninas.domain.resources.Messages;
+import br.org.oficinadasmeninas.presentation.exceptions.InternalException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -15,7 +17,6 @@ import org.thymeleaf.context.Context;
 import br.org.oficinadasmeninas.domain.email.service.IEmailService;
 import br.org.oficinadasmeninas.infra.auth.UserDetailsCustom;
 import br.org.oficinadasmeninas.infra.auth.service.JwtService;
-import br.org.oficinadasmeninas.infra.shared.exception.EmailSendException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
@@ -56,7 +57,7 @@ public class EmailService implements IEmailService {
             helper.setText(text, false);
             mailSender.send(mimeMessage);
         } catch (MessagingException | UnsupportedEncodingException e) {
-            throw new EmailSendException("Falha ao enviar e-mail");
+            throw new InternalException(Messages.ERROR_SENDING_EMAIL);
         }
     }
 
@@ -83,7 +84,7 @@ public class EmailService implements IEmailService {
 
             mailSender.send(mimeMessage);
         } catch (MessagingException | UnsupportedEncodingException e) {
-            throw new EmailSendException("Falha ao enviar e-mail");
+            throw new InternalException(Messages.ERROR_SENDING_EMAIL);
         }
     }
 

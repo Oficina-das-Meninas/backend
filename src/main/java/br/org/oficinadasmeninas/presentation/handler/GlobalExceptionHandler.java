@@ -2,12 +2,10 @@ package br.org.oficinadasmeninas.presentation.handler;
 
 import br.org.oficinadasmeninas.domain.Response;
 import br.org.oficinadasmeninas.infra.shared.exception.DocumentAlreadyExistsException;
-import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsException;
-import br.org.oficinadasmeninas.infra.shared.exception.EmailSendException;
 import br.org.oficinadasmeninas.infra.shared.exception.ObjectStorageException;
 import br.org.oficinadasmeninas.infra.shared.exception.TokenValidationException;
 import br.org.oficinadasmeninas.infra.shared.exception.UserNotVerifiedException;
-import br.org.oficinadasmeninas.infra.shared.exception.PaymentGatewayException;
+import br.org.oficinadasmeninas.presentation.exceptions.ConflictException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.exceptions.UnauthorizedException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
@@ -83,8 +81,8 @@ public class GlobalExceptionHandler {
         return buildResponse("Mapeamento inválido: verifique os campos.", HttpStatus.BAD_REQUEST, errors);
     }
 
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<String> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<String> handleEmailAlreadyExists(ConflictException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
     
@@ -93,9 +91,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
     }
     
-    @ExceptionHandler(EmailSendException.class)
-    public ResponseEntity<String> handleEmailSend(EmailSendException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(ex.getMessage());
+    @ExceptionHandler(InternalError.class)
+    public ResponseEntity<String> handleEmailSend(InternalError ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     }
 
     @ExceptionHandler(DocumentAlreadyExistsException.class)
