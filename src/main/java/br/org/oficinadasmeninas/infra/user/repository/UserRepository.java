@@ -1,17 +1,15 @@
 package br.org.oficinadasmeninas.infra.user.repository;
 
+import br.org.oficinadasmeninas.domain.user.User;
+import br.org.oficinadasmeninas.domain.user.repository.IUserRepository;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
-
-import br.org.oficinadasmeninas.domain.user.User;
-import br.org.oficinadasmeninas.domain.user.repository.IUserRepository;
 
 @Repository
 public class UserRepository implements IUserRepository {
@@ -24,16 +22,16 @@ public class UserRepository implements IUserRepository {
 
     @Override
     public User insert(User user) {
-    	
-    	var accountId = UUID.randomUUID();
+
+        var accountId = UUID.randomUUID();
         jdbc.update(
-        		UserQueryBuilder.INSERT_ACCOUNT,
+                UserQueryBuilder.INSERT_ACCOUNT,
                 accountId,
                 user.getName(),
                 user.getEmail(),
                 user.getPassword()
         );
-    	
+
         var userId = UUID.randomUUID();
         user.setId(userId);
         user.setAccountId(accountId);
@@ -54,18 +52,18 @@ public class UserRepository implements IUserRepository {
     public User update(User user) {
 
         jdbc.update(
-            UserQueryBuilder.UPDATE_ACCOUNT,
-            user.getName(),
-            user.getEmail(),
-            user.getPassword(),
-            user.getAccountId()
+                UserQueryBuilder.UPDATE_ACCOUNT,
+                user.getName(),
+                user.getEmail(),
+                user.getPassword(),
+                user.getAccountId()
         );
-        
+
         jdbc.update(
-            UserQueryBuilder.UPDATE_USER,
-            user.getPhone(),
-            user.getDocument(),
-            user.getId()
+                UserQueryBuilder.UPDATE_USER,
+                user.getPhone(),
+                user.getDocument(),
+                user.getId()
         );
 
         return user;
@@ -81,47 +79,32 @@ public class UserRepository implements IUserRepository {
 
     @Override
     public Optional<User> findById(UUID id) {
-        try {
-            var user = jdbc.queryForObject(
-                    UserQueryBuilder.FIND_USER_BY_ID,
-                    this::mapRowUser,
-                    id
-            );
 
-            return Optional.ofNullable(user);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+        return jdbc.query(
+                UserQueryBuilder.FIND_USER_BY_ID,
+                this::mapRowUser,
+                id
+        ).stream().findFirst();
     }
 
     @Override
     public Optional<User> findByEmail(String email) {
-        try {
-            var user = jdbc.queryForObject(
-                    UserQueryBuilder.FIND_USER_BY_EMAIL,
-                    this::mapRowUser,
-                    email
-            );
 
-            return Optional.ofNullable(user);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+        return jdbc.query(
+                UserQueryBuilder.FIND_USER_BY_EMAIL,
+                this::mapRowUser,
+                email
+        ).stream().findFirst();
     }
 
     @Override
     public Optional<User> findByDocument(String document) {
-        try {
-            var user = jdbc.queryForObject(
-                    UserQueryBuilder.FIND_USER_BY_DOCUMENT,
-                    this::mapRowUser,
-                    document
-            );
 
-            return Optional.ofNullable(user);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+        return jdbc.query(
+                UserQueryBuilder.FIND_USER_BY_DOCUMENT,
+                this::mapRowUser,
+                document
+        ).stream().findFirst();
     }
 
     @Override
@@ -146,23 +129,23 @@ public class UserRepository implements IUserRepository {
 
         return count != null && count > 0;
     }
-    
+
     @Override
-	public void markUserAsVerified(UUID id) {
-    	jdbc.update(
+    public void markUserAsVerified(UUID id) {
+        jdbc.update(
                 UserQueryBuilder.MARK_USER_AS_VERIFIED,
                 id
         );
-	}
-    
+    }
+
     @Override
-	public void updatePassword(UUID accountId, String encodedPassword) {
-		jdbc.update(
+    public void updatePassword(UUID accountId, String encodedPassword) {
+        jdbc.update(
                 UserQueryBuilder.UPDATE_PASSWORD,
                 encodedPassword,
                 accountId
         );
-	}
+    }
 
     private User mapRowUser(ResultSet rs, int rowNum) throws SQLException {
         var user = new User();
@@ -176,5 +159,5 @@ public class UserRepository implements IUserRepository {
         user.setIsActive(rs.getBoolean("is_active"));
         return user;
     }
-	
+
 }

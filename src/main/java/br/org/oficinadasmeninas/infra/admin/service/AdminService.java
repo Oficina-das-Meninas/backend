@@ -48,8 +48,12 @@ public class AdminService implements IAdminService {
 
     @Override
     public UUID update(UUID adminId, UpdateAdminDto request) {
-        var admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new NotFoundException(Messages.ADMIN_NOT_FOUND_BY_ID + adminId));
+        var adminA = adminRepository.findById(adminId);
+
+        if(adminA.isEmpty())
+            throw new NotFoundException(Messages.ADMIN_NOT_FOUND_BY_ID + adminId);
+
+        var admin = adminA.get();
 
         if (request.getName() != null && !request.getName().isBlank() && !admin.getName().equals(request.getName())) {
             admin.setName(request.getName());

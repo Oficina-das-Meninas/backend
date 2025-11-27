@@ -2,7 +2,6 @@ package br.org.oficinadasmeninas.infra.sponsorship.repository;
 
 import br.org.oficinadasmeninas.domain.sponsorship.Sponsorship;
 import br.org.oficinadasmeninas.domain.sponsorship.repository.ISponsorshipRepository;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -78,17 +77,11 @@ public class SponsorshipRepository implements ISponsorshipRepository {
     @Override
     public Optional<Sponsorship> findById(UUID id) {
 
-        try {
-            var sponsorship = jdbc.queryForObject(
-                    SponsorshipQueryBuilder.GET_SPONSORSHIP_BY_ID,
-                    this::mapRowSponsorship,
-                    id
-            );
-
-            return Optional.ofNullable(sponsorship);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+        return jdbc.query(
+                SponsorshipQueryBuilder.GET_SPONSORSHIP_BY_ID,
+                this::mapRowSponsorship,
+                id
+        ).stream().findFirst();
     }
 
     @Override
@@ -103,32 +96,22 @@ public class SponsorshipRepository implements ISponsorshipRepository {
 
     @Override
     public Optional<Sponsorship> findActiveByUserId(UUID userId) {
-        try {
-            var sponsorship = jdbc.queryForObject(
-                    SponsorshipQueryBuilder.GET_ACTIVE_SPONSORSHIP_BY_USER_ID,
-                    this::mapRowSponsorship,
-                    userId
-            );
 
-            return Optional.ofNullable(sponsorship);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+        return jdbc.query(
+                SponsorshipQueryBuilder.GET_ACTIVE_SPONSORSHIP_BY_USER_ID,
+                this::mapRowSponsorship,
+                userId
+        ).stream().findFirst();
     }
 
     @Override
     public Optional<Sponsorship> findBySubscriptionId(String subscriptionId) {
-        try {
-            var sponsorship = jdbc.queryForObject(
-                    SponsorshipQueryBuilder.GET_SPONSORSHIP_BY_SUBSCRIPTION_ID,
-                    this::mapRowSponsorship,
-                    subscriptionId
-            );
 
-            return Optional.ofNullable(sponsorship);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+        return jdbc.query(
+                SponsorshipQueryBuilder.GET_SPONSORSHIP_BY_SUBSCRIPTION_ID,
+                this::mapRowSponsorship,
+                subscriptionId
+        ).stream().findFirst();
     }
 
     private Sponsorship mapRowSponsorship(ResultSet rs, int rowNum) throws SQLException {

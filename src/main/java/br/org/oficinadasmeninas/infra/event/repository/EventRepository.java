@@ -4,7 +4,6 @@ import br.org.oficinadasmeninas.domain.event.Event;
 import br.org.oficinadasmeninas.domain.event.dto.GetEventDto;
 import br.org.oficinadasmeninas.domain.event.repository.IEventRepository;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -56,12 +55,12 @@ public class EventRepository implements IEventRepository {
 
     @Override
     public Optional<Event> findById(UUID id) {
-        try {
-            var event = jdbc.queryForObject(EventQueryBuilder.GET_EVENT_BY_ID, this::mapRow, id);
-            return Optional.ofNullable(event);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+
+        return jdbc.query(
+                EventQueryBuilder.GET_EVENT_BY_ID,
+                this::mapRow,
+                id
+        ).stream().findFirst();
     }
 
     public Event insert(Event event) {
@@ -100,11 +99,11 @@ public class EventRepository implements IEventRepository {
         return event;
     }
 
-	@Override
-	public void deleteById(UUID id) {
-		jdbc.update(EventQueryBuilder.DELETE_EVENT, id);	
-	}
-    
+    @Override
+    public void deleteById(UUID id) {
+        jdbc.update(EventQueryBuilder.DELETE_EVENT, id);
+    }
+
     private Event mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new Event(
                 rs.getObject("id", java.util.UUID.class),
