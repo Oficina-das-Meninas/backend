@@ -28,6 +28,8 @@ public class AdminQueryBuilder {
     			unaccent(name) ILIKE unaccent(COALESCE('%' || ? || '%', name))
     			OR unaccent(email) ILIKE unaccent(COALESCE('%' || ? || '%', email)) 
     		)
+    		ORDER BY name
+    		LIMIT ? OFFSET ?
     		""";
 
 	public static final String EXISTS_ADMIN_BY_ID = """

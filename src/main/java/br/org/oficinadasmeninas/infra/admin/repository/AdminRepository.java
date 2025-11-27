@@ -84,7 +84,9 @@ public class AdminRepository implements IAdminRepository {
                 AdminQueryBuilder.GET_FILTERED_ADMINS,
                 this::mapRowAdmin,
                 searchTerm,
-                searchTerm
+                searchTerm,
+                pageSize,
+                page * pageSize
         );
     	
     	var total = jdbc.queryForObject(

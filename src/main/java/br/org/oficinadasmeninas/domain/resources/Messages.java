@@ -113,4 +113,6 @@ public final class Messages {
     public static final String DOCUMENT_ALREADY_EXISTS = "Documento já cadastrado";
 
     public static final String INVALID_EMAIL_OR_PASSWORD = "Email e/ou senha inválido(s). Tente novamente.";
+
+    public static final String CANNOT_DELETE_LOGGED_USER = "Não é possível remover usuário logado.";
 }
