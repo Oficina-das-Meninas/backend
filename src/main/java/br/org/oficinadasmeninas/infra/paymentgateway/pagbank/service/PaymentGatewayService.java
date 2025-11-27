@@ -165,7 +165,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
         List<PaymentDto> payments = paymentService.findByDonationId(donationId);
 
-        // Atualizar método de pagamento e gateway na donation
+        // Atualizar métodos de pagamento e gateway na donation
         donationService.updateMethod(donationId, paymentMethod);
 
         if (payments == null || payments.isEmpty()) {
