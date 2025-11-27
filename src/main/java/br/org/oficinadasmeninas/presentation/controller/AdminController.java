@@ -74,6 +74,22 @@ public class AdminController extends BaseController {
         );
     }
 
+    @Operation(summary = "Remove um admin pelo identificador")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Admin removido com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Admin não encontrado"),
+            @ApiResponse(responseCode = "503", description = "Erro ao executar o Bucket")
+    })
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteDocument(
+            @PathVariable("id") UUID adminId
+    ) {
+        return handle(
+                () -> adminService.deleteById(adminId),
+                Messages.ADMIN_DELETED_SUCCESSFULLY
+        );
+    }
+
     @Operation(summary = "Lista todos os administradores filtrados conforme os critérios de pesquisa.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Administradores listados com sucesso")

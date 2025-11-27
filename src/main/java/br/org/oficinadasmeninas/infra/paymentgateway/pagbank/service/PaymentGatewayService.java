@@ -139,7 +139,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
                 1,
                 List.of(notificationUrls),
                 List.of(paymentNotificationUrls),
-                List.of(PaymentMethodEnum.CREDIT_CARD),
+                requestCreateCheckoutDto.signatureDto().isRecurrence()? List.of(PaymentMethodEnum.CREDIT_CARD) : List.of(PaymentMethodEnum.CREDIT_CARD, PaymentMethodEnum.DEBIT_CARD, PaymentMethodEnum.PIX),
                 "https://dev.apollomusic.com.br/logo_preenchimento_branco.png",
                 12,
                 new RequestCreateCheckoutRecurrenceInterval(

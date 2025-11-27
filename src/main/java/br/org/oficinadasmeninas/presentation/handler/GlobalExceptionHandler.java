@@ -1,6 +1,7 @@
 package br.org.oficinadasmeninas.presentation.handler;
 
 import br.org.oficinadasmeninas.domain.Response;
+
 import br.org.oficinadasmeninas.infra.shared.exception.DocumentAlreadyExistsException;
 import br.org.oficinadasmeninas.infra.shared.exception.ObjectStorageException;
 import br.org.oficinadasmeninas.infra.shared.exception.TokenValidationException;
@@ -9,6 +10,10 @@ import br.org.oficinadasmeninas.presentation.exceptions.ConflictException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.exceptions.UnauthorizedException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
+import br.org.oficinadasmeninas.infra.shared.exception.EmailSendException;
+import br.org.oficinadasmeninas.infra.shared.exception.ObjectStorageException;
+import br.org.oficinadasmeninas.presentation.exceptions.*;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
@@ -17,6 +22,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import software.amazon.awssdk.core.exception.SdkClientException;
 
 import java.util.Map;
 import java.util.Optional;
@@ -30,6 +37,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleNotFoundException(NotFoundException ex) {
 
         return buildResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(NoContentException.class)
+    public ResponseEntity<?> handleNoContentException(NoContentException ex) {
+
+        return buildResponse(ex.getMessage(), HttpStatus.NO_CONTENT);
     }
 
     @ExceptionHandler(ValidationException.class)
@@ -82,7 +95,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<String> handleEmailAlreadyExists(ConflictException ex) {
+    public ResponseEntity<String> handleConflict(ConflictException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
     
@@ -90,22 +103,33 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleTokenValidation(TokenValidationException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
     }
+  
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<?> handleForbidden(ForbiddenException ex) {
+
+        return buildResponse(ex.getMessage(), HttpStatus.FORBIDDEN);
+    }
     
     @ExceptionHandler(InternalError.class)
     public ResponseEntity<String> handleEmailSend(InternalError ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     }
 
-    @ExceptionHandler(DocumentAlreadyExistsException.class)
-    public ResponseEntity<String> handleDocumentAlreadyExists(DocumentAlreadyExistsException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<?> handleConstraintException(ConstraintViolationException ex) {
+        return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
-    
-    @ExceptionHandler(UserNotVerifiedException.class)
-    public ResponseEntity<String> handleUserNotVerified(UserNotVerifiedException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+
+    @ExceptionHandler(SdkClientException.class)
+    public ResponseEntity<?> handleSdkClientException(SdkClientException ex) {
+        return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
-    
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<?> handleNoHandlerFoundException(NoHandlerFoundException ex) {
+        return buildResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGenericException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());

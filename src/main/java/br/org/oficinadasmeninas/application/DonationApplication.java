@@ -1,6 +1,7 @@
 package br.org.oficinadasmeninas.application;
 
 import br.org.oficinadasmeninas.domain.donation.dto.*;
+import br.org.oficinadasmeninas.domain.donation.mapper.DonationMapper;
 import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
 import br.org.oficinadasmeninas.domain.payment.dto.*;
 import br.org.oficinadasmeninas.domain.paymentgateway.PaymentGatewayEnum;
@@ -15,6 +16,7 @@ import br.org.oficinadasmeninas.infra.recaptcha.CaptchaService;
 import br.org.oficinadasmeninas.infra.user.service.UserService;
 import br.org.oficinadasmeninas.presentation.exceptions.ConflictException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
+import br.org.oficinadasmeninas.presentation.exceptions.NoContentException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 
 import org.springframework.stereotype.Service;
@@ -114,11 +116,11 @@ public class DonationApplication {
         Optional<SponsorshipDto> sponsorshipDto = sponsorshipService.findActiveByUserId(userDto.getId());
 
         if (sponsorshipDto.isEmpty()) {
-            throw new ValidationException(Messages.DONATION_IS_NOT_RECURRING);
+            throw new NoContentException(Messages.DONATION_IS_NOT_RECURRING);
         }
 
         if (sponsorshipDto.get().subscriptionId() == null) {
-            throw new NotFoundException(Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND);
+            throw new NoContentException(Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND);
         }
 
         paymentGatewayService.cancelRecurringDonationSubscription(
@@ -128,19 +130,19 @@ public class DonationApplication {
         sponsorshipService.cancelSponsorship(sponsorshipDto.get().id());
     }
 
-    public SponsorshipDto getRecurringDonationSubscriptionByUserSession() {
+    public RecurringDonationSubscriptionResponseDto getRecurringDonationSubscriptionByUserSession() {
         UserDto userDto = userService.findByUserSession();
         Optional<SponsorshipDto> sponsorshipDto = sponsorshipService.findActiveByUserId(userDto.getId());
 
         if (sponsorshipDto.isEmpty()) {
-            throw new NotFoundException(Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND);
+            throw new NoContentException(Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND);
         }
 
         if (!sponsorshipDto.get().isActive()) {
-            throw new NotFoundException(Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND);
+            throw new NoContentException(Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND);
         }
 
-        return sponsorshipDto.get();
+        return DonationMapper.toRecurringDonationResponseDto(sponsorshipDto.get());
     }
 
     private void cancelPendingCheckouts(UUID userid) {

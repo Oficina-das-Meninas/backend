@@ -3,7 +3,6 @@ package br.org.oficinadasmeninas.infra.transparency.repository;
 import br.org.oficinadasmeninas.domain.transparency.Category;
 import br.org.oficinadasmeninas.domain.transparency.repository.ICategoriesRepository;
 import br.org.oficinadasmeninas.infra.transparency.repository.queries.CategoriesQueryBuilder;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -69,17 +68,11 @@ public class CategoriesRepository implements ICategoriesRepository {
     @Override
     public Optional<Category> findById(UUID id) {
 
-        try {
-            var category = jdbc.queryForObject(
-                    CategoriesQueryBuilder.GET_CATEGORY_BY_ID,
-                    this::mapRowCategory,
-                    id
-            );
-
-            return Optional.ofNullable(category);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+        return jdbc.query(
+                CategoriesQueryBuilder.GET_CATEGORY_BY_ID,
+                this::mapRowCategory,
+                id
+        ).stream().findFirst();
     }
 
     public List<Category> findAll() {

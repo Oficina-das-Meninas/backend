@@ -1,5 +1,6 @@
 package br.org.oficinadasmeninas.infra.user.service;
 
+
 import java.util.List;
 import java.util.UUID;
 
@@ -7,6 +8,7 @@ import br.org.oficinadasmeninas.presentation.exceptions.ConflictException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 
 import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.user.User;
@@ -17,10 +19,16 @@ import br.org.oficinadasmeninas.domain.user.repository.IUserRepository;
 import br.org.oficinadasmeninas.domain.user.service.IUserService;
 import br.org.oficinadasmeninas.infra.session.service.SessionService;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
+import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UserService implements IUserService {
-	
+
     private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final SessionService sessionService;
@@ -33,62 +41,60 @@ public class UserService implements IUserService {
 
     @Override
     public UserDto insert(CreateUserDto request) {
-        try {
-            var user = new User();
-            user.setName(request.getName());
-            user.setEmail(request.getEmail());
-            user.setDocument(request.getDocument());
-            user.setPhone(request.getPhone());
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
-            user.setIsActive(false);
+        if (userRepository.existsByEmail(request.getEmail()))
+            throw new ConflictException(Messages.EMAIL_ALREADY_EXISTS);
 
-            userRepository.insert(user);
-            
-            return new UserDto(user);
+        if (userRepository.existsByDocument(request.getDocument()))
+            throw new ConflictException(Messages.DOCUMENT_ALREADY_EXISTS);
 
-        } catch (DataIntegrityViolationException e) {
-            if (userRepository.existsByEmail(request.getEmail())) {
-                throw new ConflictException(Messages.EMAIL_ALREADY_EXISTS);
-            }
-            if (userRepository.existsByDocument(request.getDocument())) {
-                throw new ConflictException(Messages.DOCUMENT_ALREADY_EXISTS);
-            }
-            throw e;
-        }
+        var user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setDocument(request.getDocument());
+        user.setPhone(request.getPhone());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setIsActive(false);
+
+        userRepository.insert(user);
+        return new UserDto(user);
     }
 
     @Override
-    public UUID update(UUID id, UpdateUserDto user) {
-        User existingUser = userRepository.findById(id)
+    public UUID update(UUID id, UpdateUserDto request) {
+        var user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.USER_NOT_FOUND_BY_ID + id));
 
-        if (user.getName() != null && !user.getName().isBlank()) {
-            existingUser.setName(user.getName());
+        if (request.getName() != null && !request.getName().isBlank()) {
+            user.setName(request.getName());
         }
 
-        if (user.getEmail() != null && !user.getEmail().isBlank() &&
-                !user.getEmail().equals(existingUser.getEmail())) {
-            existingUser.setEmail(user.getEmail());
+        if (request.getEmail() != null && !request.getEmail().isBlank() &&
+                !request.getEmail().equals(user.getEmail())) {
+            user.setEmail(request.getEmail());
         }
 
-        if (user.getDocument() != null && !user.getDocument().isBlank()) {
-            existingUser.setDocument(user.getDocument());
+        if (request.getDocument() != null && !request.getDocument().isBlank()) {
+            user.setDocument(request.getDocument());
         }
 
-        if (user.getPhone() != null && !user.getPhone().isBlank()) {
-            existingUser.setPhone(user.getPhone());
+        if (request.getPhone() != null && !request.getPhone().isBlank()) {
+            user.setPhone(request.getPhone());
         }
 
-        if (user.getPassword() != null && !user.getPassword().isBlank()) {
-            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
 
-        try {
-            userRepository.update(existingUser);
-            return existingUser.getId();
-        } catch (DataIntegrityViolationException e) {
-            throw new ConflictException(Messages.EMAIL_ALREADY_EXISTS);
+
+        if (!request.getEmail().equals(user.getEmail())) {
+            var userByEmail = userRepository.findByEmail(request.getEmail());
+
+            if (userByEmail.isPresent())
+                throw new ConflictException(Messages.EMAIL_ALREADY_EXISTS);
         }
+
+        userRepository.update(user);
+        return user.getId();
     }
 
     @Override
@@ -125,21 +131,21 @@ public class UserService implements IUserService {
 
         return new UserDto(user);
     }
-    
+
     @Override
     public void markUserAsVerified(UUID id) {
-      userRepository.markUserAsVerified(id);
+        userRepository.markUserAsVerified(id);
     }
 
     @Override
-    public void updatePassword(UUID id, String encodedPassword) {
-      userRepository.updatePassword(id, encodedPassword);
+    public void updatePassword(UUID accountId, String encodedPassword) {
+        userRepository.updatePassword(accountId, encodedPassword);
     }
 
     @Override
     public UserDto findByUserSession() {
-    	String userEmail = sessionService.getSession().getUsername();
-    	
+        String userEmail = sessionService.getSession().getUsername();
+
         var user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new NotFoundException(Messages.USER_NOT_FOUND_BY_EMAIL + userEmail));
 

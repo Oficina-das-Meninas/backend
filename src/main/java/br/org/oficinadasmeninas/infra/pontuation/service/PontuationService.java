@@ -11,6 +11,8 @@ import br.org.oficinadasmeninas.domain.user.service.IUserService;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.stereotype.Service;
 
+import static java.lang.Math.floor;
+
 @Service
 public class PontuationService implements IPontuationService {
 
@@ -47,13 +49,11 @@ public class PontuationService implements IPontuationService {
     private Bonuses buildBonuses(Pontuation pontuation) {
         Bonuses bonuses = new Bonuses();
 
+        long donatedValue = (long) floor(pontuation.getDonatedValue());
+
         bonuses.setFirstDonationBonus(pontuation.isFirstDonation() ? 100L : 0L);
-        bonuses.setRecurrenceBonus(
-                pontuation.getRecurrenceSequence() > 1
-                        ? (long) Math.floor(pontuation.getDonatedValue() * (pontuation.getRecurrenceSequence() / 20.0))
-                        : 0L
-        );
-        bonuses.setValueBonus(pontuation.getDonatedValue());
+        bonuses.setRecurrenceBonus(pontuation.isFirstDonation() ? 0L : pontuation.getEarnedPoints() - donatedValue);
+        bonuses.setValueBonus(donatedValue);
 
         return bonuses;
     }
