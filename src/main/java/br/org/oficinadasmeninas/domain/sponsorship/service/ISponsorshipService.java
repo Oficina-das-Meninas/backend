@@ -24,11 +24,12 @@ public interface ISponsorshipService {
     UUID insert(SponsorshipDto sponsorship);
 
     /**
-     * Atualiza os dados de um patrocínio existente.
+     * Atualiza as informações de um patrocínio existente.
      *
-     * @param sponsorship objeto contendo as informações atualizadas do patrocínio
+     * @param sponsorship objeto contendo os dados atualizados do patrocínio
+     * @return identificador único (UUID) do patrocínio atualizado
      */
-    void update(UpdateSponsorshipDto sponsorship);
+    UUID update(UpdateSponsorshipDto sponsorship);
 
     /**
      * Ativa o patrocínio mais recente associado a um usuário específico.

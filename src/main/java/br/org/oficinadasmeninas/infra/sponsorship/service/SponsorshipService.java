@@ -69,7 +69,7 @@ public class SponsorshipService implements ISponsorshipService {
     }
 
     @Override
-    public void update(UpdateSponsorshipDto request) {
+    public UUID update(UpdateSponsorshipDto request) {
 
         var sponsorship = sponsorshipRepository.findById(request.id())
                 .orElseThrow(() -> new NotFoundException(Messages.SPONSOR_NOT_FOUND + request.id()));
@@ -79,6 +79,8 @@ public class SponsorshipService implements ISponsorshipService {
         sponsorship.setSubscriptionId(request.subscriptionId());
 
         sponsorshipRepository.update(sponsorship);
+
+        return sponsorship.getId();
     }
 
     @Override
