@@ -102,22 +102,21 @@ public interface IPaymentGatewayService {
 	 * com parcelamento, incluindo informações sobre juros e valores de parcelas.
 	 *
 	 * @param request objeto contendo os parâmetros para cálculo de taxas,
-	 *                incluindo valor da transação, número de parcelas e
-	 *                opções de parcelamento sem juros
+	 *                incluindo valor da transação e número de parcelas
 	 * @return objeto {@link ResponseCalculateFeesDto} contendo as taxas
 	 *         e planos de parcelamento disponíveis para cada bandeira de cartão
 	 */
-	ResponseCalculateFeesDto calculateTransactionFees(RequestCalculateFeesDto request);
+	ResponseCalculateFeesDto fetchTransactionFees(RequestCalculateFeesDto request);
 
 	/**
-	 * Calcula as taxas e atualiza o valor líquido de uma doação.
+	 * Calcula a taxa de transação para um determinado valor e método de pagamento.
 	 * <p>
-	 * Este método calcula as taxas do gateway de pagamento e atualiza
-	 * o valor líquido (valor da doação - taxas) no banco de dados.
 	 *
-	 * @param donation objeto contendo os dados da doação
+	 * @param value valor da transação
 	 * @param paymentMethod método de pagamento utilizado
+	 * @param cardBrand bandeira do cartão (quando aplicável, pode ser null)
+	 * @return valor da taxa calculada
 	 */
-	void calculateAndUpdateLiquidValue(DonationDto donation, PaymentMethodEnum paymentMethod);
+	Double calculateFee(double value, PaymentMethodEnum paymentMethod, String cardBrand);
 
 }

@@ -98,7 +98,7 @@ public class DonationController extends BaseController {
             @ApiResponse(responseCode = "404", description = Messages.RECURRING_DONATION_SUBSCRIPTION_NOT_FOUND),
     })
     @GetMapping("/recurring")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getRecurringDonationSubscription(
     ) {
         return handle(

@@ -30,6 +30,7 @@ public class StatisticsController extends BaseController {
             @ApiResponse(responseCode = "200", description = "Estatísticas retornadas com sucesso"),
             @ApiResponse(responseCode = "400", description = "Parâmetros de data inválidos")
     })
+    @PreAuthorize("isAnonymous()")
     @GetMapping("indicators")
     public ResponseEntity<?> getIndicatorsByPeriod(
             @RequestParam @Nullable LocalDate startDate,
@@ -43,8 +44,8 @@ public class StatisticsController extends BaseController {
             @ApiResponse(responseCode = "200", description = "Estatísticas retornadas com sucesso"),
             @ApiResponse(responseCode = "400", description = "Parâmetros de data inválidos")
     })
+    @PreAuthorize("isAnonymous()")
     @GetMapping("donations/distribution")
-    @PreAuthorize("isAnonymous() or hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getDonationTypeDistributionByPeriod(
             @RequestParam @Nullable LocalDate startDate,
             @RequestParam @Nullable LocalDate endDate
@@ -57,8 +58,8 @@ public class StatisticsController extends BaseController {
             @ApiResponse(responseCode = "200", description = "Série temporal retornada com sucesso"),
             @ApiResponse(responseCode = "400", description = "Parâmetros inválidos")
     })
+    @PreAuthorize("isAnonymous()")
     @GetMapping("donations")
-    @PreAuthorize("isAnonymous() or hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getDonationsByPeriod(
             @RequestParam LocalDate startDate,
             @RequestParam LocalDate endDate,

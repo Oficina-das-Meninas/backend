@@ -47,6 +47,7 @@ import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.mappers.RequestCrea
 import br.org.oficinadasmeninas.infra.shared.exception.PaymentGatewayException;
 import br.org.oficinadasmeninas.infra.user.service.UserService;
 import br.org.oficinadasmeninas.presentation.shared.utils.IsoDateFormater;
+import org.springframework.web.util.UriBuilder;
 
 @Service
 public class PaymentGatewayService implements IPaymentGatewayService {
@@ -281,6 +282,11 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
         if (charge.status() == PaymentStatusEnum.PAID){
             DonationDto donation = donationService.findById(request.reference_id());
+
+            Double fee = calculateFee(donation.value(), charge.payment_method().type(), donation.cardBrand());
+            double netValue = donation.value() - fee;
+            donationService.updateFeeAndLiquidValue(donation.id(), fee, netValue);
+
             if (donation.checkoutId() != null) {
                 cancelCheckout(donation.checkoutId());
                 paymentService.cancelPendingPaymentByDonationId(donation.id());
@@ -301,103 +307,76 @@ public class PaymentGatewayService implements IPaymentGatewayService {
         ));
     }
 
-	@Override
-	public ResponseCalculateFeesDto calculateTransactionFees(RequestCalculateFeesDto request) {
-		try {
-			StringBuilder uriBuilder = new StringBuilder("/charges/fees/calculate?");
-
-			if (request.paymentMethods() != null && !request.paymentMethods().isEmpty()) {
-				for (String method : request.paymentMethods()) {
-					uriBuilder.append("payment_methods[]=").append(method).append("&");
-				}
-			}
-
-			if (request.value() != null) {
-				uriBuilder.append("value=").append(request.value()).append("&");
-			}
-
-			if (request.maxInstallments() != null) {
-				uriBuilder.append("max_installments=").append(request.maxInstallments()).append("&");
-			}
-
-			String uri = uriBuilder.toString();
-			if (uri.endsWith("&")) {
-				uri = uri.substring(0, uri.length() - 1);
-			}
-
+    @Override
+    public ResponseCalculateFeesDto fetchTransactionFees(RequestCalculateFeesDto request) {
+        // TODO: comentado temporariamente até ter homologacao da API de taxas do PagBank
+        /*
+        try {
             return webClient.get()
-                    .uri(uri)
+                    .uri(uriBuilder -> {
+                        UriBuilder builder = uriBuilder.path("/charges/fees/calculate");
+
+                        if (request.paymentMethods() != null && !request.paymentMethods().isEmpty()) {
+                            for (String method : request.paymentMethods()) {
+                                builder.queryParam("payment_methods[]", method);
+                            }
+                        }
+
+                        if (request.value() != null) {
+                            builder.queryParam("value", request.value());
+                        }
+
+                        builder.queryParam("max_installments", request.maxInstallmentsNoInterest());
+
+                        return builder.build();
+                    })
                     .header("Authorization", "Bearer " + token)
                     .header("Content-Type", "application/json")
                     .retrieve()
                     .bodyToMono(ResponseCalculateFeesDto.class)
                     .block();
 
-		} catch (WebClientResponseException e) {
-			throw new PaymentGatewayException(e.getStatusCode() + " " + e.getStatusText() + " " + e.getResponseBodyAsString());
-		} catch (Exception e) {
-			throw new PaymentGatewayException("Erro ao calcular taxas: " + e.getMessage());
-		}
-	}
+        } catch (WebClientResponseException e) {
+            throw new PaymentGatewayException(
+                    e.getStatusCode() + " " + e.getStatusText() + " " + e.getResponseBodyAsString());
+        } catch (Exception e) {
+            throw new PaymentGatewayException("Erro ao calcular taxas: " + e.getMessage());
+        }
+        */
+        return null;
+    }
 
-	@Override
-	public void calculateAndUpdateLiquidValue(DonationDto donation, PaymentMethodEnum paymentMethod) {
-		try {
-			if (paymentMethod == PaymentMethodEnum.DEBIT_CARD) {
-				donationService.updateFeeAndLiquidValue(donation.id(), 0.0, donation.value());
-				return;
-			}
+    /**
+     *
+     * Taxas fixas
+     * - DÉBITO: 2,39%
+     * - CRÉDITO: 3,99% + R$ 0,40
+     * - PIX: 1,89%
+     * - BOLETO: R$ 1,89
+     */
+    private Double extractFeeFromResponse(ResponseCalculateFeesDto response, PaymentMethodEnum paymentMethod, String cardBrand, double donationValue) {
+        // TODO: comentado temporariamente até ter homologacao da API de taxas do PagBank
+        /*
+        if (response != null && response.paymentMethods() != null) {
+            return switch (paymentMethod) {
+                case CREDIT_CARD -> extractCreditCardFee(response, cardBrand);
+                case PIX -> response.paymentMethods().pix() != null && response.paymentMethods().pix().amount() != null
+                    ? response.paymentMethods().pix().amount().value().doubleValue()
+                    : null;
+                case BOLETO -> response.paymentMethods().boleto() != null && response.paymentMethods().boleto().amount() != null
+                    ? response.paymentMethods().boleto().amount().value().doubleValue()
+                    : null;
+                default -> null;
+            };
+        }
+        */
 
-			int valueInCents = (int) (donation.value() * 100);
-
-			String paymentMethodString = switch (paymentMethod) {
-				case CREDIT_CARD -> "CREDIT_CARD";
-				case PIX -> "PIX";
-				case BOLETO -> "BOLETO";
-				default -> null;
-			};
-
-			if (paymentMethodString == null) {
-				return;
-			}
-
-			RequestCalculateFeesDto request = new RequestCalculateFeesDto(
-				List.of(paymentMethodString),
-				valueInCents,
-				null
-			);
-
-			ResponseCalculateFeesDto feesResponse = calculateTransactionFees(request);
-
-			Double feeInCents = extractFeeFromResponse(feesResponse, paymentMethod, donation.cardBrand());
-
-			if (feeInCents != null) {
-				double feeInReais = feeInCents / 100.0;
-				double liquidValue = donation.value() - feeInReais;
-
-				donationService.updateFeeAndLiquidValue(donation.id(), feeInReais, liquidValue);
-			}
-
-		} catch (Exception e) {
-			System.err.println("Erro ao calcular valor líquido: " + e.getMessage());
-		}
-	}
-
-	private Double extractFeeFromResponse(ResponseCalculateFeesDto response, PaymentMethodEnum paymentMethod, String cardBrand) {
-		if (response.paymentMethods() == null) {
-			return null;
-		}
-
-		return switch (paymentMethod) {
-			case CREDIT_CARD -> extractCreditCardFee(response, cardBrand);
-			case PIX -> response.paymentMethods().pix() != null && response.paymentMethods().pix().amount() != null
-				? response.paymentMethods().pix().amount().value().doubleValue()
-				: null;
-			case BOLETO -> response.paymentMethods().boleto() != null && response.paymentMethods().boleto().amount() != null
-				? response.paymentMethods().boleto().amount().value().doubleValue()
-				: null;
-			default -> null;
-		};
+        return switch (paymentMethod) {
+            case DEBIT_CARD -> donationValue * 0.0239;
+            case CREDIT_CARD -> (donationValue * 0.0399) + 0.40;
+            case PIX -> donationValue * 0.0189;
+            case BOLETO -> 1.89;
+        };
 	}
 
 	private Double extractCreditCardFee(ResponseCalculateFeesDto response, String cardBrand) {
@@ -422,7 +401,6 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 			return null;
 		}
 
-		// Buscar o plano de 1x (à vista) para pegar o valor total com taxas
 		var firstInstallment = installmentPlans.stream()
 			.filter(plan -> plan.installments() != null && plan.installments() == 1)
 			.findFirst()
@@ -432,8 +410,11 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 			return null;
 		}
 
-		// Calcular a taxa: valor total - valor original
-		// O amount.value() contém o valor total (original + taxas)
 		return firstInstallment.amount().value().doubleValue();
 	}
+
+    @Override
+    public Double calculateFee(double value, PaymentMethodEnum paymentMethod, String cardBrand) {
+        return extractFeeFromResponse(null, paymentMethod, cardBrand, value);
+    }
 }

@@ -5,5 +5,5 @@ import java.util.List;
 public record RequestCalculateFeesDto(
     List<String> paymentMethods,
     Integer value,
-    Integer maxInstallments
+    int maxInstallmentsNoInterest
 ) {}
