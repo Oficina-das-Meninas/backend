@@ -2,16 +2,12 @@ package br.org.oficinadasmeninas.presentation.handler;
 
 import br.org.oficinadasmeninas.domain.Response;
 
-import br.org.oficinadasmeninas.infra.shared.exception.DocumentAlreadyExistsException;
 import br.org.oficinadasmeninas.infra.shared.exception.ObjectStorageException;
 import br.org.oficinadasmeninas.infra.shared.exception.TokenValidationException;
-import br.org.oficinadasmeninas.infra.shared.exception.UserNotVerifiedException;
 import br.org.oficinadasmeninas.presentation.exceptions.ConflictException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.exceptions.UnauthorizedException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
-import br.org.oficinadasmeninas.infra.shared.exception.EmailSendException;
-import br.org.oficinadasmeninas.infra.shared.exception.ObjectStorageException;
 import br.org.oficinadasmeninas.presentation.exceptions.*;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
