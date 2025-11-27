@@ -1,13 +1,5 @@
 package br.org.oficinadasmeninas.infra.admin.service;
 
-import static br.org.oficinadasmeninas.domain.admin.mapper.AdminMapper.toDto;
-
-import java.util.UUID;
-
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import br.org.oficinadasmeninas.domain.admin.Admin;
 import br.org.oficinadasmeninas.domain.admin.dto.AdminDto;
 import br.org.oficinadasmeninas.domain.admin.dto.CreateAdminDto;
@@ -15,9 +7,15 @@ import br.org.oficinadasmeninas.domain.admin.dto.UpdateAdminDto;
 import br.org.oficinadasmeninas.domain.admin.repository.IAdminRepository;
 import br.org.oficinadasmeninas.domain.admin.service.IAdminService;
 import br.org.oficinadasmeninas.domain.resources.Messages;
-import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
+import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.UUID;
+
+import static br.org.oficinadasmeninas.domain.admin.mapper.AdminMapper.toDto;
 
 @Service
 public class AdminService implements IAdminService {
@@ -34,47 +32,51 @@ public class AdminService implements IAdminService {
     @Override
     public UUID insert(CreateAdminDto request) {
 
+        var existsAdmin = adminRepository.findByEmail(request.getEmail());
+
+        if (existsAdmin.isPresent())
+            throw new ValidationException(Messages.EMAIL_ALREADY_EXISTS);
+
         var admin = new Admin();
         admin.setName(request.getName());
         admin.setEmail(request.getEmail());
         admin.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        try {
-            adminRepository.insert(admin);
-            return admin.getId();
-        } catch (DataIntegrityViolationException e) {
-            throw new EmailAlreadyExistsException();
-        }
+        adminRepository.insert(admin);
+        return admin.getId();
     }
 
     @Override
-    public UUID update(UUID adminId, UpdateAdminDto admin) {
-        var existingAdmin = adminRepository.findById(adminId)
+    public UUID update(UUID adminId, UpdateAdminDto request) {
+        var admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new NotFoundException(Messages.ADMIN_NOT_FOUND_BY_ID + adminId));
 
-        if (admin.getName() != null && !admin.getName().isBlank() && !existingAdmin.getName().equals(admin.getName())) {
-            existingAdmin.setName(admin.getName());
+        if (request.getName() != null && !request.getName().isBlank() && !admin.getName().equals(request.getName())) {
+            admin.setName(request.getName());
         }
 
-        if (admin.getEmail() != null && !existingAdmin.getEmail().equals(admin.getEmail())) {
-            existingAdmin.setEmail(admin.getEmail());
+        if (request.getEmail() != null && !admin.getEmail().equals(request.getEmail())) {
+            admin.setEmail(request.getEmail());
         }
 
-        if (admin.getPassword() != null && !admin.getPassword().isBlank()) {
-            existingAdmin.setPassword(passwordEncoder.encode(admin.getPassword()));
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            admin.setPassword(passwordEncoder.encode(request.getPassword()));
         }
 
-        try {
-            adminRepository.update(existingAdmin);
-            return existingAdmin.getId();
-        } catch (DataIntegrityViolationException e) {
-            throw new EmailAlreadyExistsException();
+        if (!request.getEmail().equals(admin.getEmail())) {
+            var adminByEmail = adminRepository.findByEmail(request.getEmail());
+
+            if (adminByEmail.isPresent())
+                throw new ValidationException(Messages.EMAIL_ALREADY_EXISTS);
         }
+
+        adminRepository.update(admin);
+        return admin.getId();
     }
-    
+
     @Override
-    public PageDTO<Admin> findByFilter(String searchTerm, int page, int pageSize){
-    	return adminRepository.findByFilter(searchTerm, page, pageSize);
+    public PageDTO<Admin> findByFilter(String searchTerm, int page, int pageSize) {
+        return adminRepository.findByFilter(searchTerm, page, pageSize);
     }
 
     @Override
@@ -96,7 +98,7 @@ public class AdminService implements IAdminService {
     }
 
     @Override
-	public void updatePassword(UUID uuid, String encodedPassword) {
-    	adminRepository.updatePassword(uuid, encodedPassword);
-	}
+    public void updatePassword(UUID uuid, String encodedPassword) {
+        adminRepository.updatePassword(uuid, encodedPassword);
+    }
 }
