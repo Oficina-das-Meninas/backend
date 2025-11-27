@@ -2,9 +2,7 @@ package br.org.oficinadasmeninas.infra.admin.repository;
 
 import br.org.oficinadasmeninas.domain.admin.Admin;
 import br.org.oficinadasmeninas.domain.admin.repository.IAdminRepository;
-
-import br.org.oficinadasmeninas.infra.transparency.repository.queries.CategoriesQueryBuilder;
-import org.springframework.dao.EmptyResultDataAccessException;
+import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -12,14 +10,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.UUID;
-
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
-
-import br.org.oficinadasmeninas.domain.admin.Admin;
-import br.org.oficinadasmeninas.domain.admin.repository.IAdminRepository;
-import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 
 @Repository
 public class AdminRepository implements IAdminRepository {
@@ -33,15 +23,23 @@ public class AdminRepository implements IAdminRepository {
     @Override
     public Admin insert(Admin admin) {
 
-        var id = UUID.randomUUID();
-        admin.setId(id);
+        var accountId = UUID.randomUUID();
 
         jdbc.update(
-                AdminQueryBuilder.INSERT_ADMIN,
-                admin.getId(),
+                AdminQueryBuilder.INSERT_ACCOUNT,
+                accountId,
                 admin.getName(),
                 admin.getEmail(),
                 admin.getPassword()
+        );
+
+        var adminId = UUID.randomUUID();
+        admin.setId(adminId);
+
+        jdbc.update(
+                AdminQueryBuilder.INSERT_ADMIN,
+                adminId,
+                accountId
         );
 
         return admin;
@@ -51,18 +49,18 @@ public class AdminRepository implements IAdminRepository {
     public Admin update(Admin admin) {
 
         jdbc.update(
-                AdminQueryBuilder.UPDATE_ADMIN,
+                AdminQueryBuilder.UPDATE_ACCOUNT,
                 admin.getName(),
                 admin.getEmail(),
                 admin.getPassword(),
-                admin.getId()
+                admin.getAccountId()
         );
 
         return admin;
     }
 
     @Override
-    public void deleteById(UUID id){
+    public void deleteById(UUID id) {
         jdbc.update(AdminQueryBuilder.DELETE_ADMIN, id);
     }
 
@@ -79,8 +77,8 @@ public class AdminRepository implements IAdminRepository {
     }
 
     @Override
-    public PageDTO<Admin> findByFilter(String searchTerm, int page, int pageSize){
-    	var admins = jdbc.query(
+    public PageDTO<Admin> findByFilter(String searchTerm, int page, int pageSize) {
+        var admins = jdbc.query(
                 AdminQueryBuilder.GET_FILTERED_ADMINS,
                 this::mapRowAdmin,
                 searchTerm,
@@ -88,14 +86,14 @@ public class AdminRepository implements IAdminRepository {
                 pageSize,
                 page * pageSize
         );
-    	
-    	var total = jdbc.queryForObject(
-    			AdminQueryBuilder.SELECT_COUNT,
+
+        var total = jdbc.queryForObject(
+                AdminQueryBuilder.SELECT_COUNT,
                 Integer.class,
                 searchTerm,
                 searchTerm
         );
-    	
+
         if (total == null) total = 0;
 
         int totalPages = Math.toIntExact((total / pageSize) + (total % pageSize == 0 ? 0 : 1));
@@ -105,42 +103,32 @@ public class AdminRepository implements IAdminRepository {
 
     @Override
     public Optional<Admin> findById(UUID id) {
-        try {
-            var admin = jdbc.queryForObject(
-                    AdminQueryBuilder.FIND_ADMIN_BY_ID,
-                    this::mapRowAdmin,
-                    id
-            );
 
-            return Optional.ofNullable(admin);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+        return jdbc.query(
+                AdminQueryBuilder.FIND_ADMIN_BY_ID,
+                this::mapRowAdmin,
+                id
+        ).stream().findFirst();
     }
 
     @Override
     public Optional<Admin> findByEmail(String email) {
-        try {
-            var admin = jdbc.queryForObject(
-                    AdminQueryBuilder.FIND_ADMIN_BY_EMAIL,
-                    this::mapRowAdmin,
-                    email
-            );
 
-            return Optional.ofNullable(admin);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+        return jdbc.query(
+                AdminQueryBuilder.FIND_ADMIN_BY_EMAIL,
+                this::mapRowAdmin,
+                email
+        ).stream().findFirst();
     }
-    
+
     @Override
-	public void updatePassword(UUID id, String encodedPassword) {
-    	jdbc.update(
-    			AdminQueryBuilder.UPDATE_PASSWORD,
+    public void updatePassword(UUID id, String encodedPassword) {
+        jdbc.update(
+                AdminQueryBuilder.UPDATE_PASSWORD,
                 encodedPassword,
                 id
         );
-	}
+    }
 
     private Admin mapRowAdmin(ResultSet rs, int rowNum) throws SQLException {
         var admin = new Admin();
@@ -148,6 +136,7 @@ public class AdminRepository implements IAdminRepository {
         admin.setName(rs.getString("name"));
         admin.setEmail(rs.getString("email"));
         admin.setPassword(rs.getString("password"));
+        admin.setAccountId(UUID.fromString(rs.getString("account_id")));
         return admin;
     }
 }
