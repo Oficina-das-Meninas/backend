@@ -56,7 +56,10 @@ public class AuthService {
 	    if (origin == null) {
 	        origin = request.getHeader("Host");
 	    }
-       
+
+
+        origin = "https://admin-dev.oficinadasmeninas.org.br";
+
         UserDetailsCustom authenticatedUser = authenticate(loginUserDto, origin);
 
         String jwtToken = jwtService.generateUserSessionToken(authenticatedUser);

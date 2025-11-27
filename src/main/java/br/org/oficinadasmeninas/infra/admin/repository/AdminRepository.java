@@ -3,6 +3,7 @@ package br.org.oficinadasmeninas.infra.admin.repository;
 import br.org.oficinadasmeninas.domain.admin.Admin;
 import br.org.oficinadasmeninas.domain.admin.repository.IAdminRepository;
 
+import br.org.oficinadasmeninas.infra.transparency.repository.queries.CategoriesQueryBuilder;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -58,6 +59,23 @@ public class AdminRepository implements IAdminRepository {
         );
 
         return admin;
+    }
+
+    @Override
+    public void deleteById(UUID id){
+        jdbc.update(AdminQueryBuilder.DELETE_ADMIN, id);
+    }
+
+    @Override
+    public boolean existsById(UUID id) {
+
+        return Boolean.TRUE.equals(
+                jdbc.queryForObject(
+                        AdminQueryBuilder.EXISTS_ADMIN_BY_ID,
+                        Boolean.class,
+                        id
+                )
+        );
     }
 
     @Override

@@ -71,6 +71,15 @@ public class AdminService implements IAdminService {
             throw new EmailAlreadyExistsException();
         }
     }
+
+    @Override
+    public UUID deleteById(UUID id) {
+        checkCategoryExists(id);
+
+        adminRepository.deleteById(id);
+
+        return id;
+    }
     
     @Override
     public PageDTO<Admin> findByFilter(String searchTerm, int page, int pageSize){
@@ -99,4 +108,10 @@ public class AdminService implements IAdminService {
 	public void updatePassword(UUID uuid, String encodedPassword) {
     	adminRepository.updatePassword(uuid, encodedPassword);
 	}
+
+    private void checkCategoryExists(UUID id) {
+        if (!adminRepository.existsById(id)) {
+            throw new NotFoundException(Messages.ADMIN_NOT_FOUND_BY_ID);
+        }
+    }
 }

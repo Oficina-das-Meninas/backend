@@ -11,6 +11,8 @@ public class AdminQueryBuilder {
     public static final String UPDATE_ADMIN = "UPDATE admin SET name = ?, email = ?, password = ? WHERE id = ?";
     
     public static final String UPDATE_PASSWORD = "UPDATE admin SET password = ? WHERE id = ?";
+
+	public static final String DELETE_ADMIN = "DELETE from admin WHERE id = ?";
   
     public static final String SELECT_COUNT = """
     		SELECT count(*) FROM admin
@@ -27,4 +29,8 @@ public class AdminQueryBuilder {
     			OR unaccent(email) ILIKE unaccent(COALESCE('%' || ? || '%', email)) 
     		)
     		""";
+
+	public static final String EXISTS_ADMIN_BY_ID = """
+        SELECT EXISTS(SELECT 1 FROM admin WHERE id = ?)
+    """;
 }

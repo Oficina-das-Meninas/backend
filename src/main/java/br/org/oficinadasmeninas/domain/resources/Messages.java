@@ -12,6 +12,8 @@ public final class Messages {
 
     public static final String DOCUMENT_DELETED_SUCCESSFULLY = "Documento deletado com sucesso.";
 
+    public static final String ADMIN_DELETED_SUCCESSFULLY = "Admin deletado com sucesso.";
+
     public static final String COLLABORATOR_UPDATED_SUCCESSFULLY = "Colaborador atualizado com sucesso.";
 
     public static final String COLLABORATOR_DELETED_SUCCESSFULLY = "Colaborador deletado com sucesso.";
