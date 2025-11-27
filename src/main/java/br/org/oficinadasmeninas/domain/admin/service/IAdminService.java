@@ -36,8 +36,6 @@ public interface IAdminService {
      *
      * @param id identificador único ({@link UUID}) do admin a ser removida; não deve ser {@code null}
      * @return o identificador único ({@link UUID}) do admin excluída
-     * @throws IllegalArgumentException se {@code id} for {@code null}
-     * @throws IllegalStateException se a categoria não existir
      */
     UUID deleteById(UUID id);
     
