@@ -80,9 +80,9 @@ public class DonationApplication {
             donationCheckout.donor().id(),
             checkout.referenceId()
         );
-		DonationDto donation = donationService.insert(createDonation);
+        UUID donationId = donationService.insert(createDonation);
 
-		CreatePaymentDto createPayment = new CreatePaymentDto(PaymentStatusEnum.WAITING, donation.id());
+		CreatePaymentDto createPayment = new CreatePaymentDto(PaymentStatusEnum.WAITING, donationId);
 		paymentService.insert(createPayment);
 
 		return new DonationCheckoutDto(checkout.link());

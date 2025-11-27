@@ -51,12 +51,12 @@ public class DonationService implements IDonationService {
     }
 
     @Override
-    public DonationDto insert(CreateDonationDto request) {
+    public UUID insert(CreateDonationDto request) {
 
         var donation = toEntity(request);
         donationRepository.insert(donation);
 
-        return toDto(donation);
+        return donation.getId();
     }
 
 

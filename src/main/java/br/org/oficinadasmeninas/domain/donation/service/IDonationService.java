@@ -40,7 +40,7 @@ public interface IDonationService {
      * @return um {@link DonationDto} representando a doação criada, incluindo seu identificador gerado
      * @throws IllegalArgumentException se {@code donation} for {@code null} ou contiver dados inválidos
      */
-    DonationDto insert(CreateDonationDto donation);
+    UUID insert(CreateDonationDto donation);
 
 
     /**
