@@ -4,6 +4,11 @@ import static br.org.oficinadasmeninas.domain.admin.mapper.AdminMapper.toDto;
 
 import java.util.UUID;
 
+import br.org.oficinadasmeninas.infra.auth.service.JwtService;
+import br.org.oficinadasmeninas.infra.session.service.SessionService;
+import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
+import br.org.oficinadasmeninas.presentation.shared.utils.CookieUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,11 +29,13 @@ public class AdminService implements IAdminService {
 
     private final IAdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SessionService sessionService;
 
-    public AdminService(IAdminRepository adminRepository, PasswordEncoder passwordEncoder) {
+    public AdminService(IAdminRepository adminRepository, PasswordEncoder passwordEncoder, SessionService sessionService) {
         super();
         this.adminRepository = adminRepository;
         this.passwordEncoder = passwordEncoder;
+        this.sessionService = sessionService;
     }
 
     @Override
@@ -71,6 +78,24 @@ public class AdminService implements IAdminService {
             throw new EmailAlreadyExistsException();
         }
     }
+
+    @Override
+    public UUID deleteById(UUID id) {
+        checkAdminExists(id);
+
+        var admin = adminRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Messages.ADMIN_NOT_FOUND_BY_ID + id));
+
+        var username = sessionService.getSession().getUsername();
+
+        if (admin.getEmail().equals(username)) {
+            throw new ValidationException(Messages.CANNOT_DELETE_LOGGED_USER);
+        }
+
+        adminRepository.deleteById(id);
+
+        return id;
+    }
     
     @Override
     public PageDTO<Admin> findByFilter(String searchTerm, int page, int pageSize){
@@ -99,4 +124,10 @@ public class AdminService implements IAdminService {
 	public void updatePassword(UUID uuid, String encodedPassword) {
     	adminRepository.updatePassword(uuid, encodedPassword);
 	}
+
+    private void checkAdminExists(UUID id) {
+        if (!adminRepository.existsById(id)) {
+            throw new NotFoundException(Messages.ADMIN_NOT_FOUND_BY_ID);
+        }
+    }
 }
