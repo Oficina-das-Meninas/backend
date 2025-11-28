@@ -77,10 +77,27 @@ public interface IPaymentGatewayService {
 	 */
 	String findSubscriptionId(RequestSubscriptionIdCustomer customer);
 
+    /**
+     * Processa uma notificação de pagamento recebida do gateway de pagamentos.
+     * <p>
+     * Essa operação atualiza o status do pagamento e do checkout associado
+     * com base nas informações fornecidas na notificação.
+     *
+     * @param request objeto {@link PaymentNotificationDto} contendo os dados
+     *                da notificação de pagamento
+     */
     void notifyPayment(PaymentNotificationDto request);
 
+    /**
+     * Processa uma notificação de checkout recebida do gateway de pagamentos.
+     * <p>
+     * Essa operação atualiza o status do checkout com base nas informações
+     * fornecidas na notificação.
+     *
+     * @param request objeto {@link CheckoutNotificationDto} contendo os dados
+     *                da notificação de checkout
+     */
     void notifyCheckout(CheckoutNotificationDto request);
-
 
     /**
      * Cancela uma assinatura de doação recorrente no gateway de pagamentos.

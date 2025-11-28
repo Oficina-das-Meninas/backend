@@ -20,4 +20,6 @@ public interface IPaymentRepository {
     void cancelPaymentByDonationId(UUID donationId);
 
     Payment updateDate(Payment payment);
+
+    long countDeclinedPaymentsByDonationId(UUID donationId);
 }

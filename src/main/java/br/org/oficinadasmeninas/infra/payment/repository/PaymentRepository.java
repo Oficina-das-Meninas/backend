@@ -85,6 +85,15 @@ public class PaymentRepository implements IPaymentRepository {
         return payment;
     }
 
+    @Override
+    public long countDeclinedPaymentsByDonationId(UUID donationId) {
+        Long count = jdbc.queryForObject(
+                PaymentQueryBuilder.COUNT_DECLINED_PAYMENTS_BY_DONATION,
+                Long.class,
+                donationId
+        );
+        return count != null ? count : 0;
+    }
 
     private Payment mapRowPayment(ResultSet rs, int rowNum) throws SQLException {
         Timestamp ts = rs.getTimestamp("payment_date");

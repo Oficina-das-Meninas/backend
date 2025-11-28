@@ -37,4 +37,10 @@ public class PaymentQueryBuilder {
 		    SET payment_date = ?
 		    WHERE id = ?
 		""";
+
+	public static final String COUNT_DECLINED_PAYMENTS_BY_DONATION = """
+			    SELECT COUNT(*)
+			    FROM payment
+			    WHERE donation_id = ? AND status = 'DECLINED'
+			""";
 }

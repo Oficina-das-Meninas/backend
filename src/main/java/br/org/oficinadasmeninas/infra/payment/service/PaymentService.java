@@ -85,4 +85,9 @@ public class PaymentService implements IPaymentService {
 
         return payment.getId();
 	}
+
+    @Override
+    public long countDeclinedPaymentsByDonationId(UUID donationId) {
+        return paymentRepository.countDeclinedPaymentsByDonationId(donationId);
+    }
 }

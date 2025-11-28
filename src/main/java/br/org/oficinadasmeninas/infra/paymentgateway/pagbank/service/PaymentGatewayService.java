@@ -265,9 +265,23 @@ public class PaymentGatewayService implements IPaymentGatewayService {
     public void notifyPayment(PaymentNotificationDto request) {
         PaymentChargesDto charge = request.charges().getFirst();
         boolean recurring = charge.recurring() != null;
+
         ResponseWebhookCustomer customer = request.customer();
         updatePaymentStatus(request.reference_id(), charge.status(), charge.payment_method().type(), recurring, customer);
 
+        if (recurring && charge.status() == PaymentStatusEnum.CANCELED) {
+            String subscriptionId = this.findSubscriptionId( new RequestSubscriptionIdCustomer(request.customer().name(), request.customer().tax_id()));
+            cancelRecurringDonationSubscription(subscriptionId);
+        }
+
+        if (recurring && charge.status() == PaymentStatusEnum.DECLINED) {
+            long declinedCount = paymentService.countDeclinedPaymentsByDonationId(request.reference_id());
+
+            if (declinedCount >= 3) {
+                String subscriptionId = this.findSubscriptionId( new RequestSubscriptionIdCustomer(request.customer().name(), request.customer().tax_id()));
+                cancelRecurringDonationSubscription(subscriptionId);
+            }
+        }
 
         if (charge.status() == PaymentStatusEnum.PAID){
             DonationDto donation = donationService.findById(request.reference_id());
