@@ -23,12 +23,11 @@ public class Donation {
 	public Donation() {
 	}
 
-	public Donation(UUID id, double value, Double fee, String checkoutId, PaymentGatewayEnum gateway,
+	public Donation(UUID id, double value, String checkoutId, PaymentGatewayEnum gateway,
 			UUID sponsorshipId, PaymentMethodEnum method, UUID userId, LocalDateTime donationAt) {
 		super();
 		this.id = id;
 		this.value = value;
-		this.fee = fee;
 		this.checkoutId = checkoutId;
 		this.gateway = gateway;
 		this.sponsorshipId = sponsorshipId;
