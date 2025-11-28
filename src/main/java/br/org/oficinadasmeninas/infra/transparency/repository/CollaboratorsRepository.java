@@ -4,7 +4,6 @@ import br.org.oficinadasmeninas.domain.transparency.Collaborator;
 import br.org.oficinadasmeninas.domain.transparency.repository.ICategoriesRepository;
 import br.org.oficinadasmeninas.domain.transparency.repository.ICollaboratorsRepository;
 import br.org.oficinadasmeninas.infra.transparency.repository.queries.CollaboratorsQueryBuilder;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -72,17 +71,11 @@ public class CollaboratorsRepository implements ICollaboratorsRepository {
 
     @Override
     public Optional<Collaborator> findById(UUID id) {
-        try {
-            var collaborator = jdbc.queryForObject(
-                    CollaboratorsQueryBuilder.GET_COLLABORATOR_BY_ID,
-                    this::mapRowCollaborator,
-                    id
-            );
-
-            return Optional.ofNullable(collaborator);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+        return jdbc.query(
+                CollaboratorsQueryBuilder.GET_COLLABORATOR_BY_ID,
+                this::mapRowCollaborator,
+                id
+        ).stream().findFirst();
     }
 
     @Override

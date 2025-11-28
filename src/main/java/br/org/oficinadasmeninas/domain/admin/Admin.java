@@ -8,6 +8,7 @@ public class Admin {
 	private String name;
 	private String email;
 	private String password;
+	private UUID accountId;
 
 	public UUID getId() {
 		return id;
@@ -39,6 +40,14 @@ public class Admin {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public UUID getAccountId() {
+		return accountId;
+	}
+
+	public void setAccountId(UUID accountId) {
+		this.accountId = accountId;
 	}
 
 }

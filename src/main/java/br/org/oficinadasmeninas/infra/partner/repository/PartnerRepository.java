@@ -3,7 +3,6 @@ package br.org.oficinadasmeninas.infra.partner.repository;
 import br.org.oficinadasmeninas.domain.partner.Partner;
 import br.org.oficinadasmeninas.domain.partner.repository.IPartnerRepository;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -46,12 +45,12 @@ public class PartnerRepository implements IPartnerRepository {
 
     @Override
     public Optional<Partner> findById(UUID id) {
-        try {
-            var partner = jdbc.queryForObject(PartnerQueryBuilder.GET_PARTNER_BY_ID, this::mapRow, id);
-            return Optional.ofNullable(partner);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+
+        return jdbc.query(
+                PartnerQueryBuilder.GET_PARTNER_BY_ID,
+                this::mapRow,
+                id
+        ).stream().findFirst();
     }
 
     public Partner insert(Partner partner) {
@@ -80,11 +79,11 @@ public class PartnerRepository implements IPartnerRepository {
     }
 
 
-	@Override
-	public void deleteById(UUID id) {
-		jdbc.update(PartnerQueryBuilder.DELETE_PARTNER, id);
-	}
-    
+    @Override
+    public void deleteById(UUID id) {
+        jdbc.update(PartnerQueryBuilder.DELETE_PARTNER, id);
+    }
+
     private Partner mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new Partner(
                 rs.getObject("id", java.util.UUID.class),
@@ -92,5 +91,5 @@ public class PartnerRepository implements IPartnerRepository {
                 rs.getString("name")
         );
     }
-    
+
 }

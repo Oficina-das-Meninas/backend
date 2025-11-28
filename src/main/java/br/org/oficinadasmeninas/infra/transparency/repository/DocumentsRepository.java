@@ -5,7 +5,6 @@ import br.org.oficinadasmeninas.domain.transparency.Document;
 import br.org.oficinadasmeninas.domain.transparency.repository.ICategoriesRepository;
 import br.org.oficinadasmeninas.domain.transparency.repository.IDocumentsRepository;
 import br.org.oficinadasmeninas.infra.transparency.repository.queries.DocumentsQueryBuilder;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -58,25 +57,19 @@ public class DocumentsRepository implements IDocumentsRepository {
 
     @Override
     public Optional<Document> findById(UUID id) {
-        try {
-            var document = jdbc.queryForObject(
-                    DocumentsQueryBuilder.GET_DOCUMENT_BY_ID,
-                    this::mapRowDocument,
-                    id
-            );
-
-            return Optional.ofNullable(document);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+        return jdbc.query(
+                DocumentsQueryBuilder.GET_DOCUMENT_BY_ID,
+                this::mapRowDocument,
+                id
+        ).stream().findFirst();
     }
 
     @Override
     public int countByCategoryId(UUID id) {
         var count = jdbc.queryForObject(
-            DocumentsQueryBuilder.COUNT_DOCUMENTS_BY_CATEGORY,
-            Integer.class,
-            id
+                DocumentsQueryBuilder.COUNT_DOCUMENTS_BY_CATEGORY,
+                Integer.class,
+                id
         );
 
         return count == null ? 0 : count;

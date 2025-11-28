@@ -5,7 +5,6 @@ import br.org.oficinadasmeninas.domain.donation.dto.DonationWithDonorDto;
 import br.org.oficinadasmeninas.domain.donation.dto.GetDonationDto;
 import br.org.oficinadasmeninas.domain.donation.repository.IDonationRepository;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -37,7 +36,6 @@ public class DonationRepository implements IDonationRepository {
                 DonationQueryBuilder.INSERT_DONATION,
                 id,
                 donation.getValue(),
-                donation.getFee(),
                 donation.getCheckoutId(),
                 donation.getGateway() != null ? donation.getGateway().name() : null,
                 donation.getSponsorshipId(),
@@ -139,63 +137,57 @@ public class DonationRepository implements IDonationRepository {
 
     @Override
     public Optional<Donation> findById(UUID id) {
-        try {
-            var donation = jdbc.queryForObject(
-                    DonationQueryBuilder.SELECT_DONATION_BY_ID,
-                    this::mapRowDonation,
-                    id
-            );
-
-            return Optional.ofNullable(donation);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+        return jdbc.query(
+                DonationQueryBuilder.SELECT_DONATION_BY_ID,
+                this::mapRowDonation,
+                id
+        ).stream().findFirst();
     }
 
     @Override
     public List<Donation> findPendingCheckoutsByUserId(UUID id) {
-        try{
-            return jdbc.query(DonationQueryBuilder.SELECT_PENDING_CHECKOUTS_BY_USER_ID, this::mapRowDonation, id);
-        }catch (EmptyResultDataAccessException e){
-            return List.of();
-        }
+
+        return jdbc.query(
+                DonationQueryBuilder.SELECT_PENDING_CHECKOUTS_BY_USER_ID,
+                this::mapRowDonation,
+                id
+        );
     }
 
-	private Donation mapRowDonation(ResultSet rs, int rowNum) throws SQLException {
-		Donation donation = new Donation();
-		donation.setId(rs.getObject("id", UUID.class));
-		donation.setValue(rs.getDouble("value"));
-		donation.setFee(rs.getObject("fee", Double.class));
-		donation.setCheckoutId(rs.getString("checkout_id"));
+    private Donation mapRowDonation(ResultSet rs, int rowNum) throws SQLException {
+        Donation donation = new Donation();
+        donation.setId(rs.getObject("id", UUID.class));
+        donation.setValue(rs.getDouble("value"));
+        donation.setFee(rs.getObject("fee", Double.class));
+        donation.setCheckoutId(rs.getString("checkout_id"));
 
-		String gateway = rs.getString("gateway");
-		if (gateway != null) {
-			donation.setGateway(br.org.oficinadasmeninas.domain.paymentgateway.PaymentGatewayEnum.valueOf(gateway));
-		}
+        String gateway = rs.getString("gateway");
+        if (gateway != null) {
+            donation.setGateway(br.org.oficinadasmeninas.domain.paymentgateway.PaymentGatewayEnum.valueOf(gateway));
+        }
 
-		donation.setSponsorshipId(rs.getObject("sponsorship_id", UUID.class));
+        donation.setSponsorshipId(rs.getObject("sponsorship_id", UUID.class));
 
-		String method = rs.getString("method");
-		if (method != null) {
-			donation.setMethod(br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum.valueOf(method));
-		}
+        String method = rs.getString("method");
+        if (method != null) {
+            donation.setMethod(br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum.valueOf(method));
+        }
 
-		donation.setUserId(rs.getObject("user_id", UUID.class));
-		donation.setDonationAt(rs.getObject("donation_at", LocalDateTime.class));
-		return donation;
-	}
+        donation.setUserId(rs.getObject("user_id", UUID.class));
+        donation.setDonationAt(rs.getObject("donation_at", LocalDateTime.class));
+        return donation;
+    }
 
-	private DonationWithDonorDto mapRowDonationWithDonor(ResultSet rs, int rowNum) throws SQLException {
+    private DonationWithDonorDto mapRowDonationWithDonor(ResultSet rs, int rowNum) throws SQLException {
         String userIdString = rs.getString("user_id");
-		return new DonationWithDonorDto(
-				UUID.fromString(rs.getString("id")),
-				rs.getBigDecimal("value"),
-				rs.getTimestamp("donation_at").toLocalDateTime(),
+        return new DonationWithDonorDto(
+                UUID.fromString(rs.getString("id")),
+                rs.getBigDecimal("value"),
+                rs.getTimestamp("donation_at").toLocalDateTime(),
                 userIdString != null ? UUID.fromString(userIdString) : null,
                 rs.getString("donation_type"),
                 rs.getString("sponsor_status"),
-				rs.getString("donor_name")
-		);
-	}
-
+                rs.getString("donor_name")
+        );
+    }
 }

@@ -11,6 +11,7 @@ public class UserDto {
 	private String email;
 	private String document;
 	private String phone;
+	private UUID accountId;
 	private boolean isActive;
 
 	public UserDto() {
@@ -24,6 +25,7 @@ public class UserDto {
 		this.email = user.getEmail();
 		this.document = user.getDocument();
 		this.phone = user.getPhone();
+		this.accountId = user.getAccountId();
 		this.isActive = user.isActive();
 	}
 
@@ -76,6 +78,13 @@ public class UserDto {
 		this.phone = phone;
 	}
 
+	public UUID getAccountId() {
+		return accountId;
+	}
+
+	public void setAccountId(UUID accountId) {
+		this.accountId = accountId;
+	}
 	public boolean isActive() {
 		return isActive;
 	}
