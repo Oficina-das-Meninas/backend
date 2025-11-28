@@ -57,7 +57,6 @@ public class AuthService {
 	        origin = request.getHeader("Host");
 	    }
 
-        origin = "https://admin-dev.oficinadasmeninas.org.br";
 
         UserDetailsCustom authenticatedUser = authenticate(loginUserDto, origin);
 
