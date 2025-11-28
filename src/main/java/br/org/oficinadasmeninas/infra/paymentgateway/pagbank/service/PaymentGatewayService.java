@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import br.org.oficinadasmeninas.domain.donation.dto.DonationDto;
-import br.org.oficinadasmeninas.domain.donation.dto.DonationDto;
 import br.org.oficinadasmeninas.domain.payment.dto.CheckoutNotificationDto;
 import br.org.oficinadasmeninas.domain.payment.dto.PaymentDto;
 import br.org.oficinadasmeninas.domain.payment.dto.PaymentNotificationDto;
@@ -47,7 +46,6 @@ import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.mappers.RequestCrea
 import br.org.oficinadasmeninas.infra.shared.exception.PaymentGatewayException;
 import br.org.oficinadasmeninas.infra.user.service.UserService;
 import br.org.oficinadasmeninas.presentation.shared.utils.IsoDateFormater;
-import org.springframework.web.util.UriBuilder;
 
 @Service
 public class PaymentGatewayService implements IPaymentGatewayService {
@@ -277,7 +275,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
         boolean recurring = charge.recurring() != null;
         ResponseWebhookCustomer customer = request.customer();
         updatePaymentStatus(request.reference_id(), charge.status(), charge.payment_method().type(),
-                charge.payment_method().card().brand(),recurring,
+                charge.payment_method().card() != null ? charge.payment_method().card().brand() : null, recurring,
                 customer);
 
         if (charge.status() == PaymentStatusEnum.PAID){

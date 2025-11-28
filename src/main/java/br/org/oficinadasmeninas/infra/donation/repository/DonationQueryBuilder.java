@@ -20,7 +20,7 @@ public class DonationQueryBuilder {
 
     public static final String INSERT_DONATION = """
 			    INSERT INTO donation (id, value, checkout_id, gateway, sponsorship_id, method, user_id, donation_at)
-			    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+			    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 			""";
 
 	public static final String SELECT_DONATION_BY_ID = """
