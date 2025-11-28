@@ -263,6 +263,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
     @Override
     public void notifyPayment(PaymentNotificationDto request) {
+        this.saveLog(request);
         PaymentChargesDto charge = request.charges().getFirst();
         boolean recurring = charge.recurring() != null;
 
@@ -297,7 +298,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
         updateCheckoutStatus(request.id(), request.reference_id(), request.status());
     }
 
-    private void saveLog(Object object) throws IOException {
+    private void saveLog(Object object){
         logService.createLogPagbank(new CreateLogPagbank(
                 "WEBHOOK NOTIFY BODY",
                 LocalDateTime.now(),
