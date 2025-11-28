@@ -158,7 +158,6 @@ public class DonationRepository implements IDonationRepository {
         Donation donation = new Donation();
         donation.setId(rs.getObject("id", UUID.class));
         donation.setValue(rs.getDouble("value"));
-        donation.setFee(rs.getObject("fee", Double.class));
         donation.setCheckoutId(rs.getString("checkout_id"));
 
         String gateway = rs.getString("gateway");
