@@ -22,7 +22,11 @@ public class StatisticsService implements IStatisticsService {
 
     @Override
     public IndicatorsStatisticsDto getIndicatorsByPeriod(LocalDate startDate, LocalDate endDate) {
-        if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
+        if (startDate == null || endDate == null) {
+            throw new RequiredDateRangeException();
+        }
+
+        if (startDate.isAfter(endDate)) {
             throw new InvalidDateRangeException();
         }
 
