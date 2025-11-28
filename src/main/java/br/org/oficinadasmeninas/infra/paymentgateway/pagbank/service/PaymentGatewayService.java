@@ -47,7 +47,6 @@ import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.mappers.RequestCrea
 import br.org.oficinadasmeninas.infra.shared.exception.PaymentGatewayException;
 import br.org.oficinadasmeninas.infra.user.service.UserService;
 import br.org.oficinadasmeninas.presentation.shared.utils.IsoDateFormater;
-import org.springframework.web.util.UriBuilder;
 
 @Service
 public class PaymentGatewayService implements IPaymentGatewayService {
