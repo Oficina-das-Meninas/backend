@@ -276,7 +276,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
         boolean recurring = charge.recurring() != null;
         ResponseWebhookCustomer customer = request.customer();
         updatePaymentStatus(request.reference_id(), charge.status(), charge.payment_method().type(),
-                charge.payment_method().card().brand(),recurring,
+                charge.payment_method().card() != null ? charge.payment_method().card().brand() : null, recurring,
                 customer);
 
         if (charge.status() == PaymentStatusEnum.PAID){
