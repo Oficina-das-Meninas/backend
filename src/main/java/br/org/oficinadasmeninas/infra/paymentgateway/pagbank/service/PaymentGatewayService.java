@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import br.org.oficinadasmeninas.domain.donation.dto.DonationDto;
-import br.org.oficinadasmeninas.domain.donation.dto.DonationDto;
 import br.org.oficinadasmeninas.domain.payment.dto.CheckoutNotificationDto;
 import br.org.oficinadasmeninas.domain.payment.dto.PaymentDto;
 import br.org.oficinadasmeninas.domain.payment.dto.PaymentNotificationDto;
