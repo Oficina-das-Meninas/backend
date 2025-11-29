@@ -94,8 +94,9 @@ public class UserController extends BaseController {
     }
     
 	@GetMapping("/me")
-	public ResponseEntity<?> findByUserSession() {
-		return handle(() -> userService.findByUserSession());
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> findByUserSession() {
+		return handle(userService::findByUserSession);
 	}
 
     @GetMapping("/pontuations")
