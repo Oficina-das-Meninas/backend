@@ -41,6 +41,9 @@ public class PaymentQueryBuilder {
 	public static final String COUNT_DECLINED_PAYMENTS_BY_DONATION = """
 			    SELECT COUNT(*)
 			    FROM payment
-			    WHERE donation_id = ? AND status = 'DECLINED'
-			""";
+			    WHERE donation_id = ?
+                  AND status = 'DECLINED'
+                  AND EXTRACT(MONTH FROM payment_date) = EXTRACT(MONTH FROM CURRENT_DATE)
+                  AND EXTRACT(YEAR FROM payment_date) = EXTRACT(YEAR FROM CURRENT_DATE);
+            """;
 }

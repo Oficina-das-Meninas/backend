@@ -12,6 +12,7 @@ import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.sponsorship.dto.SponsorshipDto;
 import br.org.oficinadasmeninas.domain.sponsorship.service.ISponsorshipService;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestSubscriptionIdCustomer;
 import br.org.oficinadasmeninas.infra.recaptcha.CaptchaService;
 import br.org.oficinadasmeninas.infra.user.service.UserService;
 import br.org.oficinadasmeninas.presentation.exceptions.ConflictException;

@@ -69,7 +69,7 @@ public interface IPaymentService {
 	PaymentDto findById(UUID id);
 
 	/**
-	 * Conta o número de pagamentos com status DECLINED associados a uma doação.
+	 * Conta o número de pagamentos com status DECLINED associados a uma doação, no mesmo mês.
 	 *
 	 * @param donationId identificador único da doação
 	 * @return quantidade de pagamentos recusados

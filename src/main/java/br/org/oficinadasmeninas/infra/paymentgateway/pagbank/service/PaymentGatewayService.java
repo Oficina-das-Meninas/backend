@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import br.org.oficinadasmeninas.domain.donation.dto.DonationDto;
 import br.org.oficinadasmeninas.domain.payment.dto.CheckoutNotificationDto;
+import br.org.oficinadasmeninas.domain.payment.dto.CreatePaymentDto;
 import br.org.oficinadasmeninas.domain.payment.dto.PaymentDto;
 import br.org.oficinadasmeninas.domain.payment.dto.PaymentNotificationDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.PaymentChargesDto;
@@ -273,18 +274,29 @@ public class PaymentGatewayService implements IPaymentGatewayService {
         if (recurring && charge.status() == PaymentStatusEnum.CANCELED) {
             String subscriptionId = this.findSubscriptionId( new RequestSubscriptionIdCustomer(request.customer().name(), request.customer().tax_id()));
             cancelRecurringDonationSubscription(subscriptionId);
+            DonationDto donationDto = donationService.findById(request.reference_id());
+            sponsorshipService.cancelSponsorship(donationDto.sponsorshipId());
+
+            return;
         }
 
         if (recurring && charge.status() == PaymentStatusEnum.DECLINED) {
             long declinedCount = paymentService.countDeclinedPaymentsByDonationId(request.reference_id());
 
             if (declinedCount >= 3) {
+                DonationDto donationDto = donationService.findById(request.reference_id());
+
                 String subscriptionId = this.findSubscriptionId( new RequestSubscriptionIdCustomer(request.customer().name(), request.customer().tax_id()));
                 cancelRecurringDonationSubscription(subscriptionId);
+
+                sponsorshipService.cancelSponsorship(donationDto.sponsorshipId());
             }
+
+            return;
         }
 
-        if (charge.status() == PaymentStatusEnum.PAID){
+
+        if (charge.status() == PaymentStatusEnum.PAID && !recurring) {
             DonationDto donation = donationService.findById(request.reference_id());
             if (donation.checkoutId() != null) {
                 cancelCheckout(donation.checkoutId());

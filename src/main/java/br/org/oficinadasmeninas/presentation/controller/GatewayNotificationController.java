@@ -30,7 +30,7 @@ public class GatewayNotificationController {
     }
 
     @PostMapping("/payment")
-    public void notifyPayment(@RequestBody PaymentNotificationDto request) throws IOException {
+    public void notifyPayment(@RequestBody PaymentNotificationDto request) {
        paymentGatewayService.notifyPayment(request);
     }
 }
