@@ -7,14 +7,11 @@ import br.org.oficinadasmeninas.domain.partner.dto.UpdatePartnerDto;
 import br.org.oficinadasmeninas.domain.partner.repository.IPartnerRepository;
 import br.org.oficinadasmeninas.domain.partner.service.IPartnerService;
 import br.org.oficinadasmeninas.domain.resources.Messages;
-import br.org.oficinadasmeninas.infra.shared.exception.ObjectStorageException;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.UUID;
 
 @Service
@@ -29,41 +26,29 @@ public class PartnerService implements IPartnerService {
 
     @Transactional
     public UUID insert(CreatePartnerDto request) {
+        var previewImageUrl = storageService.uploadWithFilePath(request.previewImage(), true);
 
-        try {
-            var previewFileName = uploadMultipartFile(request.previewImage());
+        var partner = new Partner();
+        partner.setPreviewImageUrl(previewImageUrl);
+        partner.setName(request.name());
 
-            var partner = new Partner();
-            partner.setPreviewImageUrl(previewFileName);
-            partner.setName(request.name());
+        partnerRepository.insert(partner);
 
-            partnerRepository.insert(partner);
-
-            return partner.getId();
-
-        } catch (IOException e) {
-            throw new ObjectStorageException(e);
-        }
+        return partner.getId();
     }
 
     @Transactional
     public UUID update(UUID id, UpdatePartnerDto request) {
-
         var partner = partnerRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.PARTNER_NOT_FOUND + id));
 
-        try {
-            var previewFileName = uploadMultipartFile(request.previewImage());
+        var previewImageUrl = storageService.uploadWithFilePath(request.previewImage(), true);
 
-            partner.setName(request.name());
-            partner.setPreviewImageUrl(previewFileName);
+        partner.setName(request.name());
+        partner.setPreviewImageUrl(previewImageUrl);
 
-            partnerRepository.update(partner);
-            return partner.getId();
-
-        } catch (IOException e) {
-            throw new ObjectStorageException(e);
-        }
+        partnerRepository.update(partner);
+        return partner.getId();
     }
 
     @Transactional
@@ -77,24 +62,11 @@ public class PartnerService implements IPartnerService {
     }
 
     public PageDTO<Partner> findAll(String searchTerm, int page, int pageSize) {
-
         return partnerRepository.findByFilter(searchTerm, page, pageSize);
     }
 
     public Partner findById(UUID id) {
-
         return partnerRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.PARTNER_NOT_FOUND + id));
-    }
-
-    private String uploadMultipartFile(MultipartFile file) throws IOException {
-        if (file == null || file.isEmpty())
-            return null;
-
-        var fileName = storageService.sanitizeFileName(file.getOriginalFilename());
-
-        storageService.uploadWithName(file, fileName, true);
-
-        return fileName;
     }
 }

@@ -12,7 +12,6 @@ import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -32,12 +31,12 @@ public class EventService implements IEventService {
     @Transactional
     public UUID insert(CreateEventDto request) {
 
-        var previewFileName = uploadMultipartFile(request.previewImage());
-        var partnersFileName = uploadMultipartFile(request.partnersImage());
+        var previewImageUrl = storageService.uploadWithFilePath(request.previewImage(), true);
+        var partnersImageUrl = storageService.uploadWithFilePath(request.partnersImage(), true);
 
         var event = toEntity(request);
-        event.setPreviewImageUrl(previewFileName);
-        event.setPartnersImageUrl(partnersFileName);
+        event.setPreviewImageUrl(previewImageUrl);
+        event.setPartnersImageUrl(partnersImageUrl);
 
         eventRepository.insert(event);
         return event.getId();
@@ -50,16 +49,16 @@ public class EventService implements IEventService {
         var event = eventRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.EVENT_NOT_FOUND + id));
 
-        var previewFileName = uploadMultipartFile(request.previewImage());
-        var partnersFileName = uploadMultipartFile(request.partnersImage());
+        var previewImageUrl = storageService.uploadWithFilePath(request.previewImage(), true);
+        var partnersImageUrl = storageService.uploadWithFilePath(request.partnersImage(), true);
 
         event.setTitle(request.title());
         event.setDescription(request.description());
         event.setEventDate(request.eventDate());
         event.setLocation(request.location());
         event.setUrlToPlatform(request.urlToPlatform());
-        event.setPreviewImageUrl(previewFileName);
-        event.setPartnersImageUrl(partnersFileName);
+        event.setPreviewImageUrl(previewImageUrl);
+        event.setPartnersImageUrl(partnersImageUrl);
 
         eventRepository.update(event);
 
@@ -87,16 +86,5 @@ public class EventService implements IEventService {
     @Override
     public PageDTO<Event> findByFilter(GetEventDto getEventDto) {
         return eventRepository.findByFilter(getEventDto);
-    }
-
-    private String uploadMultipartFile(MultipartFile file) {
-        if (file == null || file.isEmpty())
-            return null;
-
-        var fileName = storageService.sanitizeFileName(file.getOriginalFilename());
-
-        storageService.uploadWithName(file, fileName, true);
-
-        return fileName;
     }
 }
