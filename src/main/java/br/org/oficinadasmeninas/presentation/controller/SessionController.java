@@ -1,5 +1,7 @@
 package br.org.oficinadasmeninas.presentation.controller;
 
+import jakarta.annotation.security.PermitAll;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,8 +25,15 @@ public class SessionController extends BaseController {
 	@GetMapping
 	public ResponseEntity<?> getSession() {	
 		return handle(
-			sessionService::getSession,
-			Messages.SESSION_USER_SUCCESSFULLY
+			sessionService::getSession
+		);
+	}
+
+	@GetMapping("/present")
+	@PreAuthorize("isAnonymous() or hasAnyRole('ADMIN', 'USER')")
+	public ResponseEntity<?> hasSession(HttpServletRequest request) {
+		return handle(
+			() -> sessionService.hasSession(request)
 		);
 	}
 
