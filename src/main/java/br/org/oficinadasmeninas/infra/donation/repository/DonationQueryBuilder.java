@@ -47,6 +47,18 @@ public class DonationQueryBuilder {
 			    WHERE id = ?
 			""";
 
+	public static final String UPDATE_FEE_AND_LIQUID_VALUE = """
+			    UPDATE donation
+			    SET fee = ?, value_liquid = ?
+			    WHERE id = ?
+			""";
+
+	public static final String UPDATE_CARD_BRAND = """
+			    UPDATE donation
+			    SET card_brand = ?
+			    WHERE id = ?
+			""";
+
     public static final Map<String, String> ALLOWED_SORT_FIELDS = Map.of(
             "donorName", "u.name",
             "value", "d.value",

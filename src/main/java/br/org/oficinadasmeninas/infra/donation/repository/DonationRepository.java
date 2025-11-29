@@ -61,6 +61,31 @@ public class DonationRepository implements IDonationRepository {
     }
 
     @Override
+    public Donation updateFeeAndLiquidValue(Donation donation) {
+
+        jdbc.update(
+                DonationQueryBuilder.UPDATE_FEE_AND_LIQUID_VALUE,
+                donation.getFee(),
+                donation.getValueLiquid(),
+                donation.getId()
+        );
+
+        return donation;
+    }
+
+    @Override
+    public Donation updateCardBrand(Donation donation) {
+
+        jdbc.update(
+                DonationQueryBuilder.UPDATE_CARD_BRAND,
+                donation.getCardBrand(),
+                donation.getId()
+        );
+
+        return donation;
+    }
+
+    @Override
     public List<Donation> findAll() {
         return jdbc.query(DonationQueryBuilder.SELECT_ALL_DONATIONS, this::mapRowDonation);
     }

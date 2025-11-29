@@ -58,8 +58,6 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/transparencies").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/partners").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/donations/**").permitAll()
-                .requestMatchers(HttpMethod.DELETE, "/api/donations/**").permitAll()
 				.anyRequest().authenticated()
 	        )
 	        .sessionManagement(session -> session
@@ -75,7 +73,7 @@ public class SecurityConfig {
 
 	    return http.build();
 	}
-
+	
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
@@ -113,7 +111,7 @@ public class SecurityConfig {
             response.getWriter().write(objectMapper.writeValueAsString(body));
         };
     }
-    
+
     @Bean
     AuthenticationEntryPoint customAuthenticationEntryPoint() {
     	return (request, response, authException) -> {

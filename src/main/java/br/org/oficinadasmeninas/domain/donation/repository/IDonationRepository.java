@@ -15,6 +15,10 @@ public interface IDonationRepository {
 
     Donation updateMethod(Donation donation);
 
+    Donation updateFeeAndLiquidValue(Donation donation);
+
+    Donation updateCardBrand(Donation donation);
+
 	List<Donation> findAll();
 
     PageDTO<DonationWithDonorDto> findByFilter(GetDonationDto getDonationDto);
