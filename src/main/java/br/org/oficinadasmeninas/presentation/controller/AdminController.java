@@ -80,8 +80,9 @@ public class AdminController extends BaseController {
             @ApiResponse(responseCode = "404", description = "Admin não encontrado"),
             @ApiResponse(responseCode = "503", description = "Erro ao executar o Bucket")
     })
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteDocument(
+    public ResponseEntity<?> deleteAdmin(
             @PathVariable("id") UUID adminId
     ) {
         return handle(
