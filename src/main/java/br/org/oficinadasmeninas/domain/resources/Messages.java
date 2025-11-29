@@ -12,6 +12,8 @@ public final class Messages {
 
     public static final String DOCUMENT_DELETED_SUCCESSFULLY = "Documento deletado com sucesso.";
 
+    public static final String ADMIN_DELETED_SUCCESSFULLY = "Admin deletado com sucesso.";
+
     public static final String COLLABORATOR_UPDATED_SUCCESSFULLY = "Colaborador atualizado com sucesso.";
 
     public static final String COLLABORATOR_DELETED_SUCCESSFULLY = "Colaborador deletado com sucesso.";
@@ -104,7 +106,7 @@ public final class Messages {
     
     public static final String EMAIL_SENDED_SUCCESSFULLY = "E-mail enviado com sucesso.";
 
-	public static final String USER_NOT_VERIFIED = "Usuário não verificado.";
+	  public static final String USER_NOT_VERIFIED = "Usuário não verificado.";
 
     public static final String EMAIL_ALREADY_EXISTS = "Email já cadastrado";
 
@@ -113,4 +115,6 @@ public final class Messages {
     public static final String INVALID_EMAIL_OR_PASSWORD = "Email e/ou senha inválido(s). Tente novamente.";
     
     public static final String EMAIL_ALREADY_VERIFIED = "Email já confirmado.";
+
+    public static final String CANNOT_DELETE_LOGGED_USER = "Não é possível remover usuário logado.";
 }

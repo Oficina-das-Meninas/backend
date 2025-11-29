@@ -1,12 +1,10 @@
 package br.org.oficinadasmeninas.presentation.handler;
 
 import br.org.oficinadasmeninas.domain.Response;
-import br.org.oficinadasmeninas.infra.shared.exception.DocumentAlreadyExistsException;
-import br.org.oficinadasmeninas.infra.shared.exception.EmailAlreadyExistsException;
 import br.org.oficinadasmeninas.infra.shared.exception.EmailSendException;
 import br.org.oficinadasmeninas.infra.shared.exception.ObjectStorageException;
-import br.org.oficinadasmeninas.infra.shared.exception.UserNotVerifiedException;
 import br.org.oficinadasmeninas.presentation.exceptions.*;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
@@ -15,6 +13,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import software.amazon.awssdk.core.exception.SdkClientException;
 
 import java.util.Map;
 import java.util.Optional;
@@ -85,11 +85,6 @@ public class GlobalExceptionHandler {
         return buildResponse("Mapeamento inválido: verifique os campos.", HttpStatus.BAD_REQUEST, errors);
     }
 
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<String> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
-    }
-    
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<?> handleForbidden(ForbiddenException ex) {
 
@@ -101,16 +96,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(ex.getMessage());
     }
 
-    @ExceptionHandler(DocumentAlreadyExistsException.class)
-    public ResponseEntity<String> handleDocumentAlreadyExists(DocumentAlreadyExistsException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<?> handleConstraintException(ConstraintViolationException ex) {
+        return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
-    
-    @ExceptionHandler(UserNotVerifiedException.class)
-    public ResponseEntity<String> handleUserNotVerified(UserNotVerifiedException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+
+    @ExceptionHandler(SdkClientException.class)
+    public ResponseEntity<?> handleSdkClientException(SdkClientException ex) {
+        return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
-    
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<?> handleNoHandlerFoundException(NoHandlerFoundException ex) {
+        return buildResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGenericException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());

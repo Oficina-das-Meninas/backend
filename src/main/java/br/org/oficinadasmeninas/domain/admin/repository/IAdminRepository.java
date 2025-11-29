@@ -12,6 +12,10 @@ public interface IAdminRepository {
 
     Admin update(Admin admin);
 
+    void deleteById(UUID id);
+
+    boolean existsById(UUID id);
+
     Optional<Admin> findById(UUID id);
 
     Optional<Admin> findByEmail(String email);

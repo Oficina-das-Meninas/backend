@@ -91,7 +91,7 @@ public class ResetPasswordService {
 
 		final String encodedPassword = passwordEncoder.encode(resetPasswordDto.newPassword());
 		
-		userService.updatePassword(userDto.getId(), encodedPassword);
+		userService.updatePassword(userDto.getAccountId(), encodedPassword);
 	}
 	
 	private void resetAdminPassword(String token, ResetPasswordDto resetPasswordDto) {

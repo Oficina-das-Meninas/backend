@@ -3,7 +3,6 @@ package br.org.oficinadasmeninas.infra.payment.repository;
 import br.org.oficinadasmeninas.domain.payment.Payment;
 import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
 import br.org.oficinadasmeninas.domain.payment.repository.IPaymentRepository;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -54,23 +53,17 @@ public class PaymentRepository implements IPaymentRepository {
     @Override
     public void cancelPaymentByDonationId(UUID donationId) {
         jdbc.update(
-               PaymentQueryBuilder.CANCEL_PENDING_PAYMENT_BY_DONATION_ID,
+                PaymentQueryBuilder.CANCEL_PENDING_PAYMENT_BY_DONATION_ID,
                 donationId
         );
     }
 
     public Optional<Payment> findById(UUID id) {
-        try {
-            var payment = jdbc.queryForObject(
-                    PaymentQueryBuilder.SELECT_PAYMENT_BY_ID,
-                    this::mapRowPayment,
-                    id
-            );
-
-            return Optional.ofNullable(payment);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+        return jdbc.query(
+                PaymentQueryBuilder.SELECT_PAYMENT_BY_ID,
+                this::mapRowPayment,
+                id
+        ).stream().findFirst();
     }
 
     public List<Payment> findByDonationId(UUID donationId) {
@@ -82,15 +75,15 @@ public class PaymentRepository implements IPaymentRepository {
     }
 
     @Override
-	public Payment updateDate(Payment payment) {
-		jdbc.update(
+    public Payment updateDate(Payment payment) {
+        jdbc.update(
                 PaymentQueryBuilder.UPDATE_PAYMENT_DATE,
                 payment.getDate(),
                 payment.getId()
         );
 
         return payment;
-	}
+    }
 
 
     private Payment mapRowPayment(ResultSet rs, int rowNum) throws SQLException {
