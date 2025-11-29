@@ -54,6 +54,7 @@ public class SecurityConfig {
 	        .csrf(AbstractHttpConfigurer::disable)
 	        .authorizeHttpRequests(auth -> auth
 	            .requestMatchers("/api/auth/**").permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/sessions/present").permitAll()
 				.requestMatchers(HttpMethod.POST, "/api/notifications/**").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/transparencies").permitAll()
