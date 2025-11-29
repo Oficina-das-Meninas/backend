@@ -8,6 +8,9 @@ import br.org.oficinadasmeninas.domain.event.repository.IEventRepository;
 import br.org.oficinadasmeninas.domain.event.service.IEventService;
 import br.org.oficinadasmeninas.domain.objectstorage.IObjectStorage;
 import br.org.oficinadasmeninas.domain.resources.Messages;
+import br.org.oficinadasmeninas.infra.logging.Logging;
+import br.org.oficinadasmeninas.infra.objectstorage.rollback.MinIoRollbackContext;
+import br.org.oficinadasmeninas.infra.objectstorage.rollback.MinIoTransactional;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.stereotype.Service;
@@ -18,22 +21,29 @@ import java.util.UUID;
 
 import static br.org.oficinadasmeninas.domain.event.mapper.EventMapper.toEntity;
 
+@Logging
 @Service
 public class EventService implements IEventService {
+
     private final IEventRepository eventRepository;
     private final IObjectStorage storageService;
+    private final MinIoRollbackContext minIoRollbackContext;
 
-    public EventService(IEventRepository eventRepository, IObjectStorage storageService) {
+    public EventService(IEventRepository eventRepository, IObjectStorage storageService, MinIoRollbackContext minIoRollbackContext) {
         this.eventRepository = eventRepository;
         this.storageService = storageService;
+        this.minIoRollbackContext = minIoRollbackContext;
     }
 
     @Override
     @Transactional
+    @MinIoTransactional
     public UUID insert(CreateEventDto request) {
 
         var previewFileName = uploadMultipartFile(request.previewImage());
         var partnersFileName = uploadMultipartFile(request.partnersImage());
+
+        minIoRollbackContext.register(previewFileName, partnersFileName);
 
         var event = toEntity(request);
         event.setPreviewImageUrl(previewFileName);
@@ -45,6 +55,7 @@ public class EventService implements IEventService {
 
     @Override
     @Transactional
+    @MinIoTransactional
     public UUID update(UUID id, UpdateEventDto request) {
 
         var event = eventRepository.findById(id)
@@ -52,6 +63,8 @@ public class EventService implements IEventService {
 
         var previewFileName = uploadMultipartFile(request.previewImage());
         var partnersFileName = uploadMultipartFile(request.partnersImage());
+
+        minIoRollbackContext.register(previewFileName, partnersFileName);
 
         event.setTitle(request.title());
         event.setDescription(request.description());
@@ -69,7 +82,14 @@ public class EventService implements IEventService {
     @Override
     @Transactional
     public UUID deleteById(UUID id) {
-    	eventRepository.deleteById(id);
+
+        var event =  eventRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Messages.EVENT_NOT_FOUND + id));
+
+        eventRepository.deleteById(id);
+        storageService.deleteFile(event.getPreviewImageUrl());
+        storageService.deleteFile(event.getPartnersImageUrl());
+
         return id;
     }
 
@@ -89,10 +109,6 @@ public class EventService implements IEventService {
         if (file == null || file.isEmpty())
             return null;
 
-        var fileName = storageService.sanitizeFileName(file.getOriginalFilename());
-
-        storageService.uploadWithName(file, fileName, true);
-
-        return fileName;
+        return storageService.uploadFile(file, true);
     }
 }
