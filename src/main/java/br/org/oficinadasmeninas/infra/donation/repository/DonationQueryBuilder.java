@@ -9,7 +9,8 @@ public class DonationQueryBuilder {
         SELECT count(*)
         FROM donation d
         LEFT JOIN users u ON d.user_id = u.id
-        WHERE (?::text IS NULL OR u.name ILIKE '%' || ? || '%')
+        LEFT JOIN account a ON a.id = u.account_id
+        WHERE (?::text IS NULL OR a.name ILIKE '%' || ? || '%')
           AND (?::timestamp IS NULL OR d.donation_at >= ?)
           AND (?::timestamp IS NULL OR d.donation_at <= ?)
           AND (?::text IS NULL OR
@@ -47,8 +48,20 @@ public class DonationQueryBuilder {
 			    WHERE id = ?
 			""";
 
+	public static final String UPDATE_FEE_AND_LIQUID_VALUE = """
+			    UPDATE donation
+			    SET fee = ?, value_liquid = ?
+			    WHERE id = ?
+			""";
+
+	public static final String UPDATE_CARD_BRAND = """
+			    UPDATE donation
+			    SET card_brand = ?
+			    WHERE id = ?
+			""";
+
     public static final Map<String, String> ALLOWED_SORT_FIELDS = Map.of(
-            "donorName", "u.name",
+            "donorName", "a.name",
             "value", "d.value",
             "donationAt", "d.donation_at",
             "donationType", "(CASE WHEN d.sponsorship_id IS NOT NULL THEN 'RECURRING' ELSE 'ONE_TIME' END)",
@@ -60,7 +73,8 @@ public class DonationQueryBuilder {
                   ,d.value
                   ,d.donation_at
                   ,d.user_id
-                  ,u.name AS donor_name
+                  ,u.account_id
+                  ,a.name AS donor_name
                   ,CASE WHEN d.sponsorship_id IS NOT NULL THEN 'RECURRING'
                    ELSE 'ONE_TIME'
                    END AS donation_type
@@ -70,8 +84,9 @@ public class DonationQueryBuilder {
                    END AS sponsor_status
             FROM donation d
             LEFT JOIN users u ON d.user_id = u.id
+            LEFT JOIN account a ON a.id = u.account_id
             LEFT JOIN sponsorships s ON d.sponsorship_id = s.id
-            WHERE (?::text IS NULL OR u.name ILIKE '%' || ? || '%')
+            WHERE (?::text IS NULL OR a.name ILIKE '%' || ? || '%')
               AND (?::timestamp IS NULL OR d.donation_at >= ?)
               AND (?::timestamp IS NULL OR d.donation_at <= ?)
               AND (?::text IS NULL OR

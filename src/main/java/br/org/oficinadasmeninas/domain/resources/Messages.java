@@ -106,13 +106,15 @@ public final class Messages {
     
     public static final String EMAIL_SENDED_SUCCESSFULLY = "E-mail enviado com sucesso.";
 
-	public static final String USER_NOT_VERIFIED = "Usuário não verificado.";
+	  public static final String USER_NOT_VERIFIED = "Usuário não verificado.";
 
     public static final String EMAIL_ALREADY_EXISTS = "Email já cadastrado";
 
     public static final String DOCUMENT_ALREADY_EXISTS = "Documento já cadastrado";
 
     public static final String INVALID_EMAIL_OR_PASSWORD = "Email e/ou senha inválido(s). Tente novamente.";
+    
+    public static final String EMAIL_ALREADY_VERIFIED = "Email já confirmado.";
 
     public static final String CANNOT_DELETE_LOGGED_USER = "Não é possível remover usuário logado.";
 }

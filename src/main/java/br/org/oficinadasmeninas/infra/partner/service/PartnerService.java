@@ -36,11 +36,12 @@ public class PartnerService implements IPartnerService {
     @MinIoTransactional
     public UUID insert(CreatePartnerDto request) {
 
-        var previewFileName = uploadMultipartFile(request.previewImage());
-        minIoRollbackContext.register(previewFileName);
+        var previewImageUrl = storageService.uploadFile(request.previewImage(), true);
+
+        minIoRollbackContext.register(previewImageUrl);
 
         var partner = new Partner();
-        partner.setPreviewImageUrl(previewFileName);
+        partner.setPreviewImageUrl(previewImageUrl);
         partner.setName(request.name());
 
         partnerRepository.insert(partner);
@@ -55,11 +56,11 @@ public class PartnerService implements IPartnerService {
         var partner = partnerRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.PARTNER_NOT_FOUND + id));
 
-        var previewFileName = uploadMultipartFile(request.previewImage());
-        minIoRollbackContext.register(previewFileName);
+        var previewImageUrl = storageService.uploadFile(request.previewImage(), true);
+        minIoRollbackContext.register(previewImageUrl);
 
         partner.setName(request.name());
-        partner.setPreviewImageUrl(previewFileName);
+        partner.setPreviewImageUrl(previewImageUrl);
 
         partnerRepository.update(partner);
         return partner.getId();
@@ -68,8 +69,12 @@ public class PartnerService implements IPartnerService {
     @Override
     @Transactional
     public UUID deleteById(UUID id) {
-        partnerRepository.deleteById(id);
-        return id;
+        var partner = findById(id);
+
+    	partnerRepository.deleteById(partner.getId());
+        storageService.deleteFile(partner.getPreviewImageUrl());
+
+        return partner.getId();
     }
 
     @Override
@@ -83,12 +88,5 @@ public class PartnerService implements IPartnerService {
 
         return partnerRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.PARTNER_NOT_FOUND + id));
-    }
-
-    private String uploadMultipartFile(MultipartFile file) {
-        if (file == null || file.isEmpty())
-            return null;
-
-        return storageService.uploadFile(file, true);
     }
 }

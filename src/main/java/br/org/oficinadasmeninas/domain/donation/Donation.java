@@ -10,10 +10,13 @@ public class Donation {
 
 	private UUID id;
 	private double value;
+	private Double fee;
+	private Double valueLiquid;
 	private String checkoutId;
 	private PaymentGatewayEnum gateway;
 	private UUID sponsorshipId;
 	private PaymentMethodEnum method;
+    private String cardBrand;
 	private UUID userId;
 	private LocalDateTime donationAt;
 
@@ -47,6 +50,14 @@ public class Donation {
 
 	public void setValue(double value) {
 		this.value = value;
+	}
+
+	public Double getFee() {
+		return fee;
+	}
+
+	public void setFee(Double fee) {
+		this.fee = fee;
 	}
 
 	public String getCheckoutId() {
@@ -96,5 +107,13 @@ public class Donation {
 	public void setDonationAt(LocalDateTime donationAt) {
 		this.donationAt = donationAt;
 	}
+
+	public Double getValueLiquid() { return valueLiquid; }
+
+	public void setValueLiquid(Double valueLiquid) { this.valueLiquid = valueLiquid; }
+
+    public String getCardBrand() { return cardBrand; }
+
+    public void setCardBrand(String cardBrand) { this.cardBrand = cardBrand; }
 
 }

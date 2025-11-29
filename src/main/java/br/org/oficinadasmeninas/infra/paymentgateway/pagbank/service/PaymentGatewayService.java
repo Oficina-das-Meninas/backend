@@ -26,20 +26,20 @@ import br.org.oficinadasmeninas.domain.payment.service.IPaymentService;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.RequestCreateCheckoutDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.checkout.ResponseCreateCheckoutDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
-import br.org.oficinadasmeninas.domain.sponsorship.Sponsorship;
 import br.org.oficinadasmeninas.domain.sponsorship.dto.SponsorshipDto;
 import br.org.oficinadasmeninas.domain.sponsorship.dto.UpdateSponsorshipDto;
 import br.org.oficinadasmeninas.domain.sponsorship.service.ISponsorshipService;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
 import br.org.oficinadasmeninas.domain.payment.PaymentMethodEnum;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCalculateFeesDto;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutConfig;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutPagbank;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestCreateCheckoutRecurrenceInterval;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.RequestSubscriptionIdCustomer;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseCalculateFeesDto;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseCreateCheckoutLink;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseCreateCheckoutPagbank;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseFindSubscriptionId;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseFindSubscriptionIdSubscription;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseSignatureCustomer;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseWebhookCustomer;
 import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.mappers.RequestCreateCheckoutPagbankMapper;
@@ -52,7 +52,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
     private final RequestCreateCheckoutPagbankMapper mapper;
 
     private final WebClient webClient;
-
+    
     private final WebClient webClientSubscription;
 
     private final IDonationService donationService;
@@ -76,7 +76,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
     @Value("${app.url}")
     private String url;
-
+    
     @Value("${app.url_signature}")
     private String urlSignature;
 
@@ -161,7 +161,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
     }
 
     @Override
-    public void updatePaymentStatus(UUID donationId, PaymentStatusEnum paymentStatus, PaymentMethodEnum paymentMethod, boolean recurring, ResponseWebhookCustomer customer) {
+    public void updatePaymentStatus(UUID donationId, PaymentStatusEnum paymentStatus, PaymentMethodEnum paymentMethod, String cardBrand, boolean recurring, ResponseWebhookCustomer customer) {
 
         List<PaymentDto> payments = paymentService.findByDonationId(donationId);
 
@@ -176,6 +176,14 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
         paymentService.updatePaymentDate(payment.id(), LocalDateTime.now());
         paymentService.updateStatus(payment.id(), paymentStatus);
+
+        // Atualizar método de pagamento e gateway na donation
+        donationService.updateMethod(donationId, paymentMethod);
+
+        // Atualizar bandeira do cartão se disponível
+        if (cardBrand != null && !cardBrand.isBlank()) {
+            donationService.updateCardBrand(donationId, cardBrand);
+        }
 
         if (recurring) {
         	String subscriptionId = this.findSubscriptionId( new RequestSubscriptionIdCustomer(customer.name(), customer.tax_id()));
@@ -267,11 +275,17 @@ public class PaymentGatewayService implements IPaymentGatewayService {
         PaymentChargesDto charge = request.charges().getFirst();
         boolean recurring = charge.recurring() != null;
         ResponseWebhookCustomer customer = request.customer();
-        updatePaymentStatus(request.reference_id(), charge.status(), charge.payment_method().type(), recurring, customer);
-
+        updatePaymentStatus(request.reference_id(), charge.status(), charge.payment_method().type(),
+                charge.payment_method().card() != null ? charge.payment_method().card().brand() : null, recurring,
+                customer);
 
         if (charge.status() == PaymentStatusEnum.PAID){
             DonationDto donation = donationService.findById(request.reference_id());
+
+            Double fee = calculateFee(donation.value(), charge.payment_method().type(), donation.cardBrand());
+            double netValue = donation.value() - fee;
+            donationService.updateFeeAndLiquidValue(donation.id(), fee, netValue);
+
             if (donation.checkoutId() != null) {
                 cancelCheckout(donation.checkoutId());
                 paymentService.cancelPendingPaymentByDonationId(donation.id());
@@ -290,5 +304,116 @@ public class PaymentGatewayService implements IPaymentGatewayService {
                 LocalDateTime.now(),
                 object
         ));
+    }
+
+    @Override
+    public ResponseCalculateFeesDto fetchTransactionFees(RequestCalculateFeesDto request) {
+        // TODO: comentado temporariamente até ter homologacao da API de taxas do PagBank
+        /*
+        try {
+            return webClient.get()
+                    .uri(uriBuilder -> {
+                        UriBuilder builder = uriBuilder.path("/charges/fees/calculate");
+
+                        if (request.paymentMethods() != null && !request.paymentMethods().isEmpty()) {
+                            for (String method : request.paymentMethods()) {
+                                builder.queryParam("payment_methods[]", method);
+                            }
+                        }
+
+                        if (request.value() != null) {
+                            builder.queryParam("value", request.value());
+                        }
+
+                        builder.queryParam("max_installments", request.maxInstallmentsNoInterest());
+
+                        return builder.build();
+                    })
+                    .header("Authorization", "Bearer " + token)
+                    .header("Content-Type", "application/json")
+                    .retrieve()
+                    .bodyToMono(ResponseCalculateFeesDto.class)
+                    .block();
+
+        } catch (WebClientResponseException e) {
+            throw new PaymentGatewayException(
+                    e.getStatusCode() + " " + e.getStatusText() + " " + e.getResponseBodyAsString());
+        } catch (Exception e) {
+            throw new PaymentGatewayException("Erro ao calcular taxas: " + e.getMessage());
+        }
+        */
+        return null;
+    }
+
+    /**
+     *
+     * Taxas fixas
+     * - DÉBITO: 2,39%
+     * - CRÉDITO: 3,99% + R$ 0,40
+     * - PIX: 1,89%
+     * - BOLETO: R$ 1,89
+     */
+    private Double extractFeeFromResponse(ResponseCalculateFeesDto response, PaymentMethodEnum paymentMethod, String cardBrand, double donationValue) {
+        // TODO: comentado temporariamente até ter homologacao da API de taxas do PagBank
+        /*
+        if (response != null && response.paymentMethods() != null) {
+            return switch (paymentMethod) {
+                case CREDIT_CARD -> extractCreditCardFee(response, cardBrand);
+                case PIX -> response.paymentMethods().pix() != null && response.paymentMethods().pix().amount() != null
+                    ? response.paymentMethods().pix().amount().value().doubleValue()
+                    : null;
+                case BOLETO -> response.paymentMethods().boleto() != null && response.paymentMethods().boleto().amount() != null
+                    ? response.paymentMethods().boleto().amount().value().doubleValue()
+                    : null;
+                default -> null;
+            };
+        }
+        */
+
+        return switch (paymentMethod) {
+            case DEBIT_CARD -> donationValue * 0.0239;
+            case CREDIT_CARD -> (donationValue * 0.0399) + 0.40;
+            case PIX -> donationValue * 0.0189;
+            case BOLETO -> 1.89;
+        };
+	}
+
+	private Double extractCreditCardFee(ResponseCalculateFeesDto response, String cardBrand) {
+		if (response.paymentMethods().creditCard() == null || cardBrand == null) {
+			return null;
+		}
+
+		var creditCard = response.paymentMethods().creditCard();
+		String normalizedBrand = cardBrand.toLowerCase();
+
+		var brandData = creditCard.getBrand(normalizedBrand);
+
+		if (brandData != null && brandData.installmentPlans() != null) {
+			return extractFeeFromInstallmentPlan(brandData.installmentPlans());
+		}
+
+		return null;
+	}
+
+	private Double extractFeeFromInstallmentPlan(List<br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseCalculateFeesInstallmentPlan> installmentPlans) {
+		if (installmentPlans == null || installmentPlans.isEmpty()) {
+			return null;
+		}
+
+		var firstInstallment = installmentPlans.stream()
+			.filter(plan -> plan.installments() != null && plan.installments() == 1)
+			.findFirst()
+			.orElse(installmentPlans.getFirst());
+
+		if (firstInstallment == null || firstInstallment.amount() == null) {
+			return null;
+		}
+
+		return firstInstallment.amount().value().doubleValue();
+	}
+
+    @Override
+    public Double calculateFee(double value, PaymentMethodEnum paymentMethod, String cardBrand) {
+        return extractFeeFromResponse(null, paymentMethod, cardBrand, value);
     }
 }

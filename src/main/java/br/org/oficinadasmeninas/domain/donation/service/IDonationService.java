@@ -53,4 +53,21 @@ public interface IDonationService {
 
 
     List<DonationDto> findPendingCheckoutsByUserId(UUID userId);
+
+    /**
+     * Atualiza a taxa e o valor líquido de uma doação.
+     *
+     * @param id identificador único ({@link UUID}) da doação a ser atualizada; não deve ser {@code null}
+     * @param fee taxa cobrada pelo gateway de pagamento
+     * @param valueLiquid valor líquido recebido (valor - taxa)
+     */
+    void updateFeeAndLiquidValue(UUID id, Double fee, Double valueLiquid);
+
+    /**
+     * Atualiza a bandeira do cartão de uma doação.
+     *
+     * @param id identificador único ({@link UUID}) da doação a ser atualizada; não deve ser {@code null}
+     * @param cardBrand bandeira do cartão utilizado
+     */
+    void updateCardBrand(UUID id, String cardBrand);
 }

@@ -33,6 +33,7 @@ public final class DonationMapper {
                 donation.getGateway(),
                 donation.getSponsorshipId(),
                 donation.getMethod(),
+                donation.getCardBrand(),
                 donation.getUserId(),
                 donation.getDonationAt()
         );

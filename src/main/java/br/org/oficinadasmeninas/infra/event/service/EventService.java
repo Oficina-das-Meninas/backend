@@ -40,14 +40,14 @@ public class EventService implements IEventService {
     @MinIoTransactional
     public UUID insert(CreateEventDto request) {
 
-        var previewFileName = uploadMultipartFile(request.previewImage());
-        var partnersFileName = uploadMultipartFile(request.partnersImage());
+        var previewImageUrl = storageService.uploadFile(request.previewImage(), true);
+        var partnersImageUrl = storageService.uploadFile(request.partnersImage(), true);
 
-        minIoRollbackContext.register(previewFileName, partnersFileName);
+        minIoRollbackContext.register(previewImageUrl, partnersImageUrl);
 
         var event = toEntity(request);
-        event.setPreviewImageUrl(previewFileName);
-        event.setPartnersImageUrl(partnersFileName);
+        event.setPreviewImageUrl(previewImageUrl);
+        event.setPartnersImageUrl(partnersImageUrl);
 
         eventRepository.insert(event);
         return event.getId();
@@ -61,18 +61,18 @@ public class EventService implements IEventService {
         var event = eventRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.EVENT_NOT_FOUND + id));
 
-        var previewFileName = uploadMultipartFile(request.previewImage());
-        var partnersFileName = uploadMultipartFile(request.partnersImage());
+        var previewImageUrl = storageService.uploadFile(request.previewImage(), true);
+        var partnersImageUrl = storageService.uploadFile(request.partnersImage(), true);
 
-        minIoRollbackContext.register(previewFileName, partnersFileName);
+        minIoRollbackContext.register(previewImageUrl, partnersImageUrl);
 
         event.setTitle(request.title());
         event.setDescription(request.description());
         event.setEventDate(request.eventDate());
         event.setLocation(request.location());
         event.setUrlToPlatform(request.urlToPlatform());
-        event.setPreviewImageUrl(previewFileName);
-        event.setPartnersImageUrl(partnersFileName);
+        event.setPreviewImageUrl(previewImageUrl);
+        event.setPartnersImageUrl(partnersImageUrl);
 
         eventRepository.update(event);
 
@@ -103,12 +103,5 @@ public class EventService implements IEventService {
     @Override
     public PageDTO<Event> findByFilter(GetEventDto getEventDto) {
         return eventRepository.findByFilter(getEventDto);
-    }
-
-    private String uploadMultipartFile(MultipartFile file) {
-        if (file == null || file.isEmpty())
-            return null;
-
-        return storageService.uploadFile(file, true);
     }
 }
