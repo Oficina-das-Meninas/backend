@@ -1,0 +1,40 @@
+package br.org.oficinadasmeninas.infra.partner.repository;
+
+public class PartnerQueryBuilder {
+    public static final String SELECT_COUNT = """
+        SELECT count(*)
+        FROM partners
+        WHERE unaccent(name) ILIKE unaccent(COALESCE('%' || ? || '%', name))
+    """;
+
+    public static final String GET_PARTNERS = """
+        SELECT id, preview_image_url, name
+        FROM partners
+        WHERE unaccent(name) ILIKE unaccent(COALESCE('%' || ? || '%', name))
+        ORDER BY name
+        LIMIT ? OFFSET ?
+    """;
+
+    public static final String GET_PARTNER_BY_ID = """
+        SELECT id, preview_image_url, name
+        FROM partners
+        WHERE id = ?
+    """;
+
+    public static final String CREATE_PARTNER = """
+        INSERT INTO partners (id, preview_image_url, name)
+        VALUES (?, ?, ?)
+    """;
+
+    public static final String UPDATE_PARTNER = """
+        UPDATE partners SET
+            preview_image_url = ?,
+            name = ?
+        WHERE id = ?
+    """;
+
+    public static final String DELETE_PARTNER = """
+        DELETE FROM partners
+        WHERE id = ?
+    """;
+}

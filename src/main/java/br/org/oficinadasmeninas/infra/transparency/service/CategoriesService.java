@@ -1,0 +1,154 @@
+package br.org.oficinadasmeninas.infra.transparency.service;
+
+import br.org.oficinadasmeninas.domain.resources.Messages;
+import br.org.oficinadasmeninas.domain.transparency.Category;
+import br.org.oficinadasmeninas.domain.transparency.Collaborator;
+import br.org.oficinadasmeninas.domain.transparency.Document;
+import br.org.oficinadasmeninas.domain.transparency.dto.CreateCategoryRequestDto;
+import br.org.oficinadasmeninas.domain.transparency.dto.ResponseCategoryDto;
+import br.org.oficinadasmeninas.domain.transparency.dto.UpdateCategoryDto;
+import br.org.oficinadasmeninas.domain.transparency.dto.getCategories.CategoryResponseDto;
+import br.org.oficinadasmeninas.domain.transparency.dto.getCategories.CollaboratorResponseDto;
+import br.org.oficinadasmeninas.domain.transparency.dto.getCategories.DocumentResponseDto;
+import br.org.oficinadasmeninas.domain.transparency.dto.getCategories.GetCategoriesResponseDto;
+import br.org.oficinadasmeninas.domain.transparency.mapper.CategoryMapper;
+import br.org.oficinadasmeninas.domain.transparency.mapper.CollaboratorMapper;
+import br.org.oficinadasmeninas.domain.transparency.mapper.DocumentMapper;
+import br.org.oficinadasmeninas.domain.transparency.repository.ICategoriesRepository;
+import br.org.oficinadasmeninas.domain.transparency.repository.ICollaboratorsRepository;
+import br.org.oficinadasmeninas.domain.transparency.repository.IDocumentsRepository;
+import br.org.oficinadasmeninas.domain.transparency.service.ICategoriesService;
+import br.org.oficinadasmeninas.infra.logging.Logging;
+import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
+import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
+import org.springframework.stereotype.Service;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@Logging
+@Service
+public class CategoriesService implements ICategoriesService {
+
+	private final ICategoriesRepository categoriesRepository;
+	private final IDocumentsRepository documentsRepository;
+	private final ICollaboratorsRepository collaboratorsRepository;
+
+	public CategoriesService(ICategoriesRepository categoriesRepository, IDocumentsRepository documentsRepository,
+			ICollaboratorsRepository collaboratorsRepository) {
+		this.categoriesRepository = categoriesRepository;
+		this.documentsRepository = documentsRepository;
+		this.collaboratorsRepository = collaboratorsRepository;
+	}
+
+	@Override
+	public UUID insert(CreateCategoryRequestDto request) {
+
+		var entity = categoriesRepository.insert(CategoryMapper.toEntity(request));
+
+		return entity.getId();
+	}
+
+	@Override
+	public UUID update(UUID id, UpdateCategoryDto request) {
+
+        var category = categoriesRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Messages.CATEGORY_NOT_FOUND));
+
+		category.setName(request.name());
+		category.setPriority(request.priority());
+
+		categoriesRepository.update(category);
+		return category.getId();
+	}
+
+	@Override
+	public UUID deleteById(UUID id) {
+		checkCategoryExists(id);
+		checkCategoryLinks(id);
+
+		categoriesRepository.deleteById(id);
+
+		return id;
+	}
+
+	@Override
+	public ResponseCategoryDto findById(UUID id) {
+
+		var category = categoriesRepository.findById(id)
+				.orElseThrow(() -> new NotFoundException(Messages.CATEGORY_NOT_FOUND));
+
+		return CategoryMapper.toDto(category);
+	}
+
+	@Override
+	public List<ResponseCategoryDto> findAll() {
+
+		return categoriesRepository.findAll().stream().map(CategoryMapper::toDto).toList();
+	}
+
+	@Override
+	public GetCategoriesResponseDto findAllWithDocumentsAndCollaborators() {
+
+		var categories = categoriesRepository.findAll();
+		var documents = documentsRepository.findAll();
+		var collaborators = collaboratorsRepository.findAll();
+
+		return new GetCategoriesResponseDto(mapCategoriesToDto(categories, documents, collaborators));
+	}
+
+	private void checkCategoryExists(UUID id) {
+		if (!categoriesRepository.existsById(id)) {
+			throw new NotFoundException(Messages.CATEGORY_NOT_FOUND);
+		}
+	}
+
+	private void checkCategoryLinks(UUID id) {
+		int docs = documentsRepository.countByCategoryId(id);
+		int collabs = collaboratorsRepository.countByCategoryId(id);
+
+		if (docs > 0 || collabs > 0) {
+			throw new ValidationException(buildLinkMessage(docs, collabs));
+		}
+	}
+
+	private List<CategoryResponseDto> mapCategoriesToDto(List<Category> categories, List<Document> documents,
+			List<Collaborator> collaborators) {
+
+		var documentsByCategory = documents.stream().collect(Collectors.groupingBy(d -> d.getCategory().getId()));
+
+		var collaboratorsByCategory = collaborators.stream()
+				.collect(Collectors.groupingBy(c -> c.getCategory().getId()));
+
+		return categories.stream()
+				.map(cat -> new CategoryResponseDto(cat.getId(), cat.getName(), cat.getImage(), cat.getPriority(),
+						Optional.ofNullable(documentsByCategory.get(cat.getId())).map(this::MapDocumentsToDto),
+						Optional.ofNullable(collaboratorsByCategory.get(cat.getId())).map(this::MapCollaboratorsToDto)))
+				.sorted(Comparator.comparing(CategoryResponseDto::priority)).toList();
+	}
+
+	private List<DocumentResponseDto> MapDocumentsToDto(List<Document> documents) {
+		return documents.stream().map(DocumentMapper::toDto)
+				.sorted(Comparator.comparing(DocumentResponseDto::effectiveDate).reversed()).toList();
+	}
+
+	private List<CollaboratorResponseDto> MapCollaboratorsToDto(List<Collaborator> collaborators) {
+		return collaborators.stream().map(CollaboratorMapper::toDto)
+				.sorted(Comparator.comparing(CollaboratorResponseDto::priority)).toList();
+	}
+
+	private String buildLinkMessage(int docs, int collabs) {
+		var msg = new StringBuilder("Não é possível excluir a categoria porque existem vínculos:");
+
+		if (docs > 0)
+			msg.append(" ").append(docs).append(" documento(s)");
+
+		if (collabs > 0)
+			msg.append(docs > 0 ? " e " : " ").append(collabs).append(" colaborador(es)");
+
+		return msg.toString();
+	}
+}
