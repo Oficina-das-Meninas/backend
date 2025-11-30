@@ -14,6 +14,7 @@ import br.org.oficinadasmeninas.domain.payment.dto.PaymentNotificationDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.dto.PaymentChargesDto;
 import br.org.oficinadasmeninas.infra.logspagbank.dto.CreateLogPagbank;
 import br.org.oficinadasmeninas.infra.logspagbank.service.LogPagbankService;
+import br.org.oficinadasmeninas.presentation.exceptions.InternalException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -122,7 +123,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
                     .bodyToMono(ResponseSignatureCustomer.class)
                     .block();
         } catch (WebClientResponseException e) {
-            throw new PaymentGatewayException(e.getStatusCode() + " " + e.getStatusText() + e.getResponseBodyAs(String.class));
+            throw new InternalException(e.getStatusCode() + " " + e.getStatusText() + e.getResponseBodyAs(String.class));
         }
     }
 
@@ -149,6 +150,8 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
         RequestCreateCheckoutPagbank pagbankRequest = mapper.toGateway(requestCreateCheckoutDto,defaults);
 
+        saveLog("CREATE CHECKOUT", pagbankRequest);
+
         ResponseCreateCheckoutPagbank responseCreateCheckoutPagbank = createPagBankCheckout(pagbankRequest);
 
         String link = responseCreateCheckoutPagbank.links()
@@ -165,7 +168,6 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
         List<PaymentDto> payments = paymentService.findByDonationId(donationId);
 
-        // Atualizar método de pagamento e gateway na donation
         donationService.updateMethod(donationId, paymentMethod);
 
         if (payments == null || payments.isEmpty()) {
@@ -224,7 +226,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
                     response.status()
             );
         } catch (WebClientResponseException e) {
-            throw new PaymentGatewayException(e.getRawStatusCode() + " " + e.getStatusText());
+            throw new InternalException(e.getRawStatusCode() + " " + e.getStatusText());
         }
     }
 
@@ -244,7 +246,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 			return response.subscriptions().getFirst().id();
 
 		} catch (Exception e) {
-			throw new PaymentGatewayException(e.toString());
+			throw new InternalException(e.toString());
 		}
 	}
 
@@ -264,14 +266,14 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
 
         } catch (WebClientResponseException e) {
-            throw new PaymentGatewayException(e.getStatusCode() + " " + e.getStatusText() + e.getResponseBodyAs(String.class));
+            throw new InternalException(e.getStatusCode() + " " + e.getStatusText() + e.getResponseBodyAs(String.class));
         }
     }
 
 
     @Override
     public void notifyPayment(PaymentNotificationDto request) {
-        this.saveLog(request);
+        this.saveLog("WEBHOOK NOTIFY BODY", request);
         PaymentChargesDto charge = request.charges().getFirst();
         boolean recurring = charge.recurring() != null;
         ResponseWebhookCustomer customer = request.customer();
@@ -298,9 +300,9 @@ public class PaymentGatewayService implements IPaymentGatewayService {
         updateCheckoutStatus(request.id(), request.reference_id(), request.status());
     }
 
-    private void saveLog(Object object){
+    private void saveLog(String label, Object object){
         logService.createLogPagbank(new CreateLogPagbank(
-                "WEBHOOK NOTIFY BODY",
+                label,
                 LocalDateTime.now(),
                 object
         ));
