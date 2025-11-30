@@ -76,6 +76,16 @@ public class AuthController extends BaseController {
 		);
 	}
 	
+	@GetMapping("/verify-account/resend")
+	public ResponseEntity<?> resendVerifyAccount(
+		@RequestParam String email
+	) {	
+		return handle(
+			() -> emailVerificationService.sendVerifyAccountEmail(email),
+			Messages.EMAIL_SENDED_SUCCESSFULLY
+		);
+	}
+	
 	@GetMapping("/forgot-password")
 	public ResponseEntity<?> forgotPassword(
 		@RequestParam String email

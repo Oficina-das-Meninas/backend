@@ -94,11 +94,13 @@ public class UserController extends BaseController {
     }
     
 	@GetMapping("/me")
-	public ResponseEntity<?> findByUserSession() {
-		return handle(() -> userService.findByUserSession());
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> findByUserSession() {
+		return handle(userService::findByUserSession);
 	}
 
     @GetMapping("/pontuations")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getUserPontuations(
             @RequestParam(defaultValue = "0") @PositiveOrZero int page,
             @RequestParam(defaultValue = "10") @Positive @Max(100) int pageSize,

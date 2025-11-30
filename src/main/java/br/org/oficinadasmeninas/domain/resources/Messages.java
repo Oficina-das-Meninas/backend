@@ -50,8 +50,6 @@ public final class Messages {
 
     public static final String EVENT_NOT_FOUND = "Evento não encontrado com id: ";
 
-    public static final String USER_NOT_FOUND = "Usuário não encontrado";
-
     public static final String FILE_NOT_SUPPORTED = "Tipo de arquivo não suportado: ";
 
     public static final String FILE_NOT_IDENTIFIED = "Tipo de arquivo não identificado.";
@@ -89,8 +87,6 @@ public final class Messages {
     public static final String AUTH_LOGIN_SUCCESSFULLY = "Usuário logado com sucesso.";
     
     public static final String AUTH_LOGOUT_SUCCESSFULLY = "Usuário deslogado com sucesso.";
-
-    public static final String SESSION_USER_SUCCESSFULLY = "Sessão recuperada com sucesso.";
     
     public static final String ACCESS_DENIED = "Você não tem permissão para acessar este recurso.";
     
@@ -117,6 +113,8 @@ public final class Messages {
     public static final String ACTIVE_SUBSCRIPTION_ALREADY_EXISTS = "Usuário já possui assinatura ativa.";
 
     public static final String INVALID_EMAIL_OR_PASSWORD = "Email e/ou senha inválido(s). Tente novamente.";
+    
+    public static final String EMAIL_ALREADY_VERIFIED = "Email já confirmado.";
 
     public static final String CANNOT_DELETE_LOGGED_USER = "Não é possível remover usuário logado.";
 }

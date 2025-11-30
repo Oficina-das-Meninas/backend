@@ -18,7 +18,7 @@ public class LogPagbankService {
 		this.logPagbankRespository = logPagbankRespository;
 	}
 
-	public UUID createLogPagbank(CreateLogPagbank log) throws JsonProcessingException {
+	public UUID createLogPagbank(CreateLogPagbank log) {
 		return logPagbankRespository.insert(log);
 	}
 

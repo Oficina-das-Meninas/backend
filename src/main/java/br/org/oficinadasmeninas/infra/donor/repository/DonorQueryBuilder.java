@@ -16,9 +16,10 @@ public class DonorQueryBuilder {
         SELECT COUNT(*)
         FROM user_stats s
         JOIN users u ON u.id = s.user_id
+        JOIN account a ON a.id = u.account_id
         WHERE (
-            unaccent(u.name) ILIKE COALESCE('%%' || unaccent(?) || '%%', u.name)
-            OR unaccent(u.email) ILIKE COALESCE('%%' || unaccent(?) || '%%', u.email)
+            unaccent(a.name) ILIKE COALESCE('%%' || unaccent(?) || '%%', a.name)
+            OR unaccent(a.email) ILIKE COALESCE('%%' || unaccent(?) || '%%', a.email)
             OR unaccent(u.phone) ILIKE COALESCE('%%' || unaccent(?) || '%%', u.phone)
         )
         AND (
@@ -32,8 +33,8 @@ public class DonorQueryBuilder {
    \s""";
 
     public static final Map<String, String> ALLOWED_SORT_FIELDS = Map.of(
-            "name", "u.name",
-            "email", "u.email",
+            "name", "a.name",
+            "email", "a.email",
             "points", "s.total_points",
             "totalDonated", "s.total_donated_value"
     );
@@ -49,8 +50,9 @@ public class DonorQueryBuilder {
         )
         SELECT\s
             u.id,
-            u.name,
-            u.email,
+            u.account_id,
+            a.name,
+            a.email,
             u.phone,
             s.total_points,
             s.total_donated_value,
@@ -61,9 +63,10 @@ public class DonorQueryBuilder {
             END AS badge
         FROM user_stats s
         JOIN users u ON u.id = s.user_id
+        JOIN account a ON a.id = u.account_id
         WHERE (
-            unaccent(u.name) ILIKE COALESCE('%%' || unaccent(?) || '%%', u.name)
-            OR unaccent(u.email) ILIKE COALESCE('%%' || unaccent(?) || '%%', u.email)
+            unaccent(a.name) ILIKE COALESCE('%%' || unaccent(?) || '%%', a.name)
+            OR unaccent(a.email) ILIKE COALESCE('%%' || unaccent(?) || '%%', a.email)
             OR unaccent(u.phone) ILIKE COALESCE('%%' || unaccent(?) || '%%', u.phone)
         )
         AND (

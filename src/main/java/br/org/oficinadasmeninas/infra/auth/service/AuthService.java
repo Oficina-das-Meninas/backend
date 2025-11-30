@@ -57,6 +57,7 @@ public class AuthService {
 	        origin = request.getHeader("Host");
 	    }
 
+
         UserDetailsCustom authenticatedUser = authenticate(loginUserDto, origin);
 
         String jwtToken = jwtService.generateUserSessionToken(authenticatedUser);

@@ -24,7 +24,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/events")
-@Validated
 @PreAuthorize("hasRole('ADMIN')")
 public class EventController extends BaseController {
     private final IEventService eventService;

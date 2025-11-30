@@ -44,7 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String uri = request.getRequestURI();
 
-        if (!uri.startsWith("/api/auth")) {
+        if (!uri.startsWith("/api/auth") && !uri.endsWith("/api/sessions/present")) {
             String accessToken = CookieUtils.getCookie(request, ACCESS_TOKEN);
 
             if (accessToken != null) {

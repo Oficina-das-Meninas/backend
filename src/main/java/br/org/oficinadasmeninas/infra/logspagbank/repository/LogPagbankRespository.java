@@ -24,7 +24,7 @@ public class LogPagbankRespository {
 		this.Jdbc = jdbc;
 	}
 
-	public UUID insert(CreateLogPagbank log) throws JsonProcessingException {
+	public UUID insert(CreateLogPagbank log) {
 		UUID id = UUID.randomUUID();
 
 				

@@ -13,6 +13,7 @@ public record DonationDto(
     PaymentGatewayEnum gateway,
     UUID sponsorshipId,
     PaymentMethodEnum method,
+    String cardBrand,
     UUID userId,
     LocalDateTime donationAt
 ) {

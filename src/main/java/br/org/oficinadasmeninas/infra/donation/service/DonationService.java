@@ -40,8 +40,6 @@ public class DonationService implements IDonationService {
         return donationRepository.findByFilter(getDonationDto);
     }
 
-
-
     @Override
     public DonationDto findById(UUID id) {
         var donation = donationRepository.findById(id)
@@ -75,5 +73,24 @@ public class DonationService implements IDonationService {
                 .findPendingCheckoutsByUserId(userId).stream()
                 .map(DonationMapper::toDto)
                 .toList();
+    }
+
+    @Override
+    public void updateFeeAndLiquidValue(UUID id, Double fee, Double valueLiquid) {
+        var donation = donationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Messages.DONATION_NOT_FOUND + id));
+
+        donation.setFee(fee);
+        donation.setValueLiquid(valueLiquid);
+        donationRepository.updateFeeAndLiquidValue(donation);
+    }
+
+    @Override
+    public void updateCardBrand(UUID id, String cardBrand) {
+        var donation = donationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Messages.DONATION_NOT_FOUND + id));
+
+        donation.setCardBrand(cardBrand);
+        donationRepository.updateCardBrand(donation);
     }
 }

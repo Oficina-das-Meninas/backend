@@ -54,12 +54,12 @@ public class SecurityConfig {
 	        .csrf(AbstractHttpConfigurer::disable)
 	        .authorizeHttpRequests(auth -> auth
 	            .requestMatchers("/api/auth/**").permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/sessions/present").permitAll()
 				.requestMatchers(HttpMethod.POST, "/api/notifications/**").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/transparencies").permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/partners").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/transparencies").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/partners").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/donations/**").permitAll()
-                .requestMatchers(HttpMethod.DELETE, "/api/donations/**").permitAll()
 				.anyRequest().authenticated()
 	        )
 	        .sessionManagement(session -> session
@@ -75,7 +75,7 @@ public class SecurityConfig {
 
 	    return http.build();
 	}
-
+	
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
@@ -83,15 +83,15 @@ public class SecurityConfig {
 		configuration.setAllowedOrigins(List.of(
 				"http://localhost:4200",
                 "http://localhost:8080",
-                "https://dev.apollomusic.com.br",
                 "https://oficinadasmeninas.org.br",
 				"https://dev.oficinadasmeninas.org.br",
+                "https://admin-dev.oficinadasmeninas.org.br",
+                "https://admin.oficinadasmeninas.org.br",
                 "http://dev.oficinadasmeninas.org.br",
                 "http://admin-dev.oficinadasmeninas.org.br",
                 "http://admin.oficinadasmeninas.org.br",
-                "http://oficinadasmeninas.org.br",
-				"https://admin-dev.oficinadasmeninas.org.br",
-				"https://admin.oficinadasmeninas.org.br"));
+                "http://oficinadasmeninas.org.br")
+				);
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
 		configuration.setAllowedHeaders(List.of("*"));
 		configuration.setAllowCredentials(true);
@@ -113,7 +113,7 @@ public class SecurityConfig {
             response.getWriter().write(objectMapper.writeValueAsString(body));
         };
     }
-    
+
     @Bean
     AuthenticationEntryPoint customAuthenticationEntryPoint() {
     	return (request, response, authException) -> {
