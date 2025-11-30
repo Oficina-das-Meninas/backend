@@ -26,32 +26,47 @@ public class MinIoImplementation implements IObjectStorage {
         this.bucketName = bucketName;
     }
 
-    public String uploadFile(MultipartFile file, Boolean isPublic) {
+    @Override
+    public void upload(MultipartFile file, Boolean isPublic) {
+        String originalName = file.getOriginalFilename();
+        if (originalName != null) {
+            originalName = sanitizeFileName(originalName);
+        }
 
-        var title = generateTitle(file);
-
-        upload(file, title, isPublic);
-        return title;
+        uploadWithName(file, originalName, isPublic);
     }
 
     @Override
-    public String uploadTransparencyFile(MultipartFile file, boolean isImage) {
-
-        var title = generateTitle(file);
-        var objectKey = (isImage ? IMAGE_PATH : DOCUMENT_PATH) + title;
-
-        upload(file, objectKey, true);
-        return "/pub/" + objectKey;
-    }
-
-    private void upload(MultipartFile file, String objectKey, boolean isPublic){
-
+    public void uploadWithName(MultipartFile file, String fileName, Boolean isPublic) {
         try {
             if (isSmallFile(file)) {
-                simpleUpload(file, objectKey, isPublic);
+                simpleUpload(file, fileName, isPublic);
             } else {
-                multipartUpload(file, objectKey, isPublic);
+                multipartUpload(file, fileName, isPublic);
             }
+        } catch (IOException e) {
+            throw new ObjectStorageException(e);
+        }
+    }
+
+    @Override
+    public String uploadWithFilePath(MultipartFile file, boolean isImage) {
+        var title = file.getOriginalFilename();
+
+        if (title != null) {
+            title = generateTitle(sanitizeFileName(title));
+        }
+
+        try {
+            var objectKey = (isImage ? IMAGE_PATH : DOCUMENT_PATH ) + title;
+
+            if (isSmallFile(file)) {
+                simpleUpload(file, objectKey, true);
+            } else {
+                multipartUpload(file, objectKey, true);
+            }
+
+            return "/pub/" + objectKey;
 
         } catch (IOException e) {
             throw new ObjectStorageException(e);
@@ -59,7 +74,7 @@ public class MinIoImplementation implements IObjectStorage {
     }
 
     @Override
-    public void deleteFile(String fileUrl) {
+    public void deleteFileByPath(String fileUrl) {
         try {
             s3Client.deleteObject(DeleteObjectRequest.builder()
                     .bucket(bucketName)
@@ -71,7 +86,7 @@ public class MinIoImplementation implements IObjectStorage {
         }
     }
 
-    private String sanitizeFileName(String fileName) {
+    public String sanitizeFileName(String fileName) {
         String normalized = java.text.Normalizer.normalize(fileName, java.text.Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "");
         return normalized.replaceAll("[^a-zA-Z0-9\\.\\-_]", "_");
@@ -138,17 +153,15 @@ public class MinIoImplementation implements IObjectStorage {
         );
     }
 
-    private String generateTitle(MultipartFile file) {
+    public static String generateTitle(String filename) {
 
-        var sanitizedFileName = sanitizeFileName(file.getOriginalFilename());
-
-        int dotIndex = sanitizedFileName.lastIndexOf(".");
+        int dotIndex = filename.lastIndexOf(".");
         if (dotIndex == -1) {
-            return sanitizedFileName + "_" + System.currentTimeMillis();
+            return filename + "_" + System.currentTimeMillis();
         }
 
-        var name = sanitizedFileName.substring(0, dotIndex);
-        var extension = sanitizedFileName.substring(dotIndex);
+        String name = filename.substring(0, dotIndex);
+        String extension = filename.substring(dotIndex);
 
         return name + "_" + System.currentTimeMillis() + extension;
     }
