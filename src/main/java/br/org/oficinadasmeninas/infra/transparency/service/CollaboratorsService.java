@@ -9,12 +9,9 @@ import br.org.oficinadasmeninas.domain.transparency.repository.ICategoriesReposi
 import br.org.oficinadasmeninas.domain.transparency.repository.ICollaboratorsRepository;
 import br.org.oficinadasmeninas.domain.transparency.service.ICollaboratorsService;
 import br.org.oficinadasmeninas.infra.logging.Logging;
-import br.org.oficinadasmeninas.infra.objectstorage.rollback.MinIoRollbackContext;
-import br.org.oficinadasmeninas.infra.objectstorage.rollback.MinIoTransactional;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
@@ -26,18 +23,14 @@ public class CollaboratorsService implements ICollaboratorsService {
     private final ICategoriesRepository categoriesRepository;
     private final ICollaboratorsRepository collaboratorsRepository;
     private final IObjectStorage objectStorage;
-    private final MinIoRollbackContext minIoRollbackContext;
 
-    public CollaboratorsService(ICategoriesRepository categoriesRepository, ICollaboratorsRepository collaboratorsRepository, IObjectStorage objectStorage, MinIoRollbackContext minIoRollbackContext) {
+    public CollaboratorsService(ICategoriesRepository categoriesRepository, ICollaboratorsRepository collaboratorsRepository, IObjectStorage objectStorage) {
         this.categoriesRepository = categoriesRepository;
         this.collaboratorsRepository = collaboratorsRepository;
         this.objectStorage = objectStorage;
-        this.minIoRollbackContext = minIoRollbackContext;
     }
 
     @Override
-    @Transactional
-    @MinIoTransactional
     public UUID insert(CreateCollaboratorRequestDto request) {
 
         var category = categoriesRepository
@@ -46,8 +39,7 @@ public class CollaboratorsService implements ICollaboratorsService {
 
         validateImageFileType(request.image());
 
-        var imageLink = objectStorage.uploadTransparencyFile(request.image(), true);
-        minIoRollbackContext.register(imageLink);
+        var imageLink = objectStorage.uploadWithFilePath(request.image(), true);
 
         var collaborator = CollaboratorMapper.toEntity(request);
         collaborator.setImage(imageLink);
@@ -58,7 +50,6 @@ public class CollaboratorsService implements ICollaboratorsService {
     }
 
     @Override
-    @Transactional
     public UUID update(UUID id, UpdateCollaboratorDto request) {
         var collaborator = collaboratorsRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.COLLABORATOR_NOT_FOUND));
@@ -70,7 +61,6 @@ public class CollaboratorsService implements ICollaboratorsService {
     }
 
     @Override
-    @Transactional
     public UUID deleteById(UUID id) {
 
         var collaborator = collaboratorsRepository
@@ -78,7 +68,7 @@ public class CollaboratorsService implements ICollaboratorsService {
                 .orElseThrow(() -> new NotFoundException(Messages.COLLABORATOR_NOT_FOUND));
 
         collaboratorsRepository.deleteById(collaborator.getId());
-        objectStorage.deleteFile(collaborator.getImage());
+        objectStorage.deleteFileByPath(collaborator.getImage());
 
         return collaborator.getId();
     }

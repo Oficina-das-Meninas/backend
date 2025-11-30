@@ -8,42 +8,31 @@ import br.org.oficinadasmeninas.domain.event.repository.IEventRepository;
 import br.org.oficinadasmeninas.domain.event.service.IEventService;
 import br.org.oficinadasmeninas.domain.objectstorage.IObjectStorage;
 import br.org.oficinadasmeninas.domain.resources.Messages;
-import br.org.oficinadasmeninas.infra.logging.Logging;
-import br.org.oficinadasmeninas.infra.objectstorage.rollback.MinIoRollbackContext;
-import br.org.oficinadasmeninas.infra.objectstorage.rollback.MinIoTransactional;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
 import static br.org.oficinadasmeninas.domain.event.mapper.EventMapper.toEntity;
 
-@Logging
 @Service
 public class EventService implements IEventService {
-
     private final IEventRepository eventRepository;
     private final IObjectStorage storageService;
-    private final MinIoRollbackContext minIoRollbackContext;
 
-    public EventService(IEventRepository eventRepository, IObjectStorage storageService, MinIoRollbackContext minIoRollbackContext) {
+    public EventService(IEventRepository eventRepository, IObjectStorage storageService) {
         this.eventRepository = eventRepository;
         this.storageService = storageService;
-        this.minIoRollbackContext = minIoRollbackContext;
     }
 
     @Override
     @Transactional
-    @MinIoTransactional
     public UUID insert(CreateEventDto request) {
 
-        var previewImageUrl = storageService.uploadFile(request.previewImage(), true);
-        var partnersImageUrl = storageService.uploadFile(request.partnersImage(), true);
-
-        minIoRollbackContext.register(previewImageUrl, partnersImageUrl);
+        var previewImageUrl = storageService.uploadWithFilePath(request.previewImage(), true);
+        var partnersImageUrl = storageService.uploadWithFilePath(request.partnersImage(), true);
 
         var event = toEntity(request);
         event.setPreviewImageUrl(previewImageUrl);
@@ -55,16 +44,13 @@ public class EventService implements IEventService {
 
     @Override
     @Transactional
-    @MinIoTransactional
     public UUID update(UUID id, UpdateEventDto request) {
 
         var event = eventRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.EVENT_NOT_FOUND + id));
 
-        var previewImageUrl = storageService.uploadFile(request.previewImage(), true);
-        var partnersImageUrl = storageService.uploadFile(request.partnersImage(), true);
-
-        minIoRollbackContext.register(previewImageUrl, partnersImageUrl);
+        var previewImageUrl = storageService.uploadWithFilePath(request.previewImage(), true);
+        var partnersImageUrl = storageService.uploadWithFilePath(request.partnersImage(), true);
 
         event.setTitle(request.title());
         event.setDescription(request.description());
@@ -82,13 +68,10 @@ public class EventService implements IEventService {
     @Override
     @Transactional
     public UUID deleteById(UUID id) {
+        var event = findById(id);
 
-        var event =  eventRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(Messages.EVENT_NOT_FOUND + id));
-
-        eventRepository.deleteById(id);
-        storageService.deleteFile(event.getPreviewImageUrl());
-        storageService.deleteFile(event.getPartnersImageUrl());
+    	eventRepository.deleteById(event.getId());
+        storageService.deleteFileByPath(event.getPreviewImageUrl());
 
         return id;
     }
