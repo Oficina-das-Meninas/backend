@@ -101,6 +101,10 @@ public final class Messages {
     public static final String EMAIL_VERIFIED_SUCCESSFULLY = "E-mail confirmado com sucesso.";
 
     public static final String ERROR_SENDING_EMAIL = "Erro ao enviar e-mail.";
+
+    public static final String PASSWORD_VERIFIED_SUCCESSFULLY = "Senha verificada com sucesso.";
+
+    public static final String INVALID_PASSWORD = "Senha atual incorreta.";
     
     public static final String PASSWORD_CHANGED_SUCCESSFULLY = "Senha alterada com sucesso.";
     

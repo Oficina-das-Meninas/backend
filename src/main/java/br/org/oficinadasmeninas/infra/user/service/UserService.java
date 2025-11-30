@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import br.org.oficinadasmeninas.presentation.exceptions.ConflictException;
+import br.org.oficinadasmeninas.presentation.exceptions.InvalidPasswordException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -150,5 +151,19 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new NotFoundException(Messages.USER_NOT_FOUND_BY_EMAIL + userEmail));
 
         return new UserDto(user);
+    }
+
+    @Override
+    public Void verifyUserPassword(String password) {
+        String userEmail = sessionService.getSession().getUsername();
+
+        var user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new NotFoundException(Messages.USER_NOT_FOUND_BY_EMAIL + userEmail));
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new InvalidPasswordException(Messages.INVALID_PASSWORD);
+        }
+
+        return null;
     }
 }
