@@ -30,24 +30,20 @@ public class StatisticsService implements IStatisticsService {
             throw new InvalidDateRangeException();
         }
 
-        var indicators = statisticsRepository.getIndicatorsByPeriod(startDate, endDate);
-
-        return new IndicatorsStatisticsDto(
-                indicators.totalDonations(),
-                indicators.averageDonationValue(),
-                indicators.totalDonors(),
-                indicators.activeSponsorships()
-        );
+        return statisticsRepository.getIndicatorsByPeriod(startDate, endDate);
     }
 
     @Override
     public DonationTypeDistributionDto getDonationTypeDistributionByPeriod(LocalDate startDate, LocalDate endDate){
-        var donorTypeDistribution = statisticsRepository.getDonationTypeDistributionByPeriod(startDate, endDate);
-        return new DonationTypeDistributionDto(
-                donorTypeDistribution.oneTimeDonation(),
-                donorTypeDistribution.recurringDonation(),
-                donorTypeDistribution.totalDonations()
-        );
+        if (startDate == null || endDate == null) {
+            throw new RequiredDateRangeException();
+        }
+
+        if (startDate.isAfter(endDate)) {
+            throw new InvalidDateRangeException();
+        }
+
+        return statisticsRepository.getDonationTypeDistributionByPeriod(startDate, endDate);
     }
 
     @Override
