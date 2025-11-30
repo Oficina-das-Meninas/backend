@@ -59,13 +59,15 @@ public class PaymentService implements IPaymentService {
 
     @Override
     @Transactional
-    public void updateStatus(UUID id, PaymentStatusEnum status) {
+    public UUID updateStatus(UUID id, PaymentStatusEnum status) {
 
         var payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.PAYMENT_NOT_FOUND + id));
 
         payment.setStatus(status);
         paymentRepository.updateStatus(payment);
+
+        return payment.getId();
     }
 
     @Override
@@ -74,11 +76,13 @@ public class PaymentService implements IPaymentService {
     }
 
     @Override
-	public void updatePaymentDate(UUID id, LocalDateTime date) {
+	public UUID updatePaymentDate(UUID id, LocalDateTime date) {
 	   var payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.PAYMENT_NOT_FOUND + id));
 
         payment.setDate(date);
-        paymentRepository.updateDate(payment);	
+        paymentRepository.updateDate(payment);
+
+        return payment.getId();
 	}
 }

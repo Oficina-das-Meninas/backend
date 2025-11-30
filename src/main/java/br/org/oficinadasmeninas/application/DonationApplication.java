@@ -13,8 +13,9 @@ import br.org.oficinadasmeninas.domain.sponsorship.dto.SponsorshipDto;
 import br.org.oficinadasmeninas.domain.sponsorship.service.ISponsorshipService;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
 import br.org.oficinadasmeninas.infra.recaptcha.CaptchaService;
-import br.org.oficinadasmeninas.infra.shared.exception.ActiveSubscriptionAlreadyExistsException;
 import br.org.oficinadasmeninas.infra.user.service.UserService;
+import br.org.oficinadasmeninas.presentation.exceptions.ConflictException;
+import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.exceptions.NoContentException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 
@@ -63,7 +64,7 @@ public class DonationApplication {
             Optional<SponsorshipDto> sponsorship = this.sponsorshipService.findActiveByUserId(donationCheckout.donor().id());
 
             if (sponsorship.isPresent()) {
-                throw new ActiveSubscriptionAlreadyExistsException();
+                throw new ConflictException(Messages.ACTIVE_SUBSCRIPTION_ALREADY_EXISTS);
             }
             sponsorshipId = this.createSponsorship(donationCheckout);
         }
@@ -81,9 +82,9 @@ public class DonationApplication {
             donationCheckout.donor().id(),
             checkout.referenceId()
         );
-		DonationDto donation = donationService.insert(createDonation);
+        UUID donationId = donationService.insert(createDonation);
 
-		CreatePaymentDto createPayment = new CreatePaymentDto(PaymentStatusEnum.WAITING, donation.id());
+		CreatePaymentDto createPayment = new CreatePaymentDto(PaymentStatusEnum.WAITING, donationId);
 		paymentService.insert(createPayment);
 
 		return new DonationCheckoutDto(checkout.link());

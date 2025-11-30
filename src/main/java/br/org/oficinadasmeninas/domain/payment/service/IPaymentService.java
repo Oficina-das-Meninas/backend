@@ -28,29 +28,27 @@ public interface IPaymentService {
 	 */
 	PaymentDto insert(CreatePaymentDto payment);
 
-	/**
-	 * Atualiza o status de um pagamento existente.
-	 * <p>
-	 * Essa operação é geralmente utilizada para refletir mudanças de estado
-	 * notificadas pelo gateway de pagamento (ex.: de “WAITING” para “PAID”).
-	 *
-	 * @param id     identificador único do pagamento
-	 * @param status novo status do pagamento ({@link PaymentStatusEnum})
-	 */
-	void updateStatus(UUID id, PaymentStatusEnum status);
+
+    /**
+     * Atualiza o status de um pagamento existente.
+     *
+     * @param id     identificador único do pagamento
+     * @param status novo status do pagamento
+     * @return o UUID do pagamento atualizado
+     */
+	UUID updateStatus(UUID id, PaymentStatusEnum status);
+
+    /**
+     * Atualiza a data de pagamento de um pagamento existente.
+     *
+     * @param id   identificador único do pagamento
+     * @param date nova data de pagamento
+     * @return o UUID do pagamento atualizado
+     */
+    UUID updatePaymentDate(UUID id, LocalDateTime date);
 
     void cancelPendingPaymentByDonationId(UUID donationId);
-	
-	/**
-	 * Atualiza o dia de pagamento de um registro existente.
-	 * <p>
-	 * Pode ser utilizada para atribuir a data de pagamento de um registro existente
-	 *
-	 * @param id     identificador único do pagamento
-	 * @param date data  ({@link LocalDateTime})
-	 */
-    
-    void updatePaymentDate(UUID id, LocalDateTime date);
+
 
 	/**
 	 * Busca todos os pagamentos associados a uma doação específica.

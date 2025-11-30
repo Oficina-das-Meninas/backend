@@ -1,5 +1,11 @@
 package br.org.oficinadasmeninas.infra.admin.service;
 
+import static br.org.oficinadasmeninas.domain.admin.mapper.AdminMapper.toDto;
+import java.util.UUID;
+import br.org.oficinadasmeninas.presentation.exceptions.ConflictException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 import br.org.oficinadasmeninas.domain.admin.Admin;
 import br.org.oficinadasmeninas.domain.admin.dto.AdminDto;
 import br.org.oficinadasmeninas.domain.admin.dto.CreateAdminDto;
@@ -45,8 +51,12 @@ public class AdminService implements IAdminService {
         admin.setEmail(request.getEmail());
         admin.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        adminRepository.insert(admin);
-        return admin.getId();
+        try {
+            adminRepository.insert(admin);
+            return admin.getId();
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException(Messages.EMAIL_ALREADY_EXISTS);
+        }
     }
 
     @Override
@@ -74,7 +84,7 @@ public class AdminService implements IAdminService {
             var adminByEmail = adminRepository.findByEmail(request.getEmail());
 
             if (adminByEmail.isPresent())
-                throw new ValidationException(Messages.EMAIL_ALREADY_EXISTS);
+                throw new ConflictException(Messages.EMAIL_ALREADY_EXISTS);
         }
 
         adminRepository.update(admin);
