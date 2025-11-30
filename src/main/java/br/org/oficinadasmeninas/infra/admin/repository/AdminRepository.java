@@ -61,7 +61,13 @@ public class AdminRepository implements IAdminRepository {
 
     @Override
     public void deleteById(UUID id) {
-        jdbc.update(AdminQueryBuilder.DELETE_ADMIN, id);
+        var admin =  this.findById(id);
+
+        if (admin.isPresent()) {
+            jdbc.update(AdminQueryBuilder.DELETE_ADMIN, id);
+            jdbc.update(AdminQueryBuilder.DELETE_ACCOUNT, admin.get().getAccountId());
+        }
+
     }
 
     @Override
