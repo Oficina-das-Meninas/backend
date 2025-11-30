@@ -1,5 +1,15 @@
 package br.org.oficinadasmeninas.infra.user.service;
 
+
+import java.util.List;
+import java.util.UUID;
+
+import br.org.oficinadasmeninas.presentation.exceptions.ConflictException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+
 import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.user.User;
 import br.org.oficinadasmeninas.domain.user.dto.CreateUserDto;
@@ -31,12 +41,11 @@ public class UserService implements IUserService {
 
     @Override
     public UserDto insert(CreateUserDto request) {
-
         if (userRepository.existsByEmail(request.getEmail()))
-            throw new ValidationException(Messages.EMAIL_ALREADY_EXISTS);
+            throw new ConflictException(Messages.EMAIL_ALREADY_EXISTS);
 
         if (userRepository.existsByDocument(request.getDocument()))
-            throw new ValidationException(Messages.DOCUMENT_ALREADY_EXISTS);
+            throw new ConflictException(Messages.DOCUMENT_ALREADY_EXISTS);
 
         var user = new User();
         user.setName(request.getName());
@@ -76,11 +85,12 @@ public class UserService implements IUserService {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
 
+
         if (!request.getEmail().equals(user.getEmail())) {
             var userByEmail = userRepository.findByEmail(request.getEmail());
 
             if (userByEmail.isPresent())
-                throw new ValidationException(Messages.EMAIL_ALREADY_EXISTS);
+                throw new ConflictException(Messages.EMAIL_ALREADY_EXISTS);
         }
 
         userRepository.update(user);
