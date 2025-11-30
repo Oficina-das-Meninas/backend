@@ -100,6 +100,7 @@ public class UserController extends BaseController {
 	}
 
     @GetMapping("/pontuations")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getUserPontuations(
             @RequestParam(defaultValue = "0") @PositiveOrZero int page,
             @RequestParam(defaultValue = "10") @Positive @Max(100) int pageSize,
