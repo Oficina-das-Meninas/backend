@@ -5,6 +5,7 @@ import br.org.oficinadasmeninas.domain.pontuation.service.IPontuationService;
 import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.domain.user.dto.CreateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UpdateUserDto;
+import br.org.oficinadasmeninas.domain.user.dto.VerifyPasswordDto;
 import br.org.oficinadasmeninas.domain.user.service.IUserService;
 import jakarta.annotation.Nullable;
 import io.swagger.v3.oas.annotations.Operation;
@@ -111,5 +112,15 @@ public class UserController extends BaseController {
         var request = GetUserPontuationsDto.FromRequestParams(page, pageSize, startDate, endDate, donationType);
 
         return handle(() -> pontuationService.getUserPontuations(request));
+    }
+
+    @PostMapping("/me/verify-password")
+    public ResponseEntity<?> verifyPassword(
+            @RequestBody VerifyPasswordDto verifyPasswordDto
+    ) {
+        return handle(
+                () -> userService.verifyUserPassword(verifyPasswordDto.password()),
+                Messages.PASSWORD_VERIFIED_SUCCESSFULLY
+        );
     }
 }

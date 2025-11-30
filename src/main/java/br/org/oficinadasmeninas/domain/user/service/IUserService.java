@@ -88,4 +88,11 @@ public interface IUserService {
      *         ou {@code null} se não existir
      */
     UserDto findByUserSession();
+
+    /**
+     *
+     * @param password
+     * @return void se a senha passada no no parâmetro é igual à senha do usuário logado na sessão
+     */
+    Void verifyUserPassword(String password);
 }
