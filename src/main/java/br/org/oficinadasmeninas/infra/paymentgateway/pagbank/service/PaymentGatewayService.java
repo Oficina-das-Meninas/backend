@@ -149,6 +149,8 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
         RequestCreateCheckoutPagbank pagbankRequest = mapper.toGateway(requestCreateCheckoutDto,defaults);
 
+        saveLog("CREATE CHECKOUT", pagbankRequest);
+
         ResponseCreateCheckoutPagbank responseCreateCheckoutPagbank = createPagBankCheckout(pagbankRequest);
 
         String link = responseCreateCheckoutPagbank.links()
@@ -271,7 +273,7 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
     @Override
     public void notifyPayment(PaymentNotificationDto request) {
-        this.saveLog(request);
+        this.saveLog("WEBHOOK NOTIFY BODY", request);
         PaymentChargesDto charge = request.charges().getFirst();
         boolean recurring = charge.recurring() != null;
         ResponseWebhookCustomer customer = request.customer();
@@ -298,9 +300,9 @@ public class PaymentGatewayService implements IPaymentGatewayService {
         updateCheckoutStatus(request.id(), request.reference_id(), request.status());
     }
 
-    private void saveLog(Object object){
+    private void saveLog(String label, Object object){
         logService.createLogPagbank(new CreateLogPagbank(
-                "WEBHOOK NOTIFY BODY",
+                label,
                 LocalDateTime.now(),
                 object
         ));
