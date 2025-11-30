@@ -57,8 +57,9 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.GET, "/api/sessions/present").permitAll()
 				.requestMatchers(HttpMethod.POST, "/api/notifications/**").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/transparencies").permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/partners").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/transparencies").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/partners").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/donations/**").permitAll()
 				.anyRequest().authenticated()
 	        )
 	        .sessionManagement(session -> session

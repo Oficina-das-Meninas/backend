@@ -61,6 +61,7 @@ public class DonationController extends BaseController {
             @ApiResponse(responseCode = "400", description = "Dados inválidos enviados para criação do checkout")
     })
     @PostMapping
+    @PreAuthorize("isAnonymous() or hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> createDonationCheckout(
             @Valid @RequestBody CreateDonationCheckoutDto donationCheckout
     ) {
