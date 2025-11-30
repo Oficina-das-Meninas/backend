@@ -27,7 +27,7 @@ public class StatisticsRepository implements IStatisticsRepository {
 
     @Override
     public IndicatorsStatisticsDto getIndicatorsByPeriod(LocalDate startDate, LocalDate endDate) {
-        var result = jdbc.queryForObject(
+        return jdbc.queryForObject(
                 StatisticsQueryBuilder.GET_INDICATORS,
                 this::mapRowIndicators,
                 startDate != null ? startDate.atStartOfDay() : null,
@@ -35,35 +35,17 @@ public class StatisticsRepository implements IStatisticsRepository {
                 endDate != null ? endDate.atTime(23, 59, 59) : null,
                 endDate != null ? endDate.atTime(23, 59, 59) : null
         );
-        
-        return new IndicatorsStatisticsDto(
-                result.totalDonationLiquid(),
-                result.totalDonation(),
-                result.averageDonationLiquid(),
-                result.averageDonation(),
-                result.totalDonors(),
-                result.activeSponsorships()
-        );
     }
 
     @Override
     public DonationTypeDistributionDto getDonationTypeDistributionByPeriod(LocalDate startDate, LocalDate endDate) {
-        var result = jdbc.queryForObject(
+        return jdbc.queryForObject(
                 StatisticsQueryBuilder.GET_DONATION_TYPE_DISTRIBUTION,
                 this::mapRowDonationTypeDistribution,
                 startDate != null ? startDate.atStartOfDay() : null,
                 startDate != null ? startDate.atStartOfDay() : null,
                 endDate != null ? endDate.atTime(23, 59, 59) : null,
                 endDate != null ? endDate.atTime(23, 59, 59) : null
-        );
-
-        return new DonationTypeDistributionDto(
-                result.oneTimeDonationLiquid(),
-                result.oneTimeDonation(),
-                result.recurringDonationLiquid(),
-                result.recurringDonation(),
-                result.totalDonationLiquid(),
-                result.totalDonation()
         );
     }
 
