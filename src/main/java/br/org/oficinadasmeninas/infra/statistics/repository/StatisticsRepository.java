@@ -27,20 +27,13 @@ public class StatisticsRepository implements IStatisticsRepository {
 
     @Override
     public IndicatorsStatisticsDto getIndicatorsByPeriod(LocalDate startDate, LocalDate endDate) {
-        var result = jdbc.queryForObject(
+        return jdbc.queryForObject(
                 StatisticsQueryBuilder.GET_INDICATORS,
                 this::mapRowIndicators,
                 startDate != null ? startDate.atStartOfDay() : null,
                 startDate != null ? startDate.atStartOfDay() : null,
                 endDate != null ? endDate.atTime(23, 59, 59) : null,
                 endDate != null ? endDate.atTime(23, 59, 59) : null
-        );
-        
-        return new IndicatorsStatisticsDto(
-                result != null ? result.totalDonations() : null,
-                result != null ? result.averageDonationValue() : null,
-                result != null ? result.totalDonors() : null,
-                result != null ? result.activeSponsorships() : null
         );
     }
 
@@ -68,6 +61,7 @@ public class StatisticsRepository implements IStatisticsRepository {
                     Map<String, Object> map = new HashMap<>();
                     map.put("period", rs.getString("period"));
                     map.put("donation_type", rs.getString("donation_type"));
+                    map.put("total_value_liquid", rs.getBigDecimal("total_value_liquid"));
                     map.put("total_value", rs.getBigDecimal("total_value"));
                     return map;
                 },
@@ -83,10 +77,11 @@ public class StatisticsRepository implements IStatisticsRepository {
         for (Map<String, Object> row : results) {
             String period = (String) row.get("period");
             String donationType = (String) row.get("donation_type");
+            BigDecimal valueLiquid = (BigDecimal) row.get("total_value_liquid");
             BigDecimal value = (BigDecimal) row.get("total_value");
 
             DonationsDto.TimeSeriesDataPoint dataPoint =
-                    new DonationsDto.TimeSeriesDataPoint(period, value);
+                    new DonationsDto.TimeSeriesDataPoint(period, valueLiquid, value);
 
             if ("ONE_TIME".equals(donationType)) {
                 oneTimeData.add(dataPoint);
@@ -100,8 +95,10 @@ public class StatisticsRepository implements IStatisticsRepository {
 
     private IndicatorsStatisticsDto mapRowIndicators(ResultSet rs, int rowNum) throws SQLException {
         return new IndicatorsStatisticsDto(
+                rs.getBigDecimal("total_donation_liquid"),
                 rs.getBigDecimal("total_donation"),
-                rs.getBigDecimal("average_donation_value"),
+                rs.getBigDecimal("average_donation_liquid"),
+                rs.getBigDecimal("average_donation"),
                 rs.getLong("total_donors"),
                 rs.getLong("active_sponsorships")
         );
@@ -109,8 +106,11 @@ public class StatisticsRepository implements IStatisticsRepository {
 
     private DonationTypeDistributionDto mapRowDonationTypeDistribution(ResultSet rs, int rowNum) throws SQLException {
         return new DonationTypeDistributionDto(
+                rs.getBigDecimal("one_time_donation_liquid"),
                 rs.getBigDecimal("one_time_donation"),
+                rs.getBigDecimal("recurring_donation_liquid"),
                 rs.getBigDecimal("recurring_donation"),
+                rs.getBigDecimal("total_donation_liquid"),
                 rs.getBigDecimal("total_donation")
         );
     }
