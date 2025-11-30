@@ -117,4 +117,8 @@ public final class Messages {
     public static final String EMAIL_ALREADY_VERIFIED = "Email já confirmado.";
 
     public static final String CANNOT_DELETE_LOGGED_USER = "Não é possível remover usuário logado.";
+
+    public static final String INVALID_DATE_RANGE = "Data inicial deve ser anterior ou igual à data final.";
+
+    public static final String REQUIRED_DATE_RANGE = "Data inicial e data final são obrigatórias.";
 }
