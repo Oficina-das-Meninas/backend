@@ -31,11 +31,15 @@ public class DocumentsRepository implements IDocumentsRepository {
         var id = UUID.randomUUID();
         document.setId(id);
 
+        java.sql.Date sqlDate = document.getEffectiveDate() == null
+                ? null
+                : new java.sql.Date(document.getEffectiveDate().getTime());
+
         jdbc.update(DocumentsQueryBuilder.INSERT_DOCUMENT,
                 id,
                 document.getTitle(),
                 document.getCategory().getId(),
-                new java.sql.Date(document.getEffectiveDate().getTime()),
+                sqlDate,
                 document.getPreviewLink()
         );
 
