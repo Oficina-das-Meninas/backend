@@ -31,12 +31,15 @@ public class AdminQueryBuilder {
     public static final String UPDATE_PASSWORD = "UPDATE admin SET password = ? WHERE id = ?";
 
 	public static final String DELETE_ADMIN = "DELETE from admin WHERE id = ?";
+
+    public static final String DELETE_ACCOUNT = "DELETE from account WHERE id = ?";
   
     public static final String SELECT_COUNT = """
-    		SELECT count(*) FROM admin
+    		SELECT count(*) FROM admin adm
+    		LEFT JOIN account ac ON ac.id = adm.account_id
     		WHERE (
-    			unaccent(name) ILIKE unaccent(COALESCE('%' || ? || '%', name))
-    			OR unaccent(email) ILIKE unaccent(COALESCE('%' || ? || '%', email)) 
+    			unaccent(ac.name) ILIKE unaccent(COALESCE('%' || ? || '%', ac.name))
+    			OR unaccent(ac.email) ILIKE unaccent(COALESCE('%' || ? || '%', ac.email)) 
     		)
     		""";
     
