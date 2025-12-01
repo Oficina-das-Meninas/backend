@@ -8,11 +8,14 @@ public class DonationQueryBuilder {
     public static final String SELECT_COUNT = """
         SELECT count(*)
         FROM donation d
-        LEFT JOIN users u ON d.user_id = u.id
-        LEFT JOIN account a ON a.id = u.account_id
+        LEFT JOIN users u        ON d.user_id = u.id
+        LEFT JOIN account a      ON a.id = u.account_id
+        LEFT JOIN sponsorships s ON d.sponsorship_id = s.id
+        LEFT JOIN payment p      ON d.id = p.donation_id
         WHERE (?::text IS NULL OR a.name ILIKE '%' || ? || '%')
           AND (?::timestamp IS NULL OR d.donation_at >= ?)
           AND (?::timestamp IS NULL OR d.donation_at <= ?)
+          AND (?::text IS NULL OR p.status = ?)
           AND (?::text IS NULL OR
                (CASE WHEN d.sponsorship_id IS NOT NULL THEN 'RECURRING'
                ELSE 'ONE_TIME'
@@ -63,38 +66,44 @@ public class DonationQueryBuilder {
     public static final Map<String, String> ALLOWED_SORT_FIELDS = Map.of(
             "donorName", "a.name",
             "value", "d.value",
+            "valueLiquid", "d.value_liquid",
             "donationAt", "d.donation_at",
+            "status", "p.status",
             "donationType", "(CASE WHEN d.sponsorship_id IS NOT NULL THEN 'RECURRING' ELSE 'ONE_TIME' END)",
             "sponsorStatus", "(CASE WHEN s.is_active = TRUE THEN 'ACTIVE' WHEN s.is_active = FALSE THEN 'INACTIVE' ELSE null END)"
     );
 
     public static final String GET_FILTERED_DONATIONS = """
             SELECT d.id
-                  ,d.value
-                  ,d.donation_at
-                  ,d.user_id
-                  ,u.account_id
-                  ,a.name AS donor_name
-                  ,CASE WHEN d.sponsorship_id IS NOT NULL THEN 'RECURRING'
-                   ELSE 'ONE_TIME'
-                   END AS donation_type
-                  ,CASE WHEN s.is_active = TRUE THEN 'ACTIVE'
-                        WHEN s.is_active = FALSE THEN 'INACTIVE'
-                   ELSE null
-                   END AS sponsor_status
+            	  ,d.value
+            	  ,d.value_liquid
+            	  ,d.donation_at
+            	  ,d.user_id
+            	  ,u.account_id
+            	  ,a.name AS donor_name
+            	  ,CASE WHEN d.sponsorship_id IS NOT NULL THEN 'RECURRING'
+            	   ELSE 'ONE_TIME'
+            	   END AS donation_type 
+            	  ,CASE WHEN s.is_active = TRUE THEN 'ACTIVE'
+            			WHEN s.is_active = FALSE THEN 'INACTIVE'
+            	   ELSE null
+            	   END AS sponsor_status
+            	  ,p.status
             FROM donation d
-            LEFT JOIN users u ON d.user_id = u.id
-            LEFT JOIN account a ON a.id = u.account_id
+            LEFT JOIN users u        ON d.user_id = u.id
+            LEFT JOIN account a      ON a.id = u.account_id
             LEFT JOIN sponsorships s ON d.sponsorship_id = s.id
+            LEFT JOIN payment p      ON d.id = p.donation_id
             WHERE (?::text IS NULL OR a.name ILIKE '%' || ? || '%')
               AND (?::timestamp IS NULL OR d.donation_at >= ?)
               AND (?::timestamp IS NULL OR d.donation_at <= ?)
+              AND (?::text IS NULL OR p.status = ?)
               AND (?::text IS NULL OR
-                   (CASE WHEN d.sponsorship_id IS NOT NULL THEN 'RECURRING'
-                   ELSE 'ONE_TIME'
-                   END) = ?)
+            	   (CASE WHEN d.sponsorship_id IS NOT NULL THEN 'RECURRING'
+            	   ELSE 'ONE_TIME'
+            	   END) = ?)
             %ORDER_BY%
-            LIMIT ? OFFSET ?;
+            LIMIT ? OFFSET ?
     """;
 
     public static final String SELECT_PENDING_CHECKOUTS_BY_USER_ID = """

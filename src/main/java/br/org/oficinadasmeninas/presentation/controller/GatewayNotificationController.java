@@ -1,15 +1,9 @@
 package br.org.oficinadasmeninas.presentation.controller;
 
-import br.org.oficinadasmeninas.domain.donation.dto.DonationDto;
 import br.org.oficinadasmeninas.domain.donation.service.IDonationService;
-import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
 import br.org.oficinadasmeninas.domain.payment.dto.CheckoutNotificationDto;
 import br.org.oficinadasmeninas.domain.payment.dto.PaymentNotificationDto;
-import br.org.oficinadasmeninas.domain.paymentgateway.dto.PaymentChargesDto;
 import br.org.oficinadasmeninas.domain.paymentgateway.service.IPaymentGatewayService;
-import br.org.oficinadasmeninas.infra.logspagbank.dto.CreateLogPagbank;
-import br.org.oficinadasmeninas.infra.logspagbank.service.LogPagbankService;
-import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.dto.ResponseWebhookCustomer;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
