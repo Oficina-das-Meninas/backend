@@ -146,7 +146,7 @@ public class EmailService implements IEmailService {
     }
 
     private void addDefaultVariables(Map<String, Object> variables) {
-        variables.putIfAbsent("footerAddress", "Oficina das Meninas · R. Padre Manoel da Nobrega, 552 - Parque Alvorada");
+        variables.putIfAbsent("footerAddress", "Oficina das Meninas · R. Padre Manoel da Nobrega, 540 - Parque Alvorada");
         variables.putIfAbsent("year", java.time.Year.now().getValue());
     }
 }
