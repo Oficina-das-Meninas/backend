@@ -40,14 +40,15 @@ public class EventService implements IEventService {
     @MinIoTransactional
     public UUID insert(CreateEventDto request) {
 
-        var previewImageUrl = storageService.uploadFile(request.previewImage(), true);
-        var partnersImageUrl = storageService.uploadFile(request.partnersImage(), true);
-
-        minIoRollbackContext.register(previewImageUrl, partnersImageUrl);
-
         var event = toEntity(request);
-        event.setPreviewImageUrl(previewImageUrl);
-        event.setPartnersImageUrl(partnersImageUrl);
+
+        event.setPreviewImageUrl(storageService.uploadFile(request.previewImage(), true));
+        minIoRollbackContext.register(event.getPreviewImageUrl());
+
+        if (request.partnersImage() != null) {
+            event.setPartnersImageUrl(storageService.uploadFile(request.partnersImage(), true));
+            minIoRollbackContext.register(event.getPartnersImageUrl());
+        }
 
         eventRepository.insert(event);
         return event.getId();
@@ -83,7 +84,7 @@ public class EventService implements IEventService {
     @Transactional
     public UUID deleteById(UUID id) {
 
-        var event =  eventRepository.findById(id)
+        var event = eventRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.EVENT_NOT_FOUND + id));
 
         eventRepository.deleteById(id);
