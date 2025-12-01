@@ -9,6 +9,7 @@ public record DonationsDto(
 ) {
     public record TimeSeriesDataPoint(
             String period,
+            BigDecimal valueLiquid,
             BigDecimal value
     ) {
     }

@@ -101,6 +101,10 @@ public final class Messages {
     public static final String EMAIL_VERIFIED_SUCCESSFULLY = "E-mail confirmado com sucesso.";
 
     public static final String ERROR_SENDING_EMAIL = "Erro ao enviar e-mail.";
+
+    public static final String PASSWORD_VERIFIED_SUCCESSFULLY = "Senha verificada com sucesso.";
+
+    public static final String INVALID_PASSWORD = "Senha atual incorreta.";
     
     public static final String PASSWORD_CHANGED_SUCCESSFULLY = "Senha alterada com sucesso.";
     
@@ -117,4 +121,8 @@ public final class Messages {
     public static final String EMAIL_ALREADY_VERIFIED = "Email já confirmado.";
 
     public static final String CANNOT_DELETE_LOGGED_USER = "Não é possível remover usuário logado.";
+
+    public static final String INVALID_DATE_RANGE = "Data inicial deve ser anterior ou igual à data final.";
+
+    public static final String REQUIRED_DATE_RANGE = "Data inicial e data final são obrigatórias.";
 }
