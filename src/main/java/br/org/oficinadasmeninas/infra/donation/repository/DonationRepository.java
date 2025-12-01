@@ -4,10 +4,13 @@ import br.org.oficinadasmeninas.domain.donation.Donation;
 import br.org.oficinadasmeninas.domain.donation.dto.DonationWithDonorDto;
 import br.org.oficinadasmeninas.domain.donation.dto.GetDonationDto;
 import br.org.oficinadasmeninas.domain.donation.repository.IDonationRepository;
+import br.org.oficinadasmeninas.domain.payment.PaymentStatusEnum;
+import br.org.oficinadasmeninas.infra.paymentgateway.pagbank.mappers.RequestNotifyPaymentDonationStatusMapper;
 import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -97,6 +100,8 @@ public class DonationRepository implements IDonationRepository {
     }
 
     public PageDTO<DonationWithDonorDto> findByFilter(GetDonationDto getDonationDto) {
+        String donationStatus = getDonationDto.status() != null ?
+                String.valueOf(RequestNotifyPaymentDonationStatusMapper.fromDonationStatus(getDonationDto.status())) : null;
         String donationType = getDonationDto.donationType();
         String donorName = getDonationDto.donorName();
 
@@ -114,6 +119,7 @@ public class DonationRepository implements IDonationRepository {
                 donorName, donorName,
                 getDonationDto.startDate(), getDonationDto.startDate(),
                 getDonationDto.endDate(), getDonationDto.endDate(),
+                donationStatus, donationStatus,
                 donationType, donationType,
                 getDonationDto.pageSize(),
                 getDonationDto.page() * getDonationDto.pageSize()
@@ -125,6 +131,7 @@ public class DonationRepository implements IDonationRepository {
                 donorName, donorName,
                 getDonationDto.startDate(), getDonationDto.startDate(),
                 getDonationDto.endDate(), getDonationDto.endDate(),
+                donationStatus, donationStatus,
                 donationType, donationType
         );
 
@@ -179,12 +186,17 @@ public class DonationRepository implements IDonationRepository {
 
     private DonationWithDonorDto mapRowDonationWithDonor(ResultSet rs, int rowNum) throws SQLException {
         String userIdString = rs.getString("user_id");
+        BigDecimal valueLiquid = rs.getBigDecimal("value_liquid");
         return new DonationWithDonorDto(
                 UUID.fromString(rs.getString("id")),
                 rs.getBigDecimal("value"),
+                valueLiquid != null ? valueLiquid : BigDecimal.ZERO,
                 rs.getTimestamp("donation_at").toLocalDateTime(),
                 userIdString != null ? UUID.fromString(userIdString) : null,
                 rs.getString("donation_type"),
+                RequestNotifyPaymentDonationStatusMapper.fromPaymentStatus(
+                        rs.getString("status") != null ? PaymentStatusEnum.valueOf(rs.getString("status")) : null
+                ),
                 rs.getString("sponsor_status"),
                 rs.getString("donor_name")
         );

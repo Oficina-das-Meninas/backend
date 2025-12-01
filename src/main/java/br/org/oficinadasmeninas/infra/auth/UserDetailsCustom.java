@@ -35,13 +35,17 @@ public class UserDetailsCustom implements UserDetails {
 		return isAdmin;
 	}
 
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		if (Boolean.TRUE.equals(isAdmin)) {
-			return List.of(new SimpleGrantedAuthority(AuthoritiesEnum.ROLE_ADMIN.name()));
-		}
-		return List.of(new SimpleGrantedAuthority(AuthoritiesEnum.ROLE_USER.name()));
-	}
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (Boolean.TRUE.equals(isAdmin)) {
+            return List.of(
+                    new SimpleGrantedAuthority(AuthoritiesEnum.ROLE_ADMIN.name()),
+                    new SimpleGrantedAuthority(AuthoritiesEnum.ROLE_USER.name()
+                    ));
+        }
+
+        return List.of(new SimpleGrantedAuthority(AuthoritiesEnum.ROLE_USER.name()));
+    }
 
 	@Override
 	public String getPassword() {
