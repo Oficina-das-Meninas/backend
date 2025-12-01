@@ -65,34 +65,7 @@ public class UserService implements IUserService {
         var user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Messages.USER_NOT_FOUND_BY_ID + id));
 
-        if (request.getName() != null && !request.getName().isBlank()) {
-            user.setName(request.getName());
-        }
-
-        if (request.getEmail() != null && !request.getEmail().isBlank() &&
-                !request.getEmail().equals(user.getEmail())) {
-            user.setEmail(request.getEmail());
-        }
-
-        if (request.getDocument() != null && !request.getDocument().isBlank()) {
-            user.setDocument(request.getDocument());
-        }
-
-        if (request.getPhone() != null && !request.getPhone().isBlank()) {
-            user.setPhone(request.getPhone());
-        }
-
-        if (request.getPassword() != null && !request.getPassword().isBlank()) {
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
-        }
-
-
-        if (request.getEmail() != null && !request.getEmail().equals(user.getEmail())) {
-            var userByEmail = userRepository.findByEmail(request.getEmail());
-
-            if (userByEmail.isPresent())
-                throw new ConflictException(Messages.EMAIL_ALREADY_EXISTS);
-        }
+        fillUserChanges(request, user);
 
         userRepository.update(user);
         return user.getId();
@@ -165,5 +138,34 @@ public class UserService implements IUserService {
         }
 
         return null;
+    }
+
+    private void fillUserChanges(UpdateUserDto request, User user) {
+
+        request.name().ifPresent(user::setName);
+
+        request.phone().ifPresent(user::setPhone);
+
+        request.password().ifPresent(password -> user.setPassword(passwordEncoder.encode(password)));
+
+        request.document().ifPresent(document -> {
+
+            if (!document.equals(user.getDocument())) {
+                if (userRepository.findByDocument(document).isPresent())
+                    throw new ValidationException(Messages.DOCUMENT_ALREADY_EXISTS);
+
+                user.setDocument(document);
+            }
+        });
+
+        request.email().ifPresent(email -> {
+            if (!email.equals(user.getEmail())) {
+
+                if (userRepository.findByEmail(email).isPresent())
+                    throw new ValidationException(Messages.EMAIL_ALREADY_EXISTS);
+
+                user.setEmail(email);
+            }
+        });
     }
 }
