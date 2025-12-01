@@ -87,7 +87,7 @@ public class UserService implements IUserService {
         }
 
 
-        if (!request.getEmail().equals(user.getEmail())) {
+        if (request.getEmail() != null && !request.getEmail().equals(user.getEmail())) {
             var userByEmail = userRepository.findByEmail(request.getEmail());
 
             if (userByEmail.isPresent())
