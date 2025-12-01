@@ -10,6 +10,7 @@ import br.org.oficinadasmeninas.presentation.shared.PageDTO;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -185,14 +186,17 @@ public class DonationRepository implements IDonationRepository {
 
     private DonationWithDonorDto mapRowDonationWithDonor(ResultSet rs, int rowNum) throws SQLException {
         String userIdString = rs.getString("user_id");
+        BigDecimal valueLiquid = rs.getBigDecimal("value_liquid");
         return new DonationWithDonorDto(
                 UUID.fromString(rs.getString("id")),
                 rs.getBigDecimal("value"),
-                rs.getBigDecimal("value_liquid"),
+                valueLiquid != null ? valueLiquid : BigDecimal.ZERO,
                 rs.getTimestamp("donation_at").toLocalDateTime(),
                 userIdString != null ? UUID.fromString(userIdString) : null,
                 rs.getString("donation_type"),
-                RequestNotifyPaymentDonationStatusMapper.fromPaymentStatus(PaymentStatusEnum.valueOf(rs.getString("status"))),
+                RequestNotifyPaymentDonationStatusMapper.fromPaymentStatus(
+                        rs.getString("status") != null ? PaymentStatusEnum.valueOf(rs.getString("status")) : null
+                ),
                 rs.getString("sponsor_status"),
                 rs.getString("donor_name")
         );
