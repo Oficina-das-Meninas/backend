@@ -16,10 +16,10 @@ public class StatisticsQueryBuilder {
             """;
 
     public static final String GET_DONATION_TYPE_DISTRIBUTION = """
-            SELECT ROUND(SUM(CASE WHEN d.sponsorship_id IS NULL THEN COALESCE(d.value_liquid, 0) END)::numeric, 2) AS one_time_donation_liquid
-                  ,ROUND(SUM(CASE WHEN d.sponsorship_id IS NULL THEN d.value END)::numeric, 2) AS one_time_donation
-                  ,ROUND(SUM(CASE WHEN d.sponsorship_id IS NOT NULL THEN COALESCE(d.value_liquid, 0) END)::numeric, 2) AS recurring_donation_liquid
-                  ,ROUND(SUM(CASE WHEN d.sponsorship_id IS NOT NULL THEN d.value END)::numeric, 2) AS recurring_donation
+            SELECT ROUND(SUM(CASE WHEN d.sponsorship_id IS NULL THEN COALESCE(d.value_liquid, 0) ELSE 0 END)::numeric, 2) AS one_time_donation_liquid
+                  ,ROUND(SUM(CASE WHEN d.sponsorship_id IS NULL THEN d.value ELSE 0 END)::numeric, 2) AS one_time_donation
+                  ,ROUND(SUM(CASE WHEN d.sponsorship_id IS NOT NULL THEN COALESCE(d.value_liquid, 0) ELSE 0 END)::numeric, 2) AS recurring_donation_liquid
+                  ,ROUND(SUM(CASE WHEN d.sponsorship_id IS NOT NULL THEN d.value ELSE 0 END)::numeric, 2) AS recurring_donation
                   ,ROUND(SUM(COALESCE(d.value_liquid, 0))::numeric, 2) AS total_donation_liquid
                   ,ROUND(SUM(d.value)::numeric, 2) AS total_donation
             FROM donation d
