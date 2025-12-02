@@ -37,8 +37,11 @@ public class EmailService implements IEmailService {
     @Value("${app.redirect.verify-email}")
     private String redirectVerifyEmail;
     
-    @Value("${app.redirect.reset-password}")
-    private String redirectResetPassword;
+    @Value("${app.redirect.user.reset-password}")
+    private String redirectUserResetPassword;
+
+    @Value("${app.redirect.admin.reset-password}")
+    private String redirectAdminResetPassword;
 
     public EmailService(JavaMailSender mailSender, TemplateEngine templateEngine, JwtService jwtService) {
         this.mailSender = mailSender;
@@ -135,8 +138,11 @@ public class EmailService implements IEmailService {
         				isAdmin
         			)
         		);
-        
-        String magicLink = redirectResetPassword+verifyEmailToken;
+
+        String magicLink = redirectUserResetPassword+verifyEmailToken;
+        if (isAdmin) {
+            magicLink = redirectAdminResetPassword+verifyEmailToken;
+        }
         String href = String.format("<a href='%s'>Recuperar senha</a>", magicLink);
         
         String contentHtml = "<p>Clique no link abaixo para redefinir senha:</p>" +

@@ -1,5 +1,6 @@
 package br.org.oficinadasmeninas.infra.account.service;
 
+import br.org.oficinadasmeninas.infra.admin.service.AdminService;
 import br.org.oficinadasmeninas.presentation.exceptions.UnauthorizedException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
 
@@ -17,11 +18,18 @@ public class EmailVerificationService {
 
     private final JwtService jwtService;
     private final UserService userService;
+    private final AdminService adminService;
     private final EmailService emailService;
 
-    public EmailVerificationService(JwtService jwtService, UserService userService, EmailService emailService) {
+    public EmailVerificationService(
+        JwtService jwtService,
+        UserService userService,
+        AdminService adminService,
+        EmailService emailService
+    ) {
         this.jwtService = jwtService;
         this.userService = userService;
+        this.adminService = adminService;
         this.emailService = emailService;
     }
 
@@ -32,23 +40,33 @@ public class EmailVerificationService {
             throw new UnauthorizedException(Messages.INVALID_EMAIL_TOKEN);
         }
 
-        var userDto = userService.findByEmail(username);
+        UserDetailsCustom userDetails = null;
 
-        if (userDto.isActive())
-            return null;
+        try {
+            var adminDto = adminService.findByEmail(username);
+            userDetails = new UserDetailsCustom(adminDto.getId(), adminDto.getEmail(), null, adminDto.getName(), true);
+        } catch (Exception ignored) {}
 
-        var userDetails = new UserDetailsCustom(userDto.getId(), userDto.getEmail(), null, userDto.getName(), false);
+        if (userDetails == null) {
+            var userDto = userService.findByEmail(username);
+            if (userDto.isActive())
+                return null;
+            userDetails = new UserDetailsCustom(userDto.getId(), userDto.getEmail(), null, userDto.getName(), false);
+        }
 
         var isTokenValid = jwtService.isTokenValidForPurpose(
                 token,
                 userDetails,
-                JwtService.PurposeTokenEnum.VERIFY_EMAIL
+                JwtService.PurposeTokenEnum.RESET_PASSWORD
         );
 
         if (!isTokenValid)
             throw new UnauthorizedException(Messages.INVALID_EMAIL_TOKEN);
 
-        userService.markUserAsVerified(userDto.getId());
+        if (Boolean.FALSE.equals(userDetails.getAdmin())) {
+            userService.markUserAsVerified(userDetails.getId());
+        }
+
         return null;
     }
     
