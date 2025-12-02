@@ -54,13 +54,19 @@ public class EmailVerificationService {
             userDetails = new UserDetailsCustom(userDto.getId(), userDto.getEmail(), null, userDto.getName(), false);
         }
 
-        var isTokenValid = jwtService.isTokenValidForPurpose(
+        var isResetTokenValid = jwtService.isTokenValidForPurpose(
                 token,
                 userDetails,
                 JwtService.PurposeTokenEnum.RESET_PASSWORD
         );
 
-        if (!isTokenValid)
+        var isVerifyTokenValid = jwtService.isTokenValidForPurpose(
+                token,
+                userDetails,
+                JwtService.PurposeTokenEnum.VERIFY_EMAIL
+        );
+
+        if (!isResetTokenValid && !isVerifyTokenValid)
             throw new UnauthorizedException(Messages.INVALID_EMAIL_TOKEN);
 
         if (Boolean.FALSE.equals(userDetails.getAdmin())) {
