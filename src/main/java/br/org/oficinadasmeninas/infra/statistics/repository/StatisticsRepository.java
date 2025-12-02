@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,13 +28,19 @@ public class StatisticsRepository implements IStatisticsRepository {
 
     @Override
     public IndicatorsStatisticsDto getIndicatorsByPeriod(LocalDate startDate, LocalDate endDate) {
+        LocalDateTime start = startDate != null ? startDate.atStartOfDay() : null;
+        LocalDateTime end   = endDate != null ? endDate.atTime(23, 59, 59) : null;
         return jdbc.queryForObject(
                 StatisticsQueryBuilder.GET_INDICATORS,
                 this::mapRowIndicators,
-                startDate != null ? startDate.atStartOfDay() : null,
-                startDate != null ? startDate.atStartOfDay() : null,
-                endDate != null ? endDate.atTime(23, 59, 59) : null,
-                endDate != null ? endDate.atTime(23, 59, 59) : null
+                start,
+                start,
+                end,
+                end,
+                end,
+                end,
+                start,
+                start
         );
     }
 
@@ -51,9 +58,13 @@ public class StatisticsRepository implements IStatisticsRepository {
 
     @Override
     public DonationsDto getDonationsByPeriod(LocalDate startDate, LocalDate endDate, String groupBy) {
+
         String query = "day".equalsIgnoreCase(groupBy)
                 ? StatisticsQueryBuilder.GET_DONATIONS_BY_DAY
                 : StatisticsQueryBuilder.GET_DONATIONS_BY_MONTH;
+
+        LocalDateTime start = startDate != null ? startDate.atStartOfDay() : null;
+        LocalDateTime end   = endDate   != null ? endDate.atTime(23, 59, 59) : null;
 
         List<Map<String, Object>> results = jdbc.query(
                 query,
@@ -65,10 +76,8 @@ public class StatisticsRepository implements IStatisticsRepository {
                     map.put("total_value", rs.getBigDecimal("total_value"));
                     return map;
                 },
-                startDate != null ? startDate.atStartOfDay() : null,
-                startDate != null ? startDate.atStartOfDay() : null,
-                endDate != null ? endDate.atTime(23, 59, 59) : null,
-                endDate != null ? endDate.atTime(23, 59, 59) : null
+                start, start,
+                end,   end
         );
 
         List<DonationsDto.TimeSeriesDataPoint> oneTimeData = new ArrayList<>();
