@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import br.org.oficinadasmeninas.presentation.exceptions.ConflictException;
 import br.org.oficinadasmeninas.presentation.exceptions.InvalidPasswordException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,11 +20,6 @@ import br.org.oficinadasmeninas.domain.user.service.IUserService;
 import br.org.oficinadasmeninas.infra.session.service.SessionService;
 import br.org.oficinadasmeninas.presentation.exceptions.NotFoundException;
 import br.org.oficinadasmeninas.presentation.exceptions.ValidationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.UUID;
 
 @Service
 public class UserService implements IUserService {
@@ -42,10 +36,10 @@ public class UserService implements IUserService {
 
     @Override
     public UserDto insert(CreateUserDto request) {
-        if (userRepository.existsByEmail(request.getEmail()))
+        if (userRepository.existsByEmailAndActive(request.getEmail()))
             throw new ConflictException(Messages.EMAIL_ALREADY_EXISTS);
 
-        if (userRepository.existsByDocument(request.getDocument()))
+        if (userRepository.existsByDocumentAndActive(request.getDocument()))
             throw new ConflictException(Messages.DOCUMENT_ALREADY_EXISTS);
 
         var user = new User();
@@ -140,6 +134,81 @@ public class UserService implements IUserService {
         return null;
     }
 
+    public boolean isDocumentDuplicatedInActiveAccounts(String document) {
+        return userRepository.existsByDocumentAndActive(document);
+    }
+
+    @Override
+    public boolean isDocumentDuplicatedInActiveAccounts(String document, UUID excludeUserId) {
+        var user = userRepository.findByDocument(document);
+        if (user.isEmpty()) {
+            return false;
+        }
+        return !user.get().getId().equals(excludeUserId) && user.get().isActive();
+    }
+
+    public boolean isEmailDuplicatedInActiveAccounts(String email) {
+        return userRepository.existsByEmailAndActive(email);
+    }
+
+    @Override
+    public boolean isEmailDuplicatedInActiveAccounts(String email, UUID excludeUserId) {
+        var user = userRepository.findByEmail(email);
+        if (user.isEmpty()) {
+            return false;
+        }
+        return !user.get().getId().equals(excludeUserId) && user.get().isActive();
+    }
+
+    @Override
+    public List<User> findInactiveUsersByDocument(String document) {
+        return userRepository.findByDocumentAndInactive(document);
+    }
+
+
+    @Override
+    public void deleteInactiveUser(UUID userId) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(Messages.USER_NOT_FOUND_BY_ID + userId));
+
+        if (user.isActive()) {
+            throw new ConflictException("Cannot delete active user with ID: " + userId);
+        }
+
+        userRepository.delete(userId);
+    }
+
+    @Override
+    public void activateUser(UUID userId, String email, String document) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(Messages.USER_NOT_FOUND_BY_ID + userId));
+
+        if (user.isActive()) {
+            throw new ConflictException("User is already active with ID: " + userId);
+        }
+
+        if (isEmailDuplicatedInActiveAccounts(email, userId)) {
+            throw new ConflictException(Messages.EMAIL_ALREADY_EXISTS);
+        }
+
+        if (isDocumentDuplicatedInActiveAccounts(document, userId)) {
+            throw new ConflictException(Messages.DOCUMENT_ALREADY_EXISTS);
+        }
+
+        var inactiveUsersByEmail = userRepository.findByEmailAndInactive(email);
+        inactiveUsersByEmail.stream()
+                .filter(inactiveUser -> !inactiveUser.getId().equals(userId))
+                .forEach(inactiveUser -> deleteInactiveUser(inactiveUser.getId()));
+
+        var inactiveUsersByDocument = findInactiveUsersByDocument(document);
+        inactiveUsersByDocument.stream()
+                .filter(inactiveUser -> !inactiveUser.getId().equals(userId))
+                .forEach(inactiveUser -> deleteInactiveUser(inactiveUser.getId()));
+
+        user.setIsActive(true);
+        userRepository.update(user);
+    }
+
     private void fillUserChanges(UpdateUserDto request, User user) {
 
         request.name().ifPresent(user::setName);
@@ -149,21 +218,17 @@ public class UserService implements IUserService {
         request.password().ifPresent(password -> user.setPassword(passwordEncoder.encode(password)));
 
         request.document().ifPresent(document -> {
-
             if (!document.equals(user.getDocument())) {
-                if (userRepository.findByDocument(document).isPresent())
+                if (userRepository.existsByDocumentAndActive(document))
                     throw new ValidationException(Messages.DOCUMENT_ALREADY_EXISTS);
-
                 user.setDocument(document);
             }
         });
 
         request.email().ifPresent(email -> {
             if (!email.equals(user.getEmail())) {
-
-                if (userRepository.findByEmail(email).isPresent())
+                if (userRepository.existsByEmailAndActive(email))
                     throw new ValidationException(Messages.EMAIL_ALREADY_EXISTS);
-
                 user.setEmail(email);
             }
         });

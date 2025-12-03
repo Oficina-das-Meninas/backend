@@ -34,21 +34,21 @@ public class EmailVerificationService {
     }
 
     public Void verifyUserEmail(String token) {
-        final var username = jwtService.extractUsername(token);
+        final var userId = jwtService.extractUserId(token);
 
-        if (username == null) {
+        if (userId == null) {
             throw new UnauthorizedException(Messages.INVALID_EMAIL_TOKEN);
         }
 
+        var userDto = userService.findByUserId(userId);
         UserDetailsCustom userDetails = null;
 
         try {
-            var adminDto = adminService.findByEmail(username);
+            var adminDto = adminService.findByEmail(userDto.getEmail());
             userDetails = new UserDetailsCustom(adminDto.getId(), adminDto.getEmail(), null, adminDto.getName(), true);
         } catch (Exception ignored) {}
 
         if (userDetails == null) {
-            var userDto = userService.findByEmail(username);
             if (userDto.isActive())
                 return null;
             userDetails = new UserDetailsCustom(userDto.getId(), userDto.getEmail(), null, userDto.getName(), false);
@@ -70,7 +70,7 @@ public class EmailVerificationService {
             throw new UnauthorizedException(Messages.INVALID_EMAIL_TOKEN);
 
         if (Boolean.FALSE.equals(userDetails.getAdmin())) {
-            userService.markUserAsVerified(userDetails.getId());
+            userService.activateUser(userDto.getId(), userDto.getEmail(), userDto.getDocument());
         }
 
         return null;
@@ -83,7 +83,7 @@ public class EmailVerificationService {
     		throw new ValidationException(Messages.EMAIL_ALREADY_VERIFIED);
     	}
     	
-    	emailService.sendConfirmUserAccountEmail(userDto.getEmail(), userDto.getName());
+    	emailService.sendConfirmUserAccountEmail(userDto.getEmail(), userDto.getName(), userDto.getId().toString());
     	return null;
     }
 }

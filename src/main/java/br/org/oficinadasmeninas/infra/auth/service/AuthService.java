@@ -93,7 +93,7 @@ public class AuthService {
     public UserDto createUserAccount(CreateUserDto user) {
         UserDto userDto = userService.insert(user);
 
-        emailService.sendConfirmUserAccountEmail(userDto.getEmail(), userDto.getName());
+        emailService.sendConfirmUserAccountEmail(userDto.getEmail(), userDto.getName(), userDto.getId().toString());
 
         return userDto;
     }

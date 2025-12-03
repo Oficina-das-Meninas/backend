@@ -1,11 +1,13 @@
 package br.org.oficinadasmeninas.infra.auth.service;
 
+import br.org.oficinadasmeninas.infra.auth.UserDetailsCustom;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.crypto.SecretKey;
 
@@ -28,7 +30,7 @@ public class JwtService {
 	@Value("${security.jwt.secret-key}")
 	private String secretKey;
 	
-	private TokenExpirationProperties tokenExpirationProperties;
+	private final TokenExpirationProperties tokenExpirationProperties;
 	
 	public static enum PurposeTokenEnum {
 		VERIFY_EMAIL, RESET_PASSWORD;
@@ -40,6 +42,15 @@ public class JwtService {
 
 	public String extractUsername(String token) {
 		return extractClaim(token, Claims::getSubject);
+	}
+
+	public UUID extractUserId(String token) {
+        String userId = extractClaim(token, claims -> claims.get("userId", String.class));
+        if (userId != null && !userId.isEmpty()) {
+            return UUID.fromString(userId);
+        }
+
+        throw new JwtException("userId claim is missing in token");
 	}
 
 	public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -125,12 +136,18 @@ public class JwtService {
 		claims.put("iat", new Date(now));
 		claims.put("exp", new Date(now + expiration));
 		
+		if (userDetails instanceof UserDetailsCustom customDetails) {
+            if (customDetails.getId() != null) {
+				claims.put("userId", customDetails.getId().toString());
+			}
+		}
+
 		List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
-		
+                .toList();
+
 		if (!roles.isEmpty()) {
-	        claims.put("role", roles.get(0));
+	        claims.put("role", roles.getFirst());
 	    }
 
 		return Jwts.builder().claims(claims).signWith(getSignInKey(), Jwts.SIG.HS256).compact();
