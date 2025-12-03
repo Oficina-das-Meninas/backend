@@ -29,7 +29,6 @@ public class AuthService {
 
     private static final boolean IS_ADMIN = true;
     private static final String ACCESS_TOKEN = "access_token";
-    private static final String ADMIN_DOMAIN_KEYWORD = "admin";
 
     private final IAdminService adminService;
     private final IUserService userService;
@@ -107,9 +106,10 @@ public class AuthService {
             throw new UnauthorizedException(Messages.INVALID_EMAIL_OR_PASSWORD);
         }
 
-        boolean isRequestFromAdminDomain = origin != null && origin.contains(ADMIN_DOMAIN_KEYWORD);
+        boolean isRequestFromAdminDomain = isAdminOrigin(origin);
 
         if(isRequestFromAdminDomain) {
+            // Origem administrativa: SÓ permite admin, sem try-catch
             var admin = adminService.findByEmail(loginUserDTO.getEmail());
             return createUserDetailsCustom(admin, loginUserDTO.getPassword());
         }
@@ -117,7 +117,7 @@ public class AuthService {
         try {
             var admin = adminService.findByEmail(loginUserDTO.getEmail());
             return createUserDetailsCustom(admin, loginUserDTO.getPassword());
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
         var user = userService.findByEmail(loginUserDTO.getEmail());
@@ -126,6 +126,15 @@ public class AuthService {
             throw new ValidationException(Messages.EMAIL_NOT_VERIFIED);
 
         return createUserDetailsCustom(user, loginUserDTO.getPassword());
+    }
+
+    private boolean isAdminOrigin(String origin) {
+        if (origin == null || origin.isEmpty()) {
+            return false;
+        }
+
+        return origin.contains("admin.oficinadasmeninas.org.br") ||
+               origin.contains("admin-dev.oficinadasmeninas.org.br");
     }
 
     private UserDetailsCustom createUserDetailsCustom(UserDto user, String password) {
