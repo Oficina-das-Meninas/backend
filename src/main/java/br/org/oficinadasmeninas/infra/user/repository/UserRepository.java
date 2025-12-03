@@ -63,6 +63,7 @@ public class UserRepository implements IUserRepository {
                 UserQueryBuilder.UPDATE_USER,
                 user.getPhone(),
                 user.getDocument(),
+                user.isActive(),
                 user.getId()
         );
 
@@ -144,6 +145,65 @@ public class UserRepository implements IUserRepository {
                 UserQueryBuilder.UPDATE_PASSWORD,
                 encodedPassword,
                 accountId
+        );
+    }
+
+    @Override
+    public boolean existsByDocumentAndActive(String document) {
+        var count = jdbc.queryForObject(
+                UserQueryBuilder.EXISTS_USER_BY_DOCUMENT_AND_ACTIVE,
+                Integer.class,
+                document
+        );
+
+        return count != null && count > 0;
+    }
+
+    @Override
+    public List<User> findByDocumentAndInactive(String document) {
+        return jdbc.query(
+                UserQueryBuilder.FIND_USER_BY_DOCUMENT_AND_INACTIVE,
+                this::mapRowUser,
+                document
+        );
+    }
+
+    @Override
+    public void delete(UUID id) {
+        var user = findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+
+        jdbc.update(
+                UserQueryBuilder.DELETE_USER,
+                id
+        );
+
+        var accountId = user.getAccountId();
+        if (accountId != null) {
+            jdbc.update(
+                    UserQueryBuilder.DELETE_ACCOUNT_BY_ID,
+                    accountId
+            );
+        }
+    }
+
+    @Override
+    public boolean existsByEmailAndActive(String email) {
+        var count = jdbc.queryForObject(
+                UserQueryBuilder.EXISTS_USER_BY_EMAIL_AND_ACTIVE,
+                Integer.class,
+                email
+        );
+
+        return count != null && count > 0;
+    }
+
+    @Override
+    public List<User> findByEmailAndInactive(String email) {
+        return jdbc.query(
+                UserQueryBuilder.FIND_USER_BY_EMAIL_AND_INACTIVE,
+                this::mapRowUser,
+                email
         );
     }
 

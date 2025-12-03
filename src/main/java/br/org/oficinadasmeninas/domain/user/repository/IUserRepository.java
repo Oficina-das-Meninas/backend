@@ -27,4 +27,14 @@ public interface IUserRepository {
 	void markUserAsVerified(UUID id);
 	
 	void updatePassword(UUID id, String encodedPassword);
+
+	boolean existsByDocumentAndActive(String document);
+
+	List<User> findByDocumentAndInactive(String document);
+
+	List<User> findByEmailAndInactive(String email);
+
+	void delete(UUID id);
+
+	boolean existsByEmailAndActive(String email);
 }

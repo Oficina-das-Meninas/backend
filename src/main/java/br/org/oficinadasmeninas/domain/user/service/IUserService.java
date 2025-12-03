@@ -1,5 +1,6 @@
 package br.org.oficinadasmeninas.domain.user.service;
 
+import br.org.oficinadasmeninas.domain.user.User;
 import br.org.oficinadasmeninas.domain.user.dto.CreateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UpdateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
@@ -81,11 +82,9 @@ public interface IUserService {
     void updatePassword(UUID accountId, String encodedPassword);
   
     /**
-     * Busca um usuário pela sessão.
+     * Busca o usuário logado na sessão atual.
      *
-     * @param token token de sessão
-     * @return objeto contendo os dados do usuário encontrado,
-     *         ou {@code null} se não existir
+     * @return objeto contendo os dados do usuário logado
      */
     UserDto findByUserSession();
 
@@ -95,4 +94,47 @@ public interface IUserService {
      * @return void se a senha passada no no parâmetro é igual à senha do usuário logado na sessão
      */
     Void verifyUserPassword(String password);
+
+
+    /**
+     * Ativa um usuário inativo com base no ID, e-mail e documento fornecidos.
+     *
+     * @param userId   o ID do usuário a ser ativado
+     * @param email    o e-mail do usuário a ser ativado
+     * @param document o documento do usuário a ser ativado
+     */
+    void activateUser(UUID userId, String email, String document);
+
+    /**
+     * Exclui um usuário inativo com base no ID fornecido.
+     *
+     * @param userId o ID do usuário a ser excluído
+     */
+    void deleteInactiveUser(UUID userId);
+
+    /**
+     * Busca usuários inativos pelo documento fornecido.
+     *
+     * @param document o documento a ser pesquisado
+     * @return lista de usuários inativos correspondentes ao documento
+     */
+    List<User> findInactiveUsersByDocument(String document);
+
+    /**
+     * Verifica se um documento está duplicado entre as contas ativas, excluindo um usuário específico.
+     *
+     * @param document      o documento a ser verificado
+     * @param excludeUserId o ID do usuário a ser excluído da verificação
+     * @return {@code true} se o documento estiver duplicado, {@code false} caso contrário
+     */
+    boolean isDocumentDuplicatedInActiveAccounts(String document, UUID excludeUserId);
+
+    /**
+     * Verifica se um e-mail está duplicado entre as contas ativas, excluindo um usuário específico.
+     *
+     * @param email         o e-mail a ser verificado
+     * @param excludeUserId o ID do usuário a ser excluído da verificação
+     * @return {@code true} se o e-mail estiver duplicado, {@code false} caso contrário
+     */
+    boolean isEmailDuplicatedInActiveAccounts(String email, UUID excludeUserId);
 }

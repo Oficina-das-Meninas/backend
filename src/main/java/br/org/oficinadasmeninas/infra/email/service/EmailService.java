@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.presentation.exceptions.InternalException;
@@ -70,7 +71,6 @@ public class EmailService implements IEmailService {
 
             Context context = new Context();
             if (variables != null) {
-                // Preenche valores padrão caso não fornecidos
                 addDefaultVariables(variables);
                 variables.forEach(context::setVariable);
             }
@@ -97,15 +97,15 @@ public class EmailService implements IEmailService {
         sendHtml(to, subject, "email/default", vars);
     }
     
-    public void sendConfirmUserAccountEmail(String email, String name) {
+    public void sendConfirmUserAccountEmail(String email, String name, String userId) {
     	String to = email;
         String subject = "Verificação de e-mail";
         String greeting = "Olá, " + name;
         
         String verifyEmailToken = jwtService.generateVerifyEmailToken(
         		new UserDetailsCustom(
-        				null, 
-        				email, 
+        				UUID.fromString(userId),
+        				email,
         				null, 
         				name, 
         				false
