@@ -82,11 +82,9 @@ public interface IUserService {
     void updatePassword(UUID accountId, String encodedPassword);
   
     /**
-     * Busca um usuário pela sessão.
+     * Busca o usuário logado na sessão atual.
      *
-     * @param token token de sessão
-     * @return objeto contendo os dados do usuário encontrado,
-     *         ou {@code null} se não existir
+     * @return objeto contendo os dados do usuário logado
      */
     UserDto findByUserSession();
 
@@ -115,10 +113,10 @@ public interface IUserService {
     void deleteInactiveUser(UUID userId);
 
     /**
-     * Busca usuários inativos pelo e-mail fornecido.
+     * Busca usuários inativos pelo documento fornecido.
      *
-     * @param email o e-mail dos usuários a serem buscados
-     * @return uma lista de usuários inativos correspondentes ao e-mail fornecido
+     * @param document o documento a ser pesquisado
+     * @return lista de usuários inativos correspondentes ao documento
      */
     List<User> findInactiveUsersByDocument(String document);
 
