@@ -179,10 +179,8 @@ public class PaymentGatewayService implements IPaymentGatewayService {
         paymentService.updatePaymentDate(payment.id(), LocalDateTime.now());
         paymentService.updateStatus(payment.id(), paymentStatus);
 
-        // Atualizar método de pagamento e gateway na donation
         donationService.updateMethod(donationId, paymentMethod);
 
-        // Atualizar bandeira do cartão se disponível
         if (cardBrand != null && !cardBrand.isBlank()) {
             donationService.updateCardBrand(donationId, cardBrand);
         }
@@ -203,6 +201,31 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 
         if (payments != null && !payments.isEmpty()) {
             PaymentDto payment = payments.getLast();
+            PaymentStatusEnum currentStatus = payment.status();
+
+            boolean isTerminalStatus = currentStatus == PaymentStatusEnum.PAID ||
+                                      currentStatus == PaymentStatusEnum.CANCELED ||
+                                      currentStatus == PaymentStatusEnum.DECLINED;
+
+
+            if (isTerminalStatus) {
+                saveLog("CHECKOUT STATUS UPDATE IGNORED - Terminal Status",
+                        String.format("Checkout: %s, Current: %s, Attempted: %s",
+                                checkoutId, currentStatus, paymentStatus));
+                return;
+            }
+
+            if (currentStatus == PaymentStatusEnum.ACTIVE &&
+                    paymentStatus == PaymentStatusEnum.EXPIRED) {
+                saveLog("CHECKOUT STATUS UPDATE IGNORED - Active to Expired",
+                        String.format("Checkout: %s, Status: %s", checkoutId, currentStatus));
+                return;
+            }
+
+            saveLog("CHECKOUT STATUS UPDATED",
+                    String.format("Checkout: %s, From: %s, To: %s",
+                            checkoutId, currentStatus, paymentStatus));
+
             paymentService.updateStatus(payment.id(), paymentStatus);
         }
     }

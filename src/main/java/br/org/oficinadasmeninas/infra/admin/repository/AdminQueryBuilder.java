@@ -27,8 +27,14 @@ public class AdminQueryBuilder {
     	""";
 
     public static final String UPDATE_ACCOUNT = "UPDATE account SET name = ?, email = ?, password = ? WHERE id = ?";
-    
-    public static final String UPDATE_PASSWORD = "UPDATE admin SET password = ? WHERE id = ?";
+
+	public static final String UPDATE_PASSWORD = """
+        UPDATE account
+        SET password = ?
+        FROM account acc
+        INNER JOIN admin adm
+            ON acc.id = adm.account_id
+        WHERE adm.id = ?""";
 
 	public static final String DELETE_ADMIN = "DELETE from admin WHERE id = ?";
 

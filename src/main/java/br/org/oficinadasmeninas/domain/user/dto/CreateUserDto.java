@@ -2,12 +2,14 @@ package br.org.oficinadasmeninas.domain.user.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class CreateUserDto {
 
 	@NotBlank(message = "O nome é obrigatório")
-	@Size(max = 255, message = "O nome deve ter no máximo 255 caracteres")
+	@Size(max = 120, message = "O nome deve ter no máximo 120 caracteres")
+    @Pattern(regexp = "^[\\p{L} ]+$", message = "O nome deve conter apenas letras e acentos")
 	private String name;
 
 	@NotBlank(message = "O email é obrigatório")

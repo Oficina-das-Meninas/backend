@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.presentation.exceptions.InternalException;
@@ -37,8 +38,11 @@ public class EmailService implements IEmailService {
     @Value("${app.redirect.verify-email}")
     private String redirectVerifyEmail;
     
-    @Value("${app.redirect.reset-password}")
-    private String redirectResetPassword;
+    @Value("${app.redirect.user.reset-password}")
+    private String redirectUserResetPassword;
+
+    @Value("${app.redirect.admin.reset-password}")
+    private String redirectAdminResetPassword;
 
     public EmailService(JavaMailSender mailSender, TemplateEngine templateEngine, JwtService jwtService) {
         this.mailSender = mailSender;
@@ -70,7 +74,6 @@ public class EmailService implements IEmailService {
 
             Context context = new Context();
             if (variables != null) {
-                // Preenche valores padrão caso não fornecidos
                 addDefaultVariables(variables);
                 variables.forEach(context::setVariable);
             }
@@ -97,15 +100,15 @@ public class EmailService implements IEmailService {
         sendHtml(to, subject, "email/default", vars);
     }
     
-    public void sendConfirmUserAccountEmail(String email, String name) {
+    public void sendConfirmUserAccountEmail(String email, String name, String userId) {
     	String to = email;
         String subject = "Verificação de e-mail";
         String greeting = "Olá, " + name;
         
         String verifyEmailToken = jwtService.generateVerifyEmailToken(
         		new UserDetailsCustom(
-        				null, 
-        				email, 
+        				UUID.fromString(userId),
+        				email,
         				null, 
         				name, 
         				false
@@ -121,22 +124,25 @@ public class EmailService implements IEmailService {
         sendWithDefaultTemplate(to, subject, greeting, contentHtml);
     }
     
-    public void sendResetPasswordEmail(String email, String name, boolean isAdmin) {
+    public void sendResetPasswordEmail(String email, String name, UUID userId, boolean isAdmin) {
     	String to = email;
         String subject = "Recuperar conta";
         String greeting = "Olá, " + name;
         
         String verifyEmailToken = jwtService.generateResetPasswordToken(
         		new UserDetailsCustom(
-        				null, 
-        				email, 
+        				userId,
+        				email,
         				null, 
         				name, 
         				isAdmin
         			)
         		);
-        
-        String magicLink = redirectResetPassword+verifyEmailToken;
+
+        String magicLink = redirectUserResetPassword+verifyEmailToken;
+        if (isAdmin) {
+            magicLink = redirectAdminResetPassword+verifyEmailToken;
+        }
         String href = String.format("<a href='%s'>Recuperar senha</a>", magicLink);
         
         String contentHtml = "<p>Clique no link abaixo para redefinir senha:</p>" +
@@ -146,7 +152,7 @@ public class EmailService implements IEmailService {
     }
 
     private void addDefaultVariables(Map<String, Object> variables) {
-        variables.putIfAbsent("footerAddress", "Oficina das Meninas · R. Padre Manoel da Nobrega, 552 - Parque Alvorada");
+        variables.putIfAbsent("footerAddress", "Oficina das Meninas · R. Padre Manoel da Nobrega, 540 - Parque Alvorada");
         variables.putIfAbsent("year", java.time.Year.now().getValue());
     }
 }
