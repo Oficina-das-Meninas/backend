@@ -110,12 +110,14 @@ public class AuthService {
         boolean isRequestFromAdminDomain = origin != null && origin.contains(ADMIN_DOMAIN_KEYWORD);
 
         if(isRequestFromAdminDomain) {
+            var admin = adminService.findByEmail(loginUserDTO.getEmail());
+            return createUserDetailsCustom(admin, loginUserDTO.getPassword());
+        }
 
-            try {
-                var admin = adminService.findByEmail(loginUserDTO.getEmail());
-                return createUserDetailsCustom(admin, loginUserDTO.getPassword());
-
-            } catch (Exception e) {/* findByEmail pode gerar NotFoundException caso não existe admin */}
+        try {
+            var admin = adminService.findByEmail(loginUserDTO.getEmail());
+            return createUserDetailsCustom(admin, loginUserDTO.getPassword());
+        } catch (Exception e) {
         }
 
         var user = userService.findByEmail(loginUserDTO.getEmail());

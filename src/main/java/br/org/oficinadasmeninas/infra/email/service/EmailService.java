@@ -124,15 +124,15 @@ public class EmailService implements IEmailService {
         sendWithDefaultTemplate(to, subject, greeting, contentHtml);
     }
     
-    public void sendResetPasswordEmail(String email, String name, boolean isAdmin) {
+    public void sendResetPasswordEmail(String email, String name, UUID userId, boolean isAdmin) {
     	String to = email;
         String subject = "Recuperar conta";
         String greeting = "Olá, " + name;
         
         String verifyEmailToken = jwtService.generateResetPasswordToken(
         		new UserDetailsCustom(
-        				null, 
-        				email, 
+        				userId,
+        				email,
         				null, 
         				name, 
         				isAdmin

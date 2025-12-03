@@ -96,6 +96,8 @@ public final class Messages {
     
     public static final String INVALID_PASSWORD_TOKEN = "Token de recuperação de senha inválido ou expirado.";
     
+    public static final String TOKEN_VALID = "Token válido.";
+
     public static final String EMAIL_NOT_VERIFIED = "E-mail não verificado.";
     
     public static final String EMAIL_VERIFIED_SUCCESSFULLY = "E-mail confirmado com sucesso.";
