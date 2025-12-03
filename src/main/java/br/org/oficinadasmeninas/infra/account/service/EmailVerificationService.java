@@ -19,11 +19,7 @@ public class EmailVerificationService {
     private final UserService userService;
     private final EmailService emailService;
 
-    public EmailVerificationService(
-        JwtService jwtService,
-        UserService userService,
-        EmailService emailService
-    ) {
+    public EmailVerificationService(JwtService jwtService, UserService userService, EmailService emailService) {
         this.jwtService = jwtService;
         this.userService = userService;
         this.emailService = emailService;
@@ -52,17 +48,17 @@ public class EmailVerificationService {
         if (!isTokenValid)
             throw new UnauthorizedException(Messages.INVALID_EMAIL_TOKEN);
 
-        userService.markUserAsVerified(userDto.getId());
+        userService.activateUser(userDto.getId(), userDto.getEmail(), userDto.getDocument());
         return null;
     }
-
+    
     public Void sendVerifyAccountEmail(String email) {
     	UserDto userDto = userService.findByEmail(email);
-
+    	
     	if(userDto.isActive()) {
     		throw new ValidationException(Messages.EMAIL_ALREADY_VERIFIED);
     	}
-
+    	
     	emailService.sendConfirmUserAccountEmail(userDto.getEmail(), userDto.getName(), userDto.getId().toString());
     	return null;
     }
