@@ -1,5 +1,6 @@
 package br.org.oficinadasmeninas.domain.user.service;
 
+import br.org.oficinadasmeninas.domain.user.User;
 import br.org.oficinadasmeninas.domain.user.dto.CreateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UpdateUserDto;
 import br.org.oficinadasmeninas.domain.user.dto.UserDto;
@@ -95,4 +96,47 @@ public interface IUserService {
      * @return void se a senha passada no no parâmetro é igual à senha do usuário logado na sessão
      */
     Void verifyUserPassword(String password);
+
+
+    /**
+     * Ativa um usuário inativo com base no ID, e-mail e documento fornecidos.
+     *
+     * @param userId   o ID do usuário a ser ativado
+     * @param email    o e-mail do usuário a ser ativado
+     * @param document o documento do usuário a ser ativado
+     */
+    void activateUser(UUID userId, String email, String document);
+
+    /**
+     * Exclui um usuário inativo com base no ID fornecido.
+     *
+     * @param userId o ID do usuário a ser excluído
+     */
+    void deleteInactiveUser(UUID userId);
+
+    /**
+     * Busca usuários inativos pelo e-mail fornecido.
+     *
+     * @param email o e-mail dos usuários a serem buscados
+     * @return uma lista de usuários inativos correspondentes ao e-mail fornecido
+     */
+    List<User> findInactiveUsersByDocument(String document);
+
+    /**
+     * Verifica se um documento está duplicado entre as contas ativas, excluindo um usuário específico.
+     *
+     * @param document      o documento a ser verificado
+     * @param excludeUserId o ID do usuário a ser excluído da verificação
+     * @return {@code true} se o documento estiver duplicado, {@code false} caso contrário
+     */
+    boolean isDocumentDuplicatedInActiveAccounts(String document, UUID excludeUserId);
+
+    /**
+     * Verifica se um e-mail está duplicado entre as contas ativas, excluindo um usuário específico.
+     *
+     * @param email         o e-mail a ser verificado
+     * @param excludeUserId o ID do usuário a ser excluído da verificação
+     * @return {@code true} se o e-mail estiver duplicado, {@code false} caso contrário
+     */
+    boolean isEmailDuplicatedInActiveAccounts(String email, UUID excludeUserId);
 }

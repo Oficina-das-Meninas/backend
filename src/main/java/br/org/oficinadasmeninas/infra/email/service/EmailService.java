@@ -97,15 +97,15 @@ public class EmailService implements IEmailService {
         sendHtml(to, subject, "email/default", vars);
     }
     
-    public void sendConfirmUserAccountEmail(String email, String name) {
+    public void sendConfirmUserAccountEmail(String email, String name, String userId) {
     	String to = email;
         String subject = "Verificação de e-mail";
         String greeting = "Olá, " + name;
         
         String verifyEmailToken = jwtService.generateVerifyEmailToken(
         		new UserDetailsCustom(
-        				null, 
-        				email, 
+        				java.util.UUID.fromString(userId),
+        				email,
         				null, 
         				name, 
         				false
