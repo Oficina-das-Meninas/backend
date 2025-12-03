@@ -170,21 +170,20 @@ public class UserRepository implements IUserRepository {
 
     @Override
     public void delete(UUID id) {
-        var user = findById(id);
+        var user = findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
 
-        if (user.isPresent()) {
+        jdbc.update(
+                UserQueryBuilder.DELETE_USER,
+                id
+        );
+
+        var accountId = user.getAccountId();
+        if (accountId != null) {
             jdbc.update(
-                    UserQueryBuilder.DELETE_USER,
-                    id
+                    UserQueryBuilder.DELETE_ACCOUNT_BY_ID,
+                    accountId
             );
-
-            var accountId = user.get().getAccountId();
-            if (accountId != null) {
-                jdbc.update(
-                        UserQueryBuilder.DELETE_ACCOUNT_BY_ID,
-                        accountId
-                );
-            }
         }
     }
 

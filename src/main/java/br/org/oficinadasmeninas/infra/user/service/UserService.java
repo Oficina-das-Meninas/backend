@@ -168,6 +168,13 @@ public class UserService implements IUserService {
 
     @Override
     public void deleteInactiveUser(UUID userId) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(Messages.USER_NOT_FOUND_BY_ID + userId));
+
+        if (user.isActive()) {
+            throw new ConflictException("Cannot delete active user with ID: " + userId);
+        }
+
         userRepository.delete(userId);
     }
 
@@ -175,6 +182,10 @@ public class UserService implements IUserService {
     public void activateUser(UUID userId, String email, String document) {
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(Messages.USER_NOT_FOUND_BY_ID + userId));
+
+        if (user.isActive()) {
+            throw new ConflictException("User is already active with ID: " + userId);
+        }
 
         if (isEmailDuplicatedInActiveAccounts(email, userId)) {
             throw new ConflictException(Messages.EMAIL_ALREADY_EXISTS);

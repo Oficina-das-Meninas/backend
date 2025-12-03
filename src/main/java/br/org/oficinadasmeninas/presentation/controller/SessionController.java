@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.org.oficinadasmeninas.domain.resources.Messages;
 import br.org.oficinadasmeninas.infra.session.service.SessionService;
 
 @RestController
@@ -22,7 +21,7 @@ public class SessionController extends BaseController {
 	}
 
 	@GetMapping
-	public ResponseEntity<?> getSession() {	
+	public ResponseEntity<?> getSession() {
 		return handle(
 			sessionService::getSession
 		);

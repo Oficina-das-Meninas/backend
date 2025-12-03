@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 import javax.crypto.SecretKey;
@@ -43,10 +44,10 @@ public class JwtService {
 		return extractClaim(token, Claims::getSubject);
 	}
 
-	public java.util.UUID extractUserId(String token) {
+	public UUID extractUserId(String token) {
         String userId = extractClaim(token, claims -> claims.get("userId", String.class));
         if (userId != null && !userId.isEmpty()) {
-            return java.util.UUID.fromString(userId);
+            return UUID.fromString(userId);
         }
 
         throw new JwtException("userId claim is missing in token");
