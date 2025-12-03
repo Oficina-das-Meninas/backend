@@ -42,12 +42,14 @@ public class EventService implements IEventService {
 
         var event = toEntity(request);
 
-        event.setPreviewImageUrl(storageService.uploadFile(request.previewImage(), true));
-        minIoRollbackContext.register(event.getPreviewImageUrl());
+        var previewImageUrl = storageService.uploadFile(request.previewImage(), true);
+        event.setPreviewImageUrl(previewImageUrl);
+        minIoRollbackContext.register(previewImageUrl);
 
-        if (request.partnersImage() != null) {
-            event.setPartnersImageUrl(storageService.uploadFile(request.partnersImage(), true));
-            minIoRollbackContext.register(event.getPartnersImageUrl());
+        if (request.partnersImage() != null && !request.partnersImage().isEmpty()) {
+            var partnersImageUrl = storageService.uploadFile(request.partnersImage(), true);
+            event.setPartnersImageUrl(partnersImageUrl);
+            minIoRollbackContext.register(partnersImageUrl);
         }
 
         eventRepository.insert(event);
@@ -63,17 +65,22 @@ public class EventService implements IEventService {
                 .orElseThrow(() -> new NotFoundException(Messages.EVENT_NOT_FOUND + id));
 
         var previewImageUrl = storageService.uploadFile(request.previewImage(), true);
-        var partnersImageUrl = storageService.uploadFile(request.partnersImage(), true);
+        minIoRollbackContext.register(previewImageUrl);
+        event.setPreviewImageUrl(previewImageUrl);
 
-        minIoRollbackContext.register(previewImageUrl, partnersImageUrl);
+        if (request.partnersImage() != null && !request.partnersImage().isEmpty()) {
+            var partnersImageUrl = storageService.uploadFile(request.partnersImage(), true);
+
+            minIoRollbackContext.register(partnersImageUrl);
+
+            event.setPartnersImageUrl(partnersImageUrl);
+        }
 
         event.setTitle(request.title());
         event.setDescription(request.description());
         event.setEventDate(request.eventDate());
         event.setLocation(request.location());
         event.setUrlToPlatform(request.urlToPlatform());
-        event.setPreviewImageUrl(previewImageUrl);
-        event.setPartnersImageUrl(partnersImageUrl);
 
         eventRepository.update(event);
 
