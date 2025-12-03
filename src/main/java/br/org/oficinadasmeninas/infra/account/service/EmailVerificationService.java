@@ -30,13 +30,13 @@ public class EmailVerificationService {
     }
 
     public Void verifyUserEmail(String token) {
-        final var username = jwtService.extractUsername(token);
+        final var userId = jwtService.extractUserId(token);
 
-        if (username == null) {
+        if (userId == null) {
             throw new UnauthorizedException(Messages.INVALID_EMAIL_TOKEN);
         }
 
-        var userDto = userService.findByEmail(username);
+        var userDto = userService.findByUserId(userId);
 
         if (userDto.isActive())
             return null;
