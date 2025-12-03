@@ -88,20 +88,30 @@ public class AuthController extends BaseController {
 	
 	@GetMapping("/forgot-password")
 	public ResponseEntity<?> forgotPassword(
-		@RequestParam String email
-	) {	
+		@RequestParam String email, HttpServletRequest request
+	) {
 		return handle(
-			() -> resetPasswordService.sendResetPasswordEmail(email),
+			() -> resetPasswordService.sendResetPasswordEmail(email, request),
 			Messages.EMAIL_SENDED_SUCCESSFULLY
 		);
 	}
 	
+	@GetMapping("/validate-reset-token")
+	public ResponseEntity<?> validateResetToken(
+		@RequestParam String token, HttpServletRequest request
+	) {
+		return handle(
+			() -> resetPasswordService.validateResetToken(token, request),
+			Messages.TOKEN_VALID
+		);
+	}
+
 	@PostMapping("/reset-password")
 	public ResponseEntity<?> resetPassword(
-		@RequestParam String token, @RequestBody ResetPasswordDto resetPasswordDto
-	) {	
+		@RequestParam String token, @RequestBody ResetPasswordDto resetPasswordDto, HttpServletRequest request
+	) {
 		return handle(
-			() -> resetPasswordService.resetPassword(token, resetPasswordDto),
+			() -> resetPasswordService.resetPassword(token, resetPasswordDto, request),
 			Messages.PASSWORD_CHANGED_SUCCESSFULLY
 		);
 	}
