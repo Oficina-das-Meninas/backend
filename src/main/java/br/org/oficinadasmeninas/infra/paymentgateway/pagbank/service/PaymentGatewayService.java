@@ -185,6 +185,10 @@ public class PaymentGatewayService implements IPaymentGatewayService {
             donationService.updateCardBrand(donationId, cardBrand);
         }
 
+        this.saveLog("PAYMENT STATUS UPDATED",
+                String.format("Donation: %s, From: %s, To: %s, Method: %s, Card Brand: %s, Recurring: %s",
+                        donationId, payment.status(), paymentStatus, paymentMethod, cardBrand, recurring));
+
         if (recurring) {
         	String subscriptionId = this.findSubscriptionId( new RequestSubscriptionIdCustomer(customer.name(), customer.tax_id()));
             UserDto userDto = userService.findByDocument(customer.tax_id());
