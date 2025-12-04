@@ -266,6 +266,8 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 					.bodyToMono(ResponseFindSubscriptionId.class)
 					.block();
 
+            this.saveLog("FIND SUBSCRIPTION ID RESPONSE", response);
+
 			return response.subscriptions().getFirst().id();
 
 		} catch (Exception e) {
