@@ -27,10 +27,8 @@ public record UpdateEventDto(
         @NotNull(message = "A data do evento é obrigatória.")
         LocalDateTime eventDate,
 
-        @NotBlank(message = "A localização do evento é obrigatória")
         String location,
 
-        @NotBlank(message = "A url para a plataforma do evento é obrigatória")
         String urlToPlatform
 ) {
 }
