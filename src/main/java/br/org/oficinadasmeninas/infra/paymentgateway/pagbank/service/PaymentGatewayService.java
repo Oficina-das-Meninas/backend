@@ -264,10 +264,9 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 			var response = webClientSubscription.get()
 					.uri("/subscriptions")
                     .header("Authorization", "Bearer " + token)
-                    .header("Accept", "application/json")
+                    .header("Content-Type", "application/json")
                     .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
 					.header("q", customer.document())
-					.header("q", customer.name())
 
 					.retrieve()
 					.bodyToMono(ResponseFindSubscriptionId.class)
