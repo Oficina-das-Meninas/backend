@@ -185,6 +185,10 @@ public class PaymentGatewayService implements IPaymentGatewayService {
             donationService.updateCardBrand(donationId, cardBrand);
         }
 
+        this.saveLog("PAYMENT STATUS UPDATED",
+                String.format("Donation: %s, From: %s, To: %s, Method: %s, Card Brand: %s, Recurring: %s",
+                        donationId, payment.status(), paymentStatus, paymentMethod, cardBrand, recurring));
+
         if (recurring) {
         	String subscriptionId = this.findSubscriptionId( new RequestSubscriptionIdCustomer(customer.name(), customer.tax_id()));
             UserDto userDto = userService.findByDocument(customer.tax_id());
@@ -260,10 +264,18 @@ public class PaymentGatewayService implements IPaymentGatewayService {
 			var response = webClientSubscription.get()
 					.uri("/subscriptions")
                     .header("Authorization", "Bearer " + token)
+                    .header("Content-Type", "application/json")
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
 					.header("q", customer.document())
-					.header("q", customer.name())
+
 					.retrieve()
 					.bodyToMono(ResponseFindSubscriptionId.class)
+                    .doOnError(e -> {
+                        if (e instanceof WebClientResponseException) {
+                            WebClientResponseException ex = (WebClientResponseException) e;
+                            System.out.println("Erro 403 Body: " + ex.getResponseBodyAsString());
+                        }
+                    })
 					.block();
 
 			return response.subscriptions().getFirst().id();
