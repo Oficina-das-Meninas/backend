@@ -278,8 +278,6 @@ public class PaymentGatewayService implements IPaymentGatewayService {
                     })
 					.block();
 
-            this.saveLog("FIND SUBSCRIPTION ID RESPONSE", response);
-
 			return response.subscriptions().getFirst().id();
 
 		} catch (Exception e) {
