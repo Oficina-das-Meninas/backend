@@ -9,15 +9,15 @@ public class StatisticsQueryBuilder {
                   ,d.user_id
             FROM donation d
             INNER JOIN payment p ON p.donation_id = d.id AND p.status = 'PAID'
-            WHERE (?::timestamp IS NULL OR d.donation_at >= ?)
-              AND (?::timestamp IS NULL OR d.donation_at <= ?)
+            WHERE (?::timestamp IS NULL OR d.donation_at AT TIME ZONE 'UTC-3' >= ?)
+              AND (?::timestamp IS NULL OR d.donation_at AT TIME ZONE 'UTC-3' <= ?)
         ),
         active_sponsorships AS (
             SELECT 1
             FROM sponsorships s
             WHERE s.is_active = TRUE
-              AND ( ?::timestamp IS NULL OR s.start_date <= ? )
-              AND ( ?::timestamp IS NULL OR s.cancel_date IS NULL OR s.cancel_date >= ? )
+              AND ( ?::timestamp IS NULL OR s.start_date AT TIME ZONE 'UTC-3' <= ? )
+              AND ( ?::timestamp IS NULL OR s.cancel_date IS NULL OR s.cancel_date AT TIME ZONE 'UTC-3' >= ? )
         )
         SELECT COALESCE(ROUND(SUM(COALESCE(fd.value_liquid, 0))::numeric, 2), 0) AS total_donation_liquid
               ,COALESCE(ROUND(SUM(fd.value)::numeric, 2), 0) AS total_donation
@@ -37,8 +37,8 @@ public class StatisticsQueryBuilder {
                   ,COALESCE(ROUND(SUM(d.value)::numeric, 2), 0) AS total_donation
             FROM donation d
             INNER JOIN payment p ON p.donation_id = d.id AND p.status = 'PAID'
-            WHERE (?::timestamp IS NULL OR d.donation_at >= ?)
-              AND (?::timestamp IS NULL OR d.donation_at <= ?)
+            WHERE (?::timestamp IS NULL OR d.donation_at AT TIME ZONE 'UTC-3' >= ?)
+              AND (?::timestamp IS NULL OR d.donation_at AT TIME ZONE 'UTC-3' <= ?)
             """;
 
     public static final String GET_DONATIONS_BY_MONTH = """
@@ -48,8 +48,8 @@ public class StatisticsQueryBuilder {
                   ,COALESCE(SUM(d.value), 0) AS total_value
             FROM donation d
             INNER JOIN payment p ON p.donation_id = d.id AND p.status = 'PAID'
-            WHERE (?::timestamp IS NULL OR d.donation_at >= ?)
-              AND (?::timestamp IS NULL OR d.donation_at <= ?)
+            WHERE (?::timestamp IS NULL OR d.donation_at AT TIME ZONE 'UTC-3' >= ?)
+              AND (?::timestamp IS NULL OR d.donation_at AT TIME ZONE 'UTC-3' <= ?)
             GROUP BY TO_CHAR(d.donation_at, 'YYYY-MM'), donation_type
             ORDER BY period;
             """;
@@ -61,8 +61,8 @@ public class StatisticsQueryBuilder {
                   ,COALESCE(SUM(d.value), 0) AS total_value
             FROM donation d
             INNER JOIN payment p ON p.donation_id = d.id AND p.status = 'PAID'
-            WHERE (?::timestamp IS NULL OR d.donation_at >= ?)
-              AND (?::timestamp IS NULL OR d.donation_at <= ?)
+            WHERE (?::timestamp IS NULL OR d.donation_at AT TIME ZONE 'UTC-3' >= ?)
+              AND (?::timestamp IS NULL OR d.donation_at AT TIME ZONE 'UTC-3' <= ?)
             GROUP BY TO_CHAR(d.donation_at, 'YYYY-MM-DD'), donation_type
             ORDER BY period
             """;
